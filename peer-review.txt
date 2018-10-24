@@ -13,7 +13,18 @@ $3 - Team Z - 100%
 
 
 $4 - Team M - 75%
-The prototype description is precise and conveniently divided into parts according to the functionality described. Each part is clearly presented and with a sufficient amount of details. The techniques and tools used are formatted into bullet points and separated into groups for collaboration, application tools and libraries and APIs. There is an extensive list of tools used, therefore some are not properly described and not all tools purpose is clear. Relative statistics section contains only a graph of lines of code committed during the assignment period and the total number of files. Statistics section could have been expanded to accommodate third-party code statistics as well as what part of the code was the front-end and back-end code. Relevant statistics displaying time spent on particular parts would have been beneficial. Design decisions are well explained, although some implementation decisions are explained in too much detail as others are rather vague. The critical evaluation section is good as it covers design, project development and future work. Project limitations are explained well with some solutions suggested to them. The use of coding standards is also mentioned. Overall, some parts of the report could have been rephrased in a more formal style.
+The prototype description is precise and conveniently divided into parts according to the functionality described. 
+Each part is clearly presented and with a sufficient amount of details. The techniques and tools used are formatted 
+into bullet points and separated into groups for collaboration, application tools and libraries and APIs. There is 
+an extensive list of tools used, therefore some are not properly described and not all tools purpose is clear. 
+Relative statistics section contains only a graph of lines of code committed during the assignment period and the 
+total number of files. Statistics section could have been expanded to accommodate third-party code statistics as 
+well as what part of the code was the front-end and back-end code. Relevant statistics displaying time spent on 
+particular parts would have been beneficial. Design decisions are well explained, although some implementation 
+decisions are explained in too much detail as others are rather vague. The critical evaluation section is good as it
+covers design, project development and future work. Project limitations are explained well with some solutions 
+suggested to them. The use of coding standards is also mentioned. Overall, some parts of the report could have been 
+rephrased in a more formal style.
 
 
 $5 - Team ? - 100%
