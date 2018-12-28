@@ -18,6 +18,9 @@ def join_room(room_number):
 
 @app.route('/enqueue-song/<room_number>', methods=['POST'])
 def enqueue_song(room_number):
+    data = request.json
+    if (data['url'] is not None and data['name'] is not None):
+        result = router.enqueue_song(room_number, data['url'], data['name'])
     return room_number
 
 @app.route('/dequeue-song/<room_number>', methods=['POST'])
@@ -26,7 +29,7 @@ def dequeue_song(room_number):
 
 @app.route('/create/<room_number>', methods=['POST'])
 def create_room(room_number):
-    return room_number
+    return router.create_room(room_number)
 
 @app.route('/delete/<room_number>', methods=['POST'])
 def delete_room(room_number):
