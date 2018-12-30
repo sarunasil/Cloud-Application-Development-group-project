@@ -100,17 +100,19 @@ def dequeue_song(room_number):
     if 'url' in data:
         url = data['url']
         name = None if 'name' not in data else data['name']
-        result, history, queue, message = router.dequeue_song(room_number, url, name)
+        result, history, queue, song, message = router.dequeue_song(room_number)
         if result:
             return Response.responseSuccess({
                 'history': history,
                 'queue': queue,
+                'song': song,
                 'message': 'Song has been dequeued successfully'
             })
         else:
             return Response.responseFailure({
                 'history': history,
                 'queue': queue,
+                'song': song,
                 'message': message
             })
 

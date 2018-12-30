@@ -42,12 +42,33 @@ class DBUtils:
                 config.MONGODB_CONFIG['URL'])
 
         db = client.pymongo_test
-        updated_queue = {
+        updated_fields = {
             'queue': queue
         }
 
-        db.rooms.update({'_id': room_number}, {'$set': updated_queue})
+        # if head is empty
+        if len(queue.keys()) == 1:
+            for x in queue.keys():
+                updated_fields['head'] = {
+                    x: queue[x]
+                }
+
+        db.rooms.update({'_id': room_number}, {'$set': updated_fields})
         return True, queue
+
+    @staticmethod
+    def get_head(room_number):
+        fields = [
+            'head',
+        ]
+
+        result = DBUtils.get_fields(room_number, fields)
+
+        if result.count() == 0:
+            return None
+
+        song = None if 'head' not in result[0] else result[0]['head']
+        return song
 
     @staticmethod
     def get_master(room_number):
@@ -126,3 +147,18 @@ class DBUtils:
         write_result = db.rooms.update({'_id': room_number}, {'$set': updated_fields})
         is_successful = write_result['nModified'] == 1
         return is_successful, history, queue
+
+    @staticmethod
+    def update_head(room_number, song):
+        client = pymongo.MongoClient(
+            config.MONGODB_CONFIG['URL'])
+
+        db = client.pymongo_test
+        updated_fields = {
+            'head': song
+        }
+
+        write_result = db.rooms.update({'_id': room_number}, {'$set': updated_fields})
+        is_successful = write_result['nModified'] == 1
+        return is_successful, song
+
