@@ -2,6 +2,12 @@ from utils.Response import Response
 from utils.DatabaseUtilities import DBUtils
 
 class Router:
+    """
+    Hides all API actions complexity from main.py
+
+    
+    """
+    
     def __init__(self, room_keeper):
         self.room_keeper = room_keeper
 

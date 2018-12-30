@@ -47,3 +47,7 @@ jspm_packages
 
 # Custom
 config.py
+#virtualenv
+/apienv
+#pycache
+**/__pycache__
