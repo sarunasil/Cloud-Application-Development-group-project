@@ -1,0 +1,35 @@
+{
+    "queue": {
+        "_id": { // _id is primary key
+            "queue": {
+                "song_url_id": {
+                    "name": "Song name",
+                    "score": 10
+                }
+            }, 
+            "history": {
+                "played_song_url_id": {
+                    "name": "This song has been dequeued, played and added",
+                    "score": 15 // not really useful
+                }
+            },
+            "master": "UserIdOfMaster",
+            "head": {
+                "song_url_id": {
+                    "score": 10, 
+                    "name": "Song name"
+                }
+            },
+            "searchToken": "Token",
+            "accessToken": "Token",
+            "users": {
+                "first_user_id": {
+                    "upvoted_song_url": 1 // dummy value, better than list in terms of time complexity (worse space complexity, however)
+                }
+            }
+        }, 
+        "room_two_id": {
+
+        }
+    }
+}
