@@ -6,6 +6,18 @@ import PeasantRoom from './PeasantRoom'
 import MasterRoom from './MasterRoom'
 import Callback from './Callback'
 import {withCookies} from 'react-cookie';
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faIgloo } from '@fortawesome/free-solid-svg-icons'
+import { faPlayCircle } from '@fortawesome/free-solid-svg-icons'
+import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
+import { faPlusSquare } from '@fortawesome/free-solid-svg-icons'
+import { faSearch } from '@fortawesome/free-solid-svg-icons'
+
+library.add(faPlayCircle)
+library.add(faTrashAlt)
+library.add(faPlusSquare)
+library.add(faSearch)
 
 class App extends Component {
     constructor(props) {

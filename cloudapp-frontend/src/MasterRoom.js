@@ -1,3 +1,4 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React, {Component} from 'react';
 import SpotifyWebApi from 'spotify-web-api-node';
 import './App.css';
@@ -7,6 +8,7 @@ import searchYouTube from 'youtube-api-search';
 import SpotifyPlayer from 'react-spotify-player';
 import YouTube from 'react-youtube';
 import { Button, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 
 var scopes = ['user-modify-playback-state', 'user-read-currently-playing', 'app-remote-control', 'streaming', 'user-read-playback-state'],
@@ -27,7 +29,7 @@ const view = 'list'; // or 'coverart'
 const theme = 'black'; // or 'white'
 const youtubeOptions = {
     height: '390',
-    width: '100%',
+    width: '30%',
     playerVars: { // https://developers.google.com/youtube/player_parameters
         autoplay: 1
     }
@@ -209,18 +211,23 @@ class MasterRoom extends Component {
     render() {
         return (
             <div >
-                <SplitterLayout>
+
+
                     <div>
-                        <h1>THis is master room</h1>
-                        <Button onClick={this.addSpotify}>Add Spotify</Button>
+                        <nav className="navbar navbar-light bg-light justify-content-between">
+                            <a className="navbar-brand">This is master</a>
+                            <form className="form-inline" onSubmit={this.handleSubmit}>
+                                <input className="form-control mr-sm-2" type="search" placeholder="Look up song"
+                                       aria-label="Search" value={this.state.value} onChange={this.handleChange}></input>
+                                    <button className="btn btn-outline-success my-2 my-sm-0" type="submit"><FontAwesomeIcon icon="search"/>
+                                    </button>
+                            </form>
+                        </nav>
+                        <button type="button" className="btn btn-outline-success" onClick={this.addSpotify}>Connect Spotify</button>
+
+
                         {this.renderPlayer()}
-                        <form onSubmit={this.handleSubmit}>
-                            <label>
-                                Song name:
-                                <input type="text" value={this.state.value} onChange={this.handleChange} />
-                            </label>
-                            <input type="submit" value="Submit" />
-                        </form>
+
 
                         <ListGroup>
                             {this.renderSearch()}
@@ -230,7 +237,7 @@ class MasterRoom extends Component {
                     <div>
                         {this.renderSongs()}
                     </div>
-                </SplitterLayout>
+
 
             </div>
         );
@@ -241,6 +248,8 @@ class MasterRoom extends Component {
         var searchResults = this.state.searchResults;
         return searchResults.map(
             (song, i) =>
+
+
                 <ListGroupItem key = {i}>
                     { !song.link.startsWith('spotify:') &&
                     <img src={require('./youtubeLogo.png')} width="50" height="50"/>
@@ -248,10 +257,8 @@ class MasterRoom extends Component {
                     {  song.link.startsWith('spotify:') &&
                     <img src={require('./spotifyLogo.png')} width="50" height="50"/>
                     }
-                    <Button bsStyle="primary" onClick={() => this.addSongToQueue(i)}>
-                        Add to queue
-                    </Button>
                     {song.name}
+                    <button type="button" className="btn btn-primary" onClick={() => this.addSongToQueue(i)}><FontAwesomeIcon icon="plus-square"/></button>
                 </ListGroupItem>
         );}
 
@@ -313,19 +320,19 @@ class MasterRoom extends Component {
             (song, i) =>
                 <ListGroupItem key = {i}>
                     { !song.link.startsWith('spotify:') &&
-                    <img src={require('./youtubeLogo.png')} width="50" height="50"/>
+                    <img src={require('./youtubeLogo.png')} width="50" height="40"/>
                     }
                     {  song.link.startsWith('spotify:') &&
-                    <img src={require('./spotifyLogo.png')} width="50" height="50"/>
+                    <img src={require('./spotifyLogo.png')} width="40" height="40"/>
                     }
-                    <Button bsStyle="primary" onClick={() => this.playSong(i)}>
-                        Play
-                    </Button>
+                    <span> </span>
                     {song.name}
                     <span> </span> Votes: {song.votes}
-                    <Button bsStyle="primary" onClick={() => this.removeSong(i)}>
-                        Remove
-                    </Button>
+                    <span> </span>
+                    <button type="button" className="btn btn-success" onClick={() => this.playSong(i)}> <FontAwesomeIcon icon="play-circle"/></button>
+                    <span> </span>
+                    <button type="button" className="btn btn-danger" onClick={() => this.removeSong(i)}><FontAwesomeIcon icon="trash-alt"/></button>
+
                 </ListGroupItem>
         );}
 
