@@ -3,19 +3,14 @@ chardet==3.0.4
 Click==7.0
 Flask==0.11.1
 gunicorn==19.6.0
-<<<<<<< HEAD
 Spotipy==2.4.4
 pymongo==3.7.2
 pythonic-data-structures
-=======
 idna==2.8
 itsdangerous==1.1.0
 Jinja2==2.10
 MarkupSafe==1.1.0
 pkg-resources==0.0.0
-pymongo==3.7.2
 requests==2.21.0
-spotipy==2.4.4
 urllib3==1.24.1
 Werkzeug==0.14.1
->>>>>>> 04523d7e777c246dcfe55295f3a3377fd63b0717
