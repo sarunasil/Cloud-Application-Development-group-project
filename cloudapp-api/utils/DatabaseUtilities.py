@@ -1,25 +1,53 @@
 import config
 import pymongo
+import bson
+from enum import Enum
+
+class Purpose(Enum):
+    ROOM = 1
+    USER = 2
 
 # Helper class for managing with Database interactions
 # IMPORTANT: Every query to the database shall occur from here as an exit point of the app (exit in terms that MongoDB database is in Mongo Atlas Cloud)
 class DBUtils:
     @staticmethod
+    def generateUniqueId(purpose, room_id=None, client=None):
+        '''
+        Generates a unique identifier using ObjectId - same as MongoDb auto-assigned _id
+
+        :param purpose: one of Purpose Enum value
+
+        :return unique ObjectId object
+        '''
+
+        id = "";
+        while True:
+            #generate unique id
+            id = bson.ObjectId();
+
+            #check if id is already used
+            if purpose == Purpose.ROOM:
+                existing_id = DBUtils.get_room(id, client)
+            elif purpose == Purpose.USER and room_id is not None:
+                existing_id = DBUtils.get_user(id, room_id, client)
+            else:#this is expected to fire if generating id for party master
+                break;
+
+            # repeat while Id is unique
+            if existing_id is None:
+                break;
+        return id;
+
+    @staticmethod
     def create_room(room):
         client = pymongo.MongoClient(config.MONGODB_CONFIG['URL'])
-        existing_room = DBUtils.get_room(room['id'], client)
-
-        # room with this ID already exists
-        if existing_room is not None:
-            return False, None
 
         db = client.pymongo_test
-        room['_id'] = room['id']
         try:
             db.rooms.insert_one(room)
         except pymongo.errors.DuplicateKeyError:
             return False, None
-        return True, room
+        return True
 
     @staticmethod
     def get_room(room_number, client=None):
@@ -34,6 +62,55 @@ class DBUtils:
             return None
 
         return room[0]
+
+
+    @staticmethod
+    def add_member(room_number, token, client=None):
+        if client is None:
+            client = pymongo.MongoClient(
+                config.MONGODB_CONFIG['URL'])
+
+        db = client.pymongo_test
+
+        updated_fields = {
+            userId: queue
+        }
+
+        # db.rooms.update({'_id': room_number}, {'$set': updated_fields})
+        # return True, queue
+
+
+        # db = client.pymongo_test
+        # room['_id'] = room['id']
+        # try:
+        #     db.rooms.insert_one(room)
+        # except pymongo.errors.DuplicateKeyError:
+        #     return False, None
+
+
+    @staticmethod
+    def get_user(userId, roomId, client=None):
+        '''
+        :param userId: user id to search for
+        :param roomId: room id to search in
+
+        :return: user object of a specific room if exists, else - None
+        '''
+
+        if client is None:
+            client = pymongo.MongoClient(
+                config.MONGODB_CONFIG['URL'])
+
+        db = client.pymongo_test
+
+        room = db.rooms.find({'_id': room_number})
+        if room.count() != 1:
+            return None
+
+        users = room.get('users')
+        if users is not None:
+            return users.get(userId);
+        return None
 
     @staticmethod
     def enqueue_song(room_number, queue, client=None):

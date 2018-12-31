@@ -1,4 +1,7 @@
+import hashlib
+import secrets
 
+PEPPER = "XqM7PSC7iPSJVGYBESgiduinDBNmFOKqRbLSvYUYl38nyWX2Npy1cY275KIe5pbIcoj2U0NuBQwMzaIxsC1rkF8NVVfzU2b6EO6n40uFltehxFAzPUmsrqvCFf28Viae"
 
 #define pepper as constant value here
 class SecurityUtils:
@@ -8,41 +11,54 @@ class SecurityUtils:
     """
 
     @staticmethod
-    def generateIdToken(userId):
-        """
-        Generate a token to uniquely identify a user
+    def generateToken(length=32):
+        '''
+        Generates a unique string
+        '''
+        return secrets.token_hex(length);
 
-        generates a user secret which is saved in the database and 
-        computes the user token using 'id+':'+random_secret+':'+hash(pepper+id+':'+random_secret)
+    @staticmethod
+    def generateCookie(userId, token):
+        """
+        Generate a cookie to uniquely identify a user
+
+        computes the user cookie using 'id+':'+token+':'+hash(pepper+id+':'+token)
 
         :param userId: user id used to refer to the user
 
-        :returns: 2 values - user secret, whole token 
+        :returns: user cookie 
         """
 
-        return ""
+        global PEPPER
+        hash = hashlib.sha256()
+        hash.update((PEPPER+":"+userId+":"+token).encode('utf-8'))
+
+        return userId+":"+token+":"+hash.hexdigest()
 
     @staticmethod
-    def saveUser(userId, userSecret):
+    def saveUser(userId):
         """
         Registers the user in the database as a unique party member
+        Saves as key-value pair: userId - token
 
-        :param userId: user id used to refer to the user
-        :param userSecret: computed user unique secret
+        :param userId: 
 
-        :returns: success/failure @add format
+        :returns: token
         """
 
-        #will call a DatabaseUtilities method to interact with db for real
+        token = generateToken()
 
-        return ""
+        #save userId-token in nosql
+
+        return token
 
     @staticmethod
-    def checkUser(userToken):
+    def checkUser(roomId, cookie):
         """
         Checks if a given userToken represents an legitimate party room member
 
-        :param userToken: value saved on the user device in a cookie
+        :param roomId: room of which the user supposedly belongs to
+        :param cookie: value saved on the user device in a cookie
 
         :returns: if verified - success, else - failure
         """

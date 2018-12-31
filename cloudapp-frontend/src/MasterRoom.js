@@ -28,8 +28,8 @@ const size = {
 const view = 'list'; // or 'coverart'
 const theme = 'black'; // or 'white'
 const youtubeOptions = {
-    height: '390',
-    width: '30%',
+    height: '500',
+    width: '100%',
     playerVars: { // https://developers.google.com/youtube/player_parameters
         autoplay: 1
     }
@@ -210,36 +210,37 @@ class MasterRoom extends Component {
 
     render() {
         return (
-            <div >
 
-
-                    <div>
-                        <nav className="navbar navbar-light bg-light justify-content-between">
-                            <a className="navbar-brand">This is master</a>
+            <div className="container-fluid">
+                <div className="row">
+                    <div className="col">
+                        <nav className="navbar navbar-dark bg-dark justify-content-between">
+                            <a className="navbar-brand" style={{color:"white"}}>This is master</a>
                             <form className="form-inline" onSubmit={this.handleSubmit}>
                                 <input className="form-control mr-sm-2" type="search" placeholder="Look up song"
-                                       aria-label="Search" value={this.state.value} onChange={this.handleChange}></input>
-                                    <button className="btn btn-outline-success my-2 my-sm-0" type="submit"><FontAwesomeIcon icon="search"/>
-                                    </button>
+                                       aria-label="Search" value={this.state.value} onChange={this.handleChange} style={{ width:"300px" }}></input>
+                                <button className="btn btn-outline-success my-2 my-sm-0" type="submit"><FontAwesomeIcon icon="search"/>
+                                </button>
+                                <span> &nbsp;</span>
+                                <div className="float-right"><button type="button" className="btn btn-success"  onClick={this.addSpotify}>Add<br/>
+                                    Spotify</button></div>
                             </form>
                         </nav>
-                        <button type="button" className="btn btn-outline-success" onClick={this.addSpotify}>Connect Spotify</button>
-
-
-                        {this.renderPlayer()}
-
-
-                        <ListGroup>
-                            {this.renderSearch()}
-                        </ListGroup>
                     </div>
-
-                    <div>
-                        {this.renderSongs()}
+                </div>
+                <div className="row">
+                    <div className="col">{this.renderPlayer()}</div>
+                </div>
+                <div className="row">
+                    <div className="col-4">{this.renderSongs()}</div>
+                    <div className="col-8">
+                        <ul className="list-group" style={{align:"left"}}>
+                        {this.renderSearch()}
+                        </ul>
                     </div>
-
-
+                </div>
             </div>
+
         );
     }
 
@@ -250,16 +251,23 @@ class MasterRoom extends Component {
             (song, i) =>
 
 
-                <ListGroupItem key = {i}>
-                    { !song.link.startsWith('spotify:') &&
-                    <img src={require('./youtubeLogo.png')} width="50" height="50"/>
+
+                    <li style={{border:"0"}} className="list-group-item" key = {i}  >
+
+
+                        { !song.link.startsWith('spotify:') &&
+                    <img src={require('./youtubeLogo.png')} width="50" height="40"/>
                     }
-                    {  song.link.startsWith('spotify:') &&
-                    <img src={require('./spotifyLogo.png')} width="50" height="50"/>
-                    }
-                    {song.name}
-                    <button type="button" className="btn btn-primary" onClick={() => this.addSongToQueue(i)}><FontAwesomeIcon icon="plus-square"/></button>
-                </ListGroupItem>
+                        {  song.link.startsWith('spotify:') &&
+                        <img src={require('./spotifyLogo.png')} width="40" height="40"/>
+                        }
+                        <span> </span>
+                        {song.name}
+                        <span> </span>
+                        <button type="button" className="btn btn-success" onClick={() => this.addSongToQueue(i)}><FontAwesomeIcon icon="plus-square"/></button>
+                        </li>
+
+
         );}
 
     // the songs played part ensures that the player gets refreshed at the end of a song
@@ -318,7 +326,7 @@ class MasterRoom extends Component {
         var currentSongsInQueue = this.state.queue;
         return currentSongsInQueue.map(
             (song, i) =>
-                <ListGroupItem key = {i}>
+                <li className="list-group-item" key = {i} style={{border:"0"}}>
                     { !song.link.startsWith('spotify:') &&
                     <img src={require('./youtubeLogo.png')} width="50" height="40"/>
                     }
@@ -333,7 +341,7 @@ class MasterRoom extends Component {
                     <span> </span>
                     <button type="button" className="btn btn-danger" onClick={() => this.removeSong(i)}><FontAwesomeIcon icon="trash-alt"/></button>
 
-                </ListGroupItem>
+                </li>
         );}
 
 }
