@@ -32,12 +32,12 @@ class Router:
 
 
         userId = DBUtils.generateUniqueId(Purpose.USER)
-        token = SecurityUtils.generateToken();
+        token = SecurityUtils.generateToken()
         cookie = SecurityUtils.generateCookie(userId, token)
 
         room_obj = {
             '_id': DBUtils.generateUniqueId(Purpose.ROOM),
-            'master': {userId:token},
+            'master': {userId: token},
             'SpotifySearchToken': '', # TODO - add script to acquire token
             'SpotifyAccessToken': '', # TODO - add script to acquire token
             'head': None,
@@ -45,12 +45,13 @@ class Router:
             'history': {}, # played songs
             'users': {},
         }
-        #cookie to identify the master
-        room_obj.update({'MasterCookie': cookie})
 
         #@think is it ok to return values as head, users, master, _id as those are not needed
 
         result = DBUtils.create_room(room_obj)
+
+        # cookie to identify the master
+        room_obj.update({'MasterCookie': cookie})
         if result:
             return True, room_obj, None
         else:
