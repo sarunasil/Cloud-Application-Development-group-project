@@ -1,5 +1,5 @@
 {
-    "queue": {
+    "rooms": {
         "_id": { // _id is primary key
             "queue": {
                 "song_url_id": {

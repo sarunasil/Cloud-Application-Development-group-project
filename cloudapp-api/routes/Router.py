@@ -1,6 +1,7 @@
 from utils.Response import Response
 from utils.DatabaseUtilities import DBUtils
 from utils.Security import SecurityUtils
+from DataStructures.AbstractDataStructures import DuplicatePriorityQueue
 
 class Router:
     """
@@ -48,7 +49,18 @@ class Router:
         }
 
         result, queue = DBUtils.enqueue_song(room['_id'], queue)
-        return result, queue
+        priority_queue = DuplicatePriorityQueue()
+        queue_list = []
+        if type(queue) is dict:
+            for x in queue.keys():
+                song = queue[x]
+                song['url'] = x
+                priority_queue.enqueue(queue[x], queue[x]['score'])
+
+            while len(priority_queue) > 0:
+                queue_list.append(priority_queue.dequeue())
+
+        return result, queue_list
 
     def dequeue_song(self, room_number, master_id=None):
         # TODO - change when master is known
@@ -63,43 +75,31 @@ class Router:
         #     return False, None, None, msg
 
         history, queue = DBUtils.get_all_songs(room_number)
-        song = DBUtils.get_head(room_number)
-        if song is not None:
-            for url in song.keys():
-                if url in queue:
-                    del queue[url]
-                    history[url] = song[url]
-                break
-            else:
-                msg = 'Song does not exist in queue'
-                return False, history, queue, song, msg
+        head_url = DBUtils.get_head(room_number)
+        song = {}
+        if head_url is not None:
+            if head_url in queue:
+                song = queue[head_url]
+                del queue[head_url]
+                history[head_url] = song
+                song['url'] = head_url
+        else:
+            msg = 'Song does not exist in queue'
+            return False, history, queue, None, msg
 
-        next_head = {
-            'name': '',
-            'score': -1,
-            'url': ''
-        }
+        next_head = None
         if len(queue.keys()) > 0:
             for x in queue.keys():
-                if queue[x]['score'] > next_head['score']:
-                    next_head = {
-                        'name': queue[x]['name'],
-                        'url': x,
-                        'score': queue[x]['score']
-                    }
-            next_head = {
-                next_head['url']: {
-                    'name': next_head['name'],
-                    'score': next_head['score']
-                }
-            }
-        else:
-            next_head = None
+                if next_head is None:
+                    next_head = x
+                    continue
+                if queue[x]['score'] > queue[next_head]['score']:
+                    next_head = x
 
-        is_successful, history, queue = DBUtils.update_song_lists(room_number, history, queue)
-        is_successful, updated_head = DBUtils.update_head(room_number, next_head)
+        is_successful_lists, history, queue = DBUtils.update_song_lists(room_number, history, queue)
+        is_successful_head, updated_head = DBUtils.update_head(room_number, next_head)
 
-        if is_successful:
+        if is_successful_lists:
             return True, history, queue, song, None
         else:
             msg = 'Something went wrong! please try again'

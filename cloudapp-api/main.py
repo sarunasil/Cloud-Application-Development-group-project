@@ -73,9 +73,15 @@ def enqueue_song(room_number):
         result, queue = router.enqueue_song(room_number, data['url'], data['name'])
 
         if result:
-            return Response.responseSuccess('Song has been enqueued!')
+            return Response.responseSuccess({
+                'queue': queue,
+                'msg': 'Song has been enqueued'
+            })
         else: 
-            return Response.responseFailure('Song was already enqueued!')
+            return Response.responseFailure({
+                'queue': queue,
+                'msg': 'Song was already enqueued'
+            })
 
     return Response.responseFailure('Song was not enqueued! Please enter url and name of the song!')
 
@@ -96,27 +102,21 @@ def dequeue_song(room_number):
     :returns: response message, either success or failure which holds queue and list with played songs, if a failure is returned, a message is also given both queue and history are dictionaries (json objects), where key is the url and value is a nested dictionary (object)
     """
 
-    data = request.json
-    if 'url' in data:
-        url = data['url']
-        name = None if 'name' not in data else data['name']
-        result, history, queue, song, message = router.dequeue_song(room_number)
-        if result:
-            return Response.responseSuccess({
-                'history': history,
-                'queue': queue,
-                'song': song,
-                'message': 'Song has been dequeued successfully'
-            })
-        else:
-            return Response.responseFailure({
-                'history': history,
-                'queue': queue,
-                'song': song,
-                'message': message
-            })
-
-    return Response.responseFailure('Song was not dequeued! Please enter url and name of the song!')
+    result, history, queue, song, message = router.dequeue_song(room_number)
+    if result:
+        return Response.responseSuccess({
+            'history': history,
+            'queue': queue,
+            'song': song,
+            'message': 'Song has been dequeued successfully'
+        })
+    else:
+        return Response.responseFailure({
+            'history': history,
+            'queue': queue,
+            'song': song,
+            'message': message
+        })
 
 # TODO - get a dictionary (json object) with pending songs (queue), where key is the URL and value is a nested dictionary (object)
 @app.route('/pending-songs/<room_number>', methods=['POST'])

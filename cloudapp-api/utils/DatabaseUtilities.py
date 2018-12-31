@@ -49,9 +49,7 @@ class DBUtils:
         # if head is empty
         if len(queue.keys()) == 1:
             for x in queue.keys():
-                updated_fields['head'] = {
-                    x: queue[x]
-                }
+                updated_fields['head'] = x
 
         db.rooms.update({'_id': room_number}, {'$set': updated_fields})
         return True, queue
@@ -68,6 +66,7 @@ class DBUtils:
             return None
 
         song = None if 'head' not in result[0] else result[0]['head']
+        print(result[0])
         return song
 
     @staticmethod
@@ -149,16 +148,16 @@ class DBUtils:
         return is_successful, history, queue
 
     @staticmethod
-    def update_head(room_number, song):
+    def update_head(room_number, url):
         client = pymongo.MongoClient(
             config.MONGODB_CONFIG['URL'])
 
         db = client.pymongo_test
         updated_fields = {
-            'head': song
+            'head': url
         }
 
         write_result = db.rooms.update({'_id': room_number}, {'$set': updated_fields})
         is_successful = write_result['nModified'] == 1
-        return is_successful, song
+        return is_successful, url
 
