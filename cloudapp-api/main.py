@@ -26,6 +26,23 @@ This is a reST style.
 
 '''
 
+#@I don't think front end will know the room number before the call. Would make more sense for backend to generate a random room identifier and return it if the rest. Saras
+@app.route('/create', methods=['POST'])
+def create_room():
+    """
+    Create a room with a given room ID (if this ID is not used yet)
+
+    Look at router.create_room for more detail
+    
+    :returns: response message, either success or failure which holds a room object
+    """
+
+    result, room, message = router.create_room()
+    if result:
+        return Response.responseSuccess({'room': room})
+    else:
+        return Response.responseFailure({'room': room, 'message': message})
+
 # TODO - Home page @this line should be removed right? Saras
 @app.route('/', methods=['GET'])
 def home():
@@ -127,35 +144,6 @@ def get_pending_songs(room_number):
 @app.route('/played-songs/<room_number>', methods=['POST'])
 def get_played_songs(room_number):
     return room_number
-
-#@I don't think front end will know the room number before the call. Would make more sense for backend to generate a random room identifier and return it if the rest. Saras
-@app.route('/create/<room_number>', methods=['POST'])
-def create_room(room_number):
-    """
-    Create a room with a given room ID (if this ID is not used yet)
-
-    Look at router.create_room for more detail
-
-    :param room_number: party room identifier
-    
-    :returns: response message, either success or failure which holds a room object
-    """
-
-    #@will be moved to router.create_room
-    # return: response message, either success or failure which holds a room object with the following fields:
-    # queue - dictionary/json object with pending songs
-    # history - dictionary/json object with played songs
-    # searchToken - search token (TODO)
-    # accessToken - access token (TODO)
-    # master - id of creator of room (TODO)
-    # users - list with user ids and their votes
-    # return json response with room if it's created, otherwise empty object and a failure message
-
-    result, room, message = router.create_room(room_number)
-    if result:
-        return Response.responseSuccess({'room': room})
-    else:
-        return Response.responseFailure({'room': room, 'message': message})
 
 # TODO - delete a room given its number and a cookie (with master ID)
 @app.route('/delete/<room_number>', methods=['POST'])

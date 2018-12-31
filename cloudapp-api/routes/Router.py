@@ -1,5 +1,6 @@
 from utils.Response import Response
 from utils.DatabaseUtilities import DBUtils
+from utils.DatabaseUtilities import Purpose
 from utils.Security import SecurityUtils
 
 class Router:
@@ -7,30 +8,74 @@ class Router:
     Hides all API actions complexity from main.py
     """
     
+    #AS SOON AS we make Router static,
+    #we will be able to separate this function cluster into xModerator.py files
+
     def __init__(self, room_keeper):
         self.room_keeper = room_keeper
 
-    def create_room(self, room_number):
+    def create_room(self):
+        '''
+
+        :return: if successful - True, room object; else - False, {}, message
+
+        # return: response message, either success or failure which holds a room object with the following fields:
+        # queue - dictionary/json object with pending songs
+        # history - dictionary/json object with played songs
+        # searchToken - search token (TODO)
+        # accessToken - access token (TODO)
+        # master - id of creator of room (TODO)
+        # users - list with user ids and their votes
+        # return json response with room if it's created, otherwise empty object and a failure message
+        '''
+
+
+        userId = DBUtils.generateUniqueId(Purpose.USER)
+        token = SecurityUtils.generateToken();
+        cookie = SecurityUtils.generateCookie(userId, token)
+
         room_obj = {
-            'id': room_number,
-            'searchToken': '', # TODO - add script to acquire token
-            'accessToken': '', # TODO - add script to acquire token
+            '_id': DBUtils.generateUniqueId(Purpose.ROOM),
+            'master': {userId:token},
+            'SpotifySearchToken': '', # TODO - add script to acquire token
+            'SpotifyAccessToken': '', # TODO - add script to acquire token
+            'head': None,
             'queue': {},
             'history': {}, # played songs
-            'users': [],
-            'head': None,
-            'master': '' # TODO - add master's URL
+            'users': {},
         }
+        #cookie to identify the master
+        room_obj.update({'MasterCookie': cookie})
 
-        result, room = DBUtils.create_room(room_obj)
+        #@think is it ok to return values as head, users, master, _id as those are not needed
+
+        result = DBUtils.create_room(room_obj)
         if result:
-            return True, room, None
+            return True, room_obj, None
         else:
-            msg = 'Room was not created, please try another ID'
+            msg = 'Room was not created'
             return False, {}, msg
 
     def join_room(self, room_number):
-        return Response.responseSuccess(room_number)
+        """
+        Register a new user
+
+        Generates users id, computes it's secret token, saves it in database
+
+        :param room_number:
+
+        :return: json{Status, [UserCookie]}
+        """
+
+        userId = DBUtils.generateUniqueId(Purpose.USER, room_number)
+
+        token = SecurityUtils.saveUser(userId);
+        if token:
+            #generate user identifiers
+            cookie = SecurityUtils.generateCookie(userId, token)
+            return Response.responseSuccess(room_number+" -> "+cookie)
+        else:
+            return Response.responseFailure("F");
 
     def enqueue_song(self, room_number, url, name):
         room = DBUtils.get_room(room_number)

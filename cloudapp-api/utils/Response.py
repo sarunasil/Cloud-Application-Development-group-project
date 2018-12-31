@@ -13,12 +13,14 @@ from flask import jsonify
 # fielid is a variable of any type (object, array, string, etc...), holds necessary data
 class Response:
     @staticmethod
-    def responseSuccess(msg=''):
+    def responseSuccess(msg='', value={}):
         res_message = 'Success' if msg == '' else msg
 
         response = {
             'success': res_message
         }
+
+        response = {**response, **value}
 
         return jsonify(response)
 
