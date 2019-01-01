@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from routes.Router import Router
 from models.RoomKeeper import RoomKeeper
 from utils.Response import Response
+from utils.TokenModerator import TokenModerator
 
 app = Flask(__name__)
 
@@ -161,6 +162,17 @@ def upvote_song(room_number):
 def downvote_song(room_number):
     return room_number
 
+# get the token that lets the frontend search through the spotify library
+# return: a string token
+@app.route('/', methods=['POST'])
+def get_client_credentials_token():
+    return TokenModerator.get_client_credentials_token()
+
+# token generated when a user has alawed our application to use their spotify data
+# return: a string token
+@app.route('/spotify', methods=['POST'])
+def get_auth_token(code):
+    return TokenModerator.get_auth_token(code)
 
 #start the application
 if __name__ == '__main__':
