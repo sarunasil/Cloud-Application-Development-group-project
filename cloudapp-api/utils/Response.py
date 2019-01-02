@@ -20,7 +20,7 @@ class Response:
             'success': res_message
         }
 
-        response = {**response, **value}
+        # response = {**response, **value}
 
         return jsonify(response)
 

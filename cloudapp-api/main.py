@@ -1,13 +1,10 @@
 from flask import Flask, request, jsonify
 from routes.Router import Router
-from models.RoomKeeper import RoomKeeper
 from utils.Response import Response
 from utils.TokenModerator import TokenModerator
 
 app = Flask(__name__)
 
-room_keeper = RoomKeeper()
-router = Router(room_keeper)
 
 '''
 A not about documentation:
@@ -38,7 +35,7 @@ def create_room():
     :returns: response message, either success or failure which holds a room object
     """
 
-    result, room, message = router.create_room()
+    result, room, message = Router.create_room()
     if result:
         return Response.responseSuccess({'room': room})
     else:
@@ -68,7 +65,7 @@ def join_room(room_number):
     :returns: ?
     """
 
-    return router.join_room(room_number)
+    return Router.join_room(room_number)
 
 @app.route('/enqueue-song/<room_number>', methods=['POST'])
 def enqueue_song(room_number):
@@ -88,7 +85,7 @@ def enqueue_song(room_number):
 
     data = request.json
     if 'url' in data and 'name' in data:
-        result, queue = router.enqueue_song(room_number, data['url'], data['name'])
+        result, queue = Router.enqueue_song(room_number, data['url'], data['name'])
 
         if result:
             return Response.responseSuccess({
@@ -120,7 +117,7 @@ def dequeue_song(room_number):
     :returns: response message, either success or failure which holds queue and list with played songs, if a failure is returned, a message is also given both queue and history are dictionaries (json objects), where key is the url and value is a nested dictionary (object)
     """
 
-    result, history, queue, song, message = router.dequeue_song(room_number)
+    result, history, queue, song, message = Router.dequeue_song(room_number)
     if result:
         return Response.responseSuccess({
             'history': history,

@@ -11,11 +11,8 @@ class Router:
     
     #AS SOON AS we make Router static,
     #we will be able to separate this function cluster into xModerator.py files
-
-    def __init__(self, room_keeper):
-        self.room_keeper = room_keeper
-
-    def create_room(self):
+    @staticmethod
+    def create_room():
         '''
 
         :return: if successful - True, room object; else - False, {}, message
@@ -58,7 +55,8 @@ class Router:
             msg = 'Room was not created'
             return False, {}, msg
 
-    def join_room(self, room_number):
+    @staticmethod
+    def join_room(room_number):
         """
         Register a new user
 
@@ -79,7 +77,8 @@ class Router:
         else:
             return Response.responseFailure("F");
 
-    def enqueue_song(self, room_number, url, name):
+    @staticmethod
+    def enqueue_song(room_number, url, name):
         room = DBUtils.get_room(room_number)
         queue = room['queue']
 
@@ -108,7 +107,8 @@ class Router:
 
         return result, queue_list
 
-    def dequeue_song(self, room_number, master_id=None):
+    @staticmethod
+    def dequeue_song(room_number, master_id=None):
         # TODO - change when master is known
         original_master = ''
         master_id='test'
@@ -151,7 +151,8 @@ class Router:
             msg = 'Something went wrong! please try again'
             return False, history, queue, song, msg
 
-    def remove_song(self, room_number, url, name=None, master_id=None):
+    @staticmethod
+    def remove_song(room_number, url, name=None, master_id=None):
         # TODO - change when master is known
         original_master = ''
         master_id='test'
@@ -178,17 +179,22 @@ class Router:
             msg = 'Something went wrong! please try again'
             return False, history, queue, msg
 
-    def pending_songs(self, room_number):
+    @staticmethod
+    def pending_songs(room_number):
         return
 
-    def played_songs(self, room_number):
+    @staticmethod
+    def played_songs(room_number):
         return
 
-    def upvote_song(self, room_number, url):
+    @staticmethod
+    def upvote_song(room_number, url):
         return Response.responseSuccess(room_number)
 
-    def downvote_song(self, room_number, url):
+    @staticmethod
+    def downvote_song(room_number, url):
         return Response.responseSuccess(room_number)
 
-    def delete_room(self, room_number, url):
+    @staticmethod
+    def delete_room(room_number, url):
         return Response.responseSuccess(room_number)
