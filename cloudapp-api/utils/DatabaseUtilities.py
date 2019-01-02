@@ -104,7 +104,7 @@ class DBUtils:
 
         db = client.pymongo_test
 
-        room = db.rooms.find({'_id': room_number})
+        room = db.rooms.find({'_id': roomId})
         if room.count() != 1:
             return None
 
