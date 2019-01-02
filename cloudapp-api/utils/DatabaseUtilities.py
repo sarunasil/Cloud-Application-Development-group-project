@@ -17,7 +17,7 @@ class DBUtils:
 
         :param purpose: one of Purpose Enum value
 
-        :return unique ObjectId object
+        :return unique ObjectId string
         '''
 
         id = "";
@@ -36,7 +36,7 @@ class DBUtils:
             # repeat while Id is unique
             if existing_id is None:
                 break;
-        return id;
+        return str(id);
 
     @staticmethod
     def create_room(room):
@@ -58,7 +58,8 @@ class DBUtils:
         db = client.pymongo_test
 
         room = db.rooms.find({'_id': room_number})
-        if room.count() != 1:
+        
+        if room is not None and  room.count() != 1:
             return None
 
         return room[0]

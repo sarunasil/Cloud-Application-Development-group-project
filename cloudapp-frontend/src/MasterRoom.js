@@ -1,4 +1,4 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
+//import 'bootstrap/dist/css/bootstrap.min.css';
 import React, {Component} from 'react';
 import SpotifyWebApi from 'spotify-web-api-node';
 import './App.css';
@@ -69,6 +69,9 @@ class MasterRoom extends Component {
     }
 
     componentDidMount(){
+        if(this.props.cookies.get('accessToken')){
+            spotifyApi.setAccessToken(this.props.cookies.get('accessToken'));
+        }
         //TODO: use roomId to retrieve data : queue, search/access token for spotify/YT
     }
 
@@ -171,7 +174,8 @@ class MasterRoom extends Component {
         this.setState({value: event.target.value});
     }
 
-    handleSubmit(event) {
+    //search
+    async handleSubmit(event) {
         event.preventDefault();
         var ytResults;
         searchYouTube({key: this.state.youtubeAppToken, term: this.state.value, maxResults: 6}, (videos) => {
@@ -193,7 +197,36 @@ class MasterRoom extends Component {
             this.setState({searchResults: newEntryList});
         });
         // add after spotify search
+
+        if(this.props.cookies.get('accessToken')){
+             console.log(this.props.cookies.get('accessToken'));
+             console.log(spotifyApi.getAccessToken());
+             var tracksCompleteResponse  = await spotifyApi.searchTracks(this.state.value, {limit: 6});
+             var cnt;
+             var tracks = [];
+             console.log(tracksCompleteResponse);
+             console.log(tracksCompleteResponse.body.tracks);
+             for(cnt=0; cnt < tracksCompleteResponse.body.tracks.items.length; cnt++){
+                var track = tracksCompleteResponse.body.tracks.items[cnt];
+                 var newTrack = {
+                     name: "",
+                     link: "",
+                     time: 0,
+                 }
+                 newTrack.name  = track.name;
+                 newTrack.link = track.uri;
+                 newTrack.time = track.duration_ms;
+                 tracks.push(newTrack);
+             }
+
+            this.setState({
+                searchResults: tracks.concat(this.state.searchResults)
+            });
+             console.log(this.state.searchResults);
+        }
     }
+
+
 
     addSongToQueue(position) {
         var currentSong = {

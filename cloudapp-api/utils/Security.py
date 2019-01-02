@@ -31,9 +31,9 @@ class SecurityUtils:
 
         global PEPPER
         hash = hashlib.sha256()
-        hash.update((PEPPER+":"+userId+":"+token).encode('utf-8'))
+        hash.update((PEPPER+":"+str(userId)+":"+token).encode('utf-8'))
 
-        return userId+":"+token+":"+hash.hexdigest()
+        return str(userId)+":"+token+":"+hash.hexdigest()
 
     @staticmethod
     def saveUser(userId):
