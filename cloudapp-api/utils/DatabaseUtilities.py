@@ -18,6 +18,8 @@ class DBUtils:
         :param purpose: one of Purpose Enum value
 
         :return unique ObjectId string
+
+        :Exception ValueError: if room with roomId does not exist. 
         '''
 
         id = "";
@@ -25,18 +27,19 @@ class DBUtils:
             #generate unique id
             id = bson.ObjectId();
 
+            existing_id = ""
             #check if id is already used
             if purpose == Purpose.ROOM:
                 existing_id = DBUtils.get_room(id, client)
             elif purpose == Purpose.USER and room_id is not None:
-                existing_id = DBUtils.get_user(id, room_id, client)
+                existing_id = DBUtils.get_member(id, room_id, client)
             else:#this is expected to fire if generating id for party master
                 break;
 
             # repeat while Id is unique
             if existing_id is None:
-                break;
-        return str(id);
+                break
+        return str(id)
 
     @staticmethod
     def create_room(room):
@@ -64,38 +67,46 @@ class DBUtils:
 
         return room[0]
 
-
     @staticmethod
-    def add_member(room_number, token, client=None):
+    def add_member(roomId, user, client=None):
         if client is None:
             client = pymongo.MongoClient(
                 config.MONGODB_CONFIG['URL'])
 
         db = client.pymongo_test
 
-        updated_fields = {
-            userId: queue
-        }
+        with client.start_session() as s:
+            s.start_transaction()
 
-        # db.rooms.update({'_id': room_number}, {'$set': updated_fields})
-        # return True, queue
+            #break after first result. As it's unique, there should only be one
+            users = '';
+            for r in db.rooms.find( {'_id': roomId}, {"users": 1} ):
+                users = r['users'];
+                break
 
+            if users != '' and  list(user.keys())[0] not in users:
+                users = {**users, **user}
+            else:
+                s.commit_transaction()
+                return False
 
-        # db = client.pymongo_test
-        # room['_id'] = room['id']
-        # try:
-        #     db.rooms.insert_one(room)
-        # except pymongo.errors.DuplicateKeyError:
-        #     return False, None
+            result = db.rooms.update(
+                { '_id': roomId },
+                { '$set': {'users': users} }
+            )
+            s.commit_transaction()
 
+        return True
 
     @staticmethod
-    def get_user(userId, roomId, client=None):
+    def get_member(userId, roomId, client=None):
         '''
         :param userId: user id to search for
         :param roomId: room id to search in
 
         :return: user object of a specific room if exists, else - None
+
+        :Exception ValueError: if room with roomId does not exist. 
         '''
 
         if client is None:
@@ -104,14 +115,11 @@ class DBUtils:
 
         db = client.pymongo_test
 
-        room = db.rooms.find({'_id': room_number})
-        if room.count() != 1:
-            return None
+        #return first result. As it's unique, there should only be one
+        for r in db.rooms.find({'_id': roomId, 'users': userId}):
+            return r;
 
-        users = room.get('users')
-        if users is not None:
-            return users.get(userId);
-        return None
+        return None; # no results found
 
     @staticmethod
     def enqueue_song(room_number, queue, client=None):

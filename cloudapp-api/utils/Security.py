@@ -36,23 +36,6 @@ class SecurityUtils:
         return str(userId)+":"+token+":"+hash.hexdigest()
 
     @staticmethod
-    def saveUser(userId):
-        """
-        Registers the user in the database as a unique party member
-        Saves as key-value pair: userId - token
-
-        :param userId: 
-
-        :returns: token
-        """
-
-        token = generateToken()
-
-        #save userId-token in nosql
-
-        return token
-
-    @staticmethod
     def checkUser(roomId, cookie):
         """
         Checks if a given userToken represents an legitimate party room member

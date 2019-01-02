@@ -26,8 +26,17 @@ This is a reST style.
 
 '''
 
-#@I don't think front end will know the room number before the call. Would make more sense for backend to generate a random room identifier and return it if the rest. Saras
-@app.route('/create', methods=['POST'])
+@app.route('/', methods=['GET'])
+def home():
+    """
+    Home page message
+
+    :returns: Welcome string
+    """
+    
+    return Response.responseSuccess('Welcome to NQMe! Please enter your room number')
+
+@app.route('/', methods=['POST'])
 def create_room():
     """
     Create a room with a given room ID (if this ID is not used yet)
@@ -43,19 +52,8 @@ def create_room():
     else:
         return Response.responseFailure({'room': room, 'message': message})
 
-# TODO - Home page @this line should be removed right? Saras
-@app.route('/', methods=['GET'])
-def home():
-    """
-    Home page message
 
-    :returns: Welcome string
-    """
-    
-    return Response.responseSuccess('Welcome to NQMe! Please enter your room number')
-
-# TODO - user joins a room and is returned a party peasant identifier (which will be saved in a cookie as well)
-@app.route('/<room_number>', methods=['GET'])
+@app.route('/<room_number>', methods=['POST'])
 def join_room(room_number):
     """
     Joins an existing party room

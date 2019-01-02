@@ -69,15 +69,27 @@ class Router:
         :return: json{Status, [UserCookie]}
         """
 
-        userId = DBUtils.generateUniqueId(Purpose.USER, room_number)
+        result = "-> "
+        #get unique ID
+        try:
+            userId = DBUtils.generateUniqueId(Purpose.USER, room_number)
+            result = userId
+        except ValueError as error:
+            return Response.responseFailure("Room does not exist");
+        token = SecurityUtils.generateToken()
 
-        token = SecurityUtils.saveUser(userId);
-        if token:
+        user = {
+            userId: {}
+        }
+        #save in database
+        result = DBUtils.add_member(room_number, user)
+
+        if result:
             #generate user identifiers
             cookie = SecurityUtils.generateCookie(userId, token)
-            return Response.responseSuccess(room_number+" -> "+cookie)
+            return Response.responseSuccess( {"UserCookie":cookie, "UserId":userId} )
         else:
-            return Response.responseFailure("F");
+            return Response.responseFailure("Failed to add new party member");
 
     def enqueue_song(self, room_number, url, name):
         room = DBUtils.get_room(room_number)
