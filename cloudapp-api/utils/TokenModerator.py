@@ -1,4 +1,4 @@
-
+import config
 
 '''
 This set of functions deals with:
@@ -14,12 +14,12 @@ import base64
 class TokenModerator:
     # static variables
     # these CLIENT_ID an SECRET should be environment variables... not HARDCODED
-    CLIENT_ID = "7834a35c34f349d2838163f6479d51d6"
-    CLIENT_SECRET = "a5a5bef873554b9fae7a8ba1a9940b9d"
+    CLIENT_ID = config.TOKEN_KEYS['CLIENT_ID']
+    CLIENT_SECRET = config.TOKEN_KEYS['CLIENT_SECRET']
 
     redirect_uri = "https://google.com"
     scopes = "user-read-private"
-    concat = CLIENT_ID + ":" + CLIENT_SECRET
+    concat = config.TOKEN_KEYS['CLIENT_ID'] + ":" + config.TOKEN_KEYS['CLIENT_SECRET']
     encoded_str = base64.b64encode(concat.encode("UTF-8"))
     decoded_bytes = encoded_str.decode("UTF-8")
     spotify_token_endpoint = "https://accounts.spotify.com/api/token"
