@@ -2,96 +2,21 @@ from utils.Response import Response
 from utils.DatabaseUtilities import DBUtils
 from utils.DatabaseUtilities import Purpose
 from utils.Security import SecurityUtils
+from utils.QueueModerator import QueueModerator
 from DataStructures.AbstractDataStructures import DuplicatePriorityQueue
 
-class Router:
+from utils.RoomModerator import RoomModerator
+from utils.QueueModerator import QueueModerator
+from utils.TokenModerator import TokenModerator
+from utils.UserModerator import UserModerator
+
+class Router(RoomModerator, QueueModerator, TokenModerator, UserModerator):
     """
     Hides all API actions complexity from main.py
     """
     
-    #AS SOON AS we make Router static,
-    #we will be able to separate this function cluster into xModerator.py files
-
-    def __init__(self, room_keeper):
-        self.room_keeper = room_keeper
-
-    def create_room(self):
-        '''
-
-        :return: if successful - True, room object; else - False, {}, message
-
-        # return: response message, either success or failure which holds a room object with the following fields:
-        # queue - dictionary/json object with pending songs
-        # history - dictionary/json object with played songs
-        # searchToken - search token (TODO)
-        # accessToken - access token (TODO)
-        # master - id of creator of room (TODO)
-        # users - list with user ids and their votes
-        # return json response with room if it's created, otherwise empty object and a failure message
-        '''
-
-
-        userId = DBUtils.generateUniqueId(Purpose.USER)
-        token = SecurityUtils.generateToken()
-        cookie = SecurityUtils.generateCookie(userId, token)
-
-        room_obj = {
-            '_id': DBUtils.generateUniqueId(Purpose.ROOM),
-            'master': {userId: token},
-            'SpotifySearchToken': '', # TODO - add script to acquire token
-            'SpotifyAccessToken': '', # TODO - add script to acquire token
-            'head': None,
-            'queue': {},
-            'history': {}, # played songs
-            'users': {},
-        }
-
-        #@think is it ok to return values as head, users, master, _id as those are not needed
-
-        result = DBUtils.create_room(room_obj)
-
-        # cookie to identify the master
-        room_obj.update({'MasterCookie': cookie})
-        if result:
-            return True, room_obj, None
-        else:
-            msg = 'Room was not created'
-            return False, {}, msg
-
-    def join_room(self, room_number):
-        """
-        Register a new user
-
-        Generates users id, computes it's secret token, saves it in database
-
-        :param room_number:
-
-        :return: json{Status, [UserCookie]}
-        """
-
-        result = "-> "
-        #get unique ID
-        try:
-            userId = DBUtils.generateUniqueId(Purpose.USER, room_number)
-            result = userId
-        except ValueError as error:
-            return Response.responseFailure("Room does not exist");
-        token = SecurityUtils.generateToken()
-
-        user = {
-            userId: {}
-        }
-        #save in database
-        result = DBUtils.add_member(room_number, user)
-
-        if result:
-            #generate user identifiers
-            cookie = SecurityUtils.generateCookie(userId, token)
-            return Response.responseSuccess( {"UserCookie":cookie, "UserId":userId} )
-        else:
-            return Response.responseFailure("Failed to add new party member");
-
-    def enqueue_song(self, room_number, url, name):
+    @staticmethod
+    def enqueue_song(room_number, url, name):
         room = DBUtils.get_room(room_number)
         queue = room['queue']
 
@@ -100,27 +25,19 @@ class Router:
         if url in queue:
             exists = True
             return False, queue
-
-        queue[url] = {
+        song = {
             'name': name,
             'score': 0 # initial score is always 0
         }
 
-        result, queue = DBUtils.enqueue_song(room['_id'], queue)
-        priority_queue = DuplicatePriorityQueue()
-        queue_list = []
-        if type(queue) is dict:
-            for x in queue.keys():
-                song = queue[x]
-                song['url'] = x
-                priority_queue.enqueue(queue[x], queue[x]['score'])
-
-            while len(priority_queue) > 0:
-                queue_list.append(priority_queue.dequeue())
+        result = DBUtils.enqueue_song(room['_id'], url, song, len(queue.keys()) + 1)
+        unsorted_queue = DBUtils.get_pending_songs(room_number)
+        queue_list = QueueModerator.sort_pending_songs(unsorted_queue)
 
         return result, queue_list
 
-    def dequeue_song(self, room_number, master_id=None):
+    @staticmethod
+    def dequeue_song(room_number, master_id=None):
         # TODO - change when master is known
         original_master = ''
         master_id='test'
@@ -132,30 +49,7 @@ class Router:
         #     msg = 'Not a master to dequeue'
         #     return False, None, None, msg
 
-        history, queue = DBUtils.get_all_songs(room_number)
-        head_url = DBUtils.get_head(room_number)
-        song = {}
-        if head_url is not None:
-            if head_url in queue:
-                song = queue[head_url]
-                del queue[head_url]
-                history[head_url] = song
-                song['url'] = head_url
-        else:
-            msg = 'Song does not exist in queue'
-            return False, history, queue, None, msg
-
-        next_head = None
-        if len(queue.keys()) > 0:
-            for x in queue.keys():
-                if next_head is None:
-                    next_head = x
-                    continue
-                if queue[x]['score'] > queue[next_head]['score']:
-                    next_head = x
-
-        is_successful_lists, history, queue = DBUtils.update_song_lists(room_number, history, queue)
-        is_successful_head, updated_head = DBUtils.update_head(room_number, next_head)
+        is_successful_lists, is_successful_head, song, queue, history = QueueModerator.dequeue_song(room_number)
 
         if is_successful_lists:
             return True, history, queue, song, None
@@ -163,7 +57,8 @@ class Router:
             msg = 'Something went wrong! please try again'
             return False, history, queue, song, msg
 
-    def remove_song(self, room_number, url, name=None, master_id=None):
+    @staticmethod
+    def remove_song(room_number, url, name=None, master_id=None):
         # TODO - change when master is known
         original_master = ''
         master_id='test'
@@ -190,17 +85,39 @@ class Router:
             msg = 'Something went wrong! please try again'
             return False, history, queue, msg
 
-    def pending_songs(self, room_number):
+    @staticmethod
+    def pending_songs(room_number):
         return
 
-    def played_songs(self, room_number):
+    @staticmethod
+    def played_songs(room_number):
         return
 
-    def upvote_song(self, room_number, url):
-        return Response.responseSuccess(room_number)
+    @staticmethod
+    def upvote_song(room_number, url, user_id):
+        pending_songs = DBUtils.get_pending_songs(room_number)
 
-    def downvote_song(self, room_number, url):
-        return Response.responseSuccess(room_number)
+        # Check if a song is in the queue/pending songs
+        if url not in pending_songs:
+            msg = "Song does not belong to queue"
+            return False, msg
 
-    def delete_room(self, room_number, url):
+        songs = DBUtils.get_votes_per_user(room_number, user_id)
+        if url not in songs:
+            result = DBUtils.upvote(room_number, url, user_id)
+            msg = 'Something went wrong, please vote again!'
+            pending_songs = DBUtils.get_pending_songs(room_number)
+            sorted_queue = QueueModerator.sort_pending_songs(pending_songs)
+
+            return (True, sorted_queue, None) if result else (False, sorted_queue, msg)
+        elif songs[url]:
+            sorted_queue = QueueModerator.sort_pending_songs(pending_songs)
+            msg = 'User has already voted for this song'
+            return False, sorted_queue, msg
+
+        sorted_queue = QueueModerator.sort_pending_songs(pending_songs)
+        return False, sorted_queue, None
+
+    @staticmethod
+    def delete_room(room_number, url):
         return Response.responseSuccess(room_number)

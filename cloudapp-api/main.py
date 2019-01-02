@@ -1,12 +1,10 @@
 from flask import Flask, request, jsonify
 from routes.Router import Router
-from models.RoomKeeper import RoomKeeper
 from utils.Response import Response
+from utils.TokenModerator import TokenModerator
 
 app = Flask(__name__)
 
-room_keeper = RoomKeeper()
-router = Router(room_keeper)
 
 '''
 A not about documentation:
@@ -46,7 +44,7 @@ def create_room():
     :returns: response message, either success or failure which holds a room object
     """
 
-    result, room, message = router.create_room()
+    result, room, message = Router.create_room()
     if result:
         return Response.responseSuccess({'room': room})
     else:
@@ -65,7 +63,7 @@ def join_room(room_number):
     :returns: ?
     """
 
-    return router.join_room(room_number)
+    return Router.join_room(room_number)
 
 @app.route('/enqueue-song/<room_number>', methods=['POST'])
 def enqueue_song(room_number):
@@ -85,7 +83,7 @@ def enqueue_song(room_number):
 
     data = request.json
     if 'url' in data and 'name' in data:
-        result, queue = router.enqueue_song(room_number, data['url'], data['name'])
+        result, queue = Router.enqueue_song(room_number, data['url'], data['name'])
 
         if result:
             return Response.responseSuccess({
@@ -112,12 +110,11 @@ def dequeue_song(room_number):
     :bodyparam url: url of the song (Spotify/Youtube), will act as a primary key in MongoDB
 
     bodyparam name: name of the song (together with author?)
-    
-    #@Ivo, can you clarify this return explanation? Saras
-    :returns: response message, either success or failure which holds queue and list with played songs, if a failure is returned, a message is also given both queue and history are dictionaries (json objects), where key is the url and value is a nested dictionary (object)
+
+    :returns: JSON object holding a single key ("success" or "failure"), holding queue, played songs, current song and a failure message (if any)
     """
 
-    result, history, queue, song, message = router.dequeue_song(room_number)
+    result, history, queue, song, message = Router.dequeue_song(room_number)
     if result:
         return Response.responseSuccess({
             'history': history,
@@ -148,17 +145,51 @@ def get_played_songs(room_number):
 def delete_room(room_number):
     return room_number
 
-# TODO - upvote for a given song by a given user
+
 @app.route('/upvote/<room_number>', methods=['POST'])
 def upvote_song(room_number):
-    return room_number
+    """
+    :param room_number: room id
+    :authorization_headers: {
+        "Authorization": "USER_ID FROM COOKIE"
+    }
+    :body: {
+        "url": "SONG URL"
+    }
+    :return:
+    """
+    data = request.json
+    if 'url' not in data:
+        msg = 'URL has not been found!'
+        return Response.responseFailure(msg)
 
+    url = data['url']
+    user_id = request.headers.get('Authorization')
+    print(user_id)
+    result, queue, msg = Router.upvote_song(room_number, url, user_id)
 
-# TODO - down for a given song by a given user (if such feature shall exist)
-@app.route('/downvote/<room_number>', methods=['POST'])
-def downvote_song(room_number):
-    return room_number
+    if result:
+        return Response.responseSuccess({
+            'message': '',
+            'queue': queue
+        })
+    else:
+        return Response.responseFailure({
+            'message': msg,
+            'queue': queue
+        })
 
+# get the token that lets the frontend search through the spotify library
+# return: a string token
+@app.route('/', methods=['POST'])
+def get_client_credentials_token():
+    return TokenModerator.get_client_credentials_token()
+
+# token generated when a user has alawed our application to use their spotify data
+# return: a string token
+@app.route('/spotify', methods=['POST'])
+def get_auth_token(code):
+    return TokenModerator.get_auth_token(code)
 
 #start the application
 if __name__ == '__main__':
