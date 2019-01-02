@@ -112,9 +112,8 @@ def dequeue_song(room_number):
     :bodyparam url: url of the song (Spotify/Youtube), will act as a primary key in MongoDB
 
     bodyparam name: name of the song (together with author?)
-    
-    #@Ivo, can you clarify this return explanation? Saras
-    :returns: response message, either success or failure which holds queue and list with played songs, if a failure is returned, a message is also given both queue and history are dictionaries (json objects), where key is the url and value is a nested dictionary (object)
+
+    :returns: JSON object holding a single key ("success" or "failure"), holding queue, played songs, current song and a failure message (if any)
     """
 
     result, history, queue, song, message = Router.dequeue_song(room_number)
@@ -148,16 +147,39 @@ def get_played_songs(room_number):
 def delete_room(room_number):
     return room_number
 
-# TODO - upvote for a given song by a given user
+
 @app.route('/upvote/<room_number>', methods=['POST'])
 def upvote_song(room_number):
-    return room_number
+    """
+    :param room_number: room id
+    :authorization_headers: {
+        "Authorization": "USER_ID FROM COOKIE"
+    }
+    :body: {
+        "url": "SONG URL"
+    }
+    :return:
+    """
+    data = request.json
+    if 'url' not in data:
+        msg = 'URL has not been found!'
+        return Response.responseFailure(msg)
 
+    url = data['url']
+    user_id = request.headers.get('Authorization')
+    print(user_id)
+    result, queue, msg = Router.upvote_song(room_number, url, user_id)
 
-# TODO - down for a given song by a given user (if such feature shall exist)
-@app.route('/downvote/<room_number>', methods=['POST'])
-def downvote_song(room_number):
-    return room_number
+    if result:
+        return Response.responseSuccess({
+            'message': '',
+            'queue': queue
+        })
+    else:
+        return Response.responseFailure({
+            'message': msg,
+            'queue': queue
+        })
 
 # get the token that lets the frontend search through the spotify library
 # return: a string token

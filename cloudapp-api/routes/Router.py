@@ -2,6 +2,7 @@ from utils.Response import Response
 from utils.DatabaseUtilities import DBUtils
 from utils.DatabaseUtilities import Purpose
 from utils.Security import SecurityUtils
+from utils.QueueModerator import QueueModerator
 from DataStructures.AbstractDataStructures import DuplicatePriorityQueue
 
 class Router:
@@ -87,23 +88,14 @@ class Router:
         if url in queue:
             exists = True
             return False, queue
-
-        queue[url] = {
+        song = {
             'name': name,
             'score': 0 # initial score is always 0
         }
 
-        result, queue = DBUtils.enqueue_song(room['_id'], queue)
-        priority_queue = DuplicatePriorityQueue()
-        queue_list = []
-        if type(queue) is dict:
-            for x in queue.keys():
-                song = queue[x]
-                song['url'] = x
-                priority_queue.enqueue(queue[x], queue[x]['score'])
-
-            while len(priority_queue) > 0:
-                queue_list.append(priority_queue.dequeue())
+        result = DBUtils.enqueue_song(room['_id'], url, song, len(queue.keys()) + 1)
+        unsorted_queue = DBUtils.get_pending_songs(room_number)
+        queue_list = QueueModerator.sort_pending_songs(unsorted_queue)
 
         return result, queue_list
 
@@ -120,30 +112,7 @@ class Router:
         #     msg = 'Not a master to dequeue'
         #     return False, None, None, msg
 
-        history, queue = DBUtils.get_all_songs(room_number)
-        head_url = DBUtils.get_head(room_number)
-        song = {}
-        if head_url is not None:
-            if head_url in queue:
-                song = queue[head_url]
-                del queue[head_url]
-                history[head_url] = song
-                song['url'] = head_url
-        else:
-            msg = 'Song does not exist in queue'
-            return False, history, queue, None, msg
-
-        next_head = None
-        if len(queue.keys()) > 0:
-            for x in queue.keys():
-                if next_head is None:
-                    next_head = x
-                    continue
-                if queue[x]['score'] > queue[next_head]['score']:
-                    next_head = x
-
-        is_successful_lists, history, queue = DBUtils.update_song_lists(room_number, history, queue)
-        is_successful_head, updated_head = DBUtils.update_head(room_number, next_head)
+        is_successful_lists, is_successful_head, song, queue, history = QueueModerator.dequeue_song(room_number)
 
         if is_successful_lists:
             return True, history, queue, song, None
@@ -188,12 +157,29 @@ class Router:
         return
 
     @staticmethod
-    def upvote_song(room_number, url):
-        return Response.responseSuccess(room_number)
+    def upvote_song(room_number, url, user_id):
+        pending_songs = DBUtils.get_pending_songs(room_number)
 
-    @staticmethod
-    def downvote_song(room_number, url):
-        return Response.responseSuccess(room_number)
+        # Check if a song is in the queue/pending songs
+        if url not in pending_songs:
+            msg = "Song does not belong to queue"
+            return False, msg
+
+        songs = DBUtils.get_votes_per_user(room_number, user_id)
+        if url not in songs:
+            result = DBUtils.upvote(room_number, url, user_id)
+            msg = 'Something went wrong, please vote again!'
+            pending_songs = DBUtils.get_pending_songs(room_number)
+            sorted_queue = QueueModerator.sort_pending_songs(pending_songs)
+
+            return (True, sorted_queue, None) if result else (False, sorted_queue, msg)
+        elif songs[url]:
+            sorted_queue = QueueModerator.sort_pending_songs(pending_songs)
+            msg = 'User has already voted for this song'
+            return False, sorted_queue, msg
+
+        sorted_queue = QueueModerator.sort_pending_songs(pending_songs)
+        return False, sorted_queue, None
 
     @staticmethod
     def delete_room(room_number, url):

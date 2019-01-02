@@ -114,23 +114,22 @@ class DBUtils:
         return None
 
     @staticmethod
-    def enqueue_song(room_number, queue, client=None):
+    def enqueue_song(room_number, url, song, num_elements, client=None):
         if client is None:
             client = pymongo.MongoClient(
                 config.MONGODB_CONFIG['URL'])
 
         db = client.pymongo_test
         updated_fields = {
-            'queue': queue
+            ('queue.' + url): song
         }
 
         # if head is empty
-        if len(queue.keys()) == 1:
-            for x in queue.keys():
-                updated_fields['head'] = x
+        if num_elements == 1:
+            updated_fields['head'] = url
 
         db.rooms.update({'_id': room_number}, {'$set': updated_fields})
-        return True, queue
+        return True
 
     @staticmethod
     def get_head(room_number):
@@ -237,5 +236,51 @@ class DBUtils:
 
         write_result = db.rooms.update({'_id': room_number}, {'$set': updated_fields})
         is_successful = write_result['nModified'] == 1
-        return is_successful, url
+        return is_successful
+
+    @staticmethod
+    def get_votes_per_user(room_number, user_id):
+        client = pymongo.MongoClient(
+            config.MONGODB_CONFIG['URL'])
+
+        db = client.pymongo_test
+        fields = [
+            'users.' + user_id
+        ]
+        print(room_number)
+        print(fields)
+        result = DBUtils.get_fields(room_number, fields)
+
+        users = None if 'users' not in result[0] else result[0]['users']
+        songs = {}
+        if users is not None and user_id in users:
+            songs = users[user_id]
+
+        return songs
+
+    @staticmethod
+    def upvote(room_number, url, user_id):
+        client = pymongo.MongoClient(
+            config.MONGODB_CONFIG['URL'])
+
+        db = client.pymongo_test
+        updated_fields = {
+            'users.' + user_id + '.' + url: 1
+        }
+
+        with client.start_session() as s:
+            s.start_transaction()
+            write_result = db.rooms.update({'_id': room_number}, {'$set': updated_fields})
+            is_successful = write_result['nModified'] == 1
+            if is_successful:
+                score_field = {
+                    '$inc': {
+                        'queue.' + url + '.score': 1
+                    }
+                }
+                write_result = db.rooms.update({'_id': room_number}, score_field)
+                is_successful = write_result['nModified'] == 1 and is_successful
+            s.commit_transaction()
+
+        return is_successful
 
