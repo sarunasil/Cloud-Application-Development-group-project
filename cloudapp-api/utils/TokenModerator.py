@@ -14,8 +14,6 @@ import base64
 class TokenModerator:
     # static variables
     # these CLIENT_ID an SECRET should be environment variables... not HARDCODED
-    CLIENT_ID = config.TOKEN_KEYS['CLIENT_ID']
-    CLIENT_SECRET = config.TOKEN_KEYS['CLIENT_SECRET']
 
     redirect_uri = "https://google.com"
     scopes = "user-read-private"
