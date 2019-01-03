@@ -148,11 +148,18 @@ class QueueModerator:
             decrypted_url_songs[decoded_url] = songs_object[x]
         return decrypted_url_songs
 
-
     @staticmethod
     def pending_songs(room_number):
-        return
+        try:
+            unsorted_queue = DBUtils.get_pending_songs(room_number)
+            # possible type error - idk if unsorted_queue is of type dict
+            sorted_queue = QueueModerator.sort_pending_songs(unsorted_queue)
+            return True, sorted_queue
+        except:
+            return False, []
 
     @staticmethod
     def played_songs(room_number):
-        return
+        history = DBUtils.get_played_songs(room_number)
+        history = QueueModerator.decrypt_urls(history)
+        return history
