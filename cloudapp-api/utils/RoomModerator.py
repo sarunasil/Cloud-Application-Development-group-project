@@ -40,7 +40,7 @@ class RoomModerator:
             'head': None,
             'queue': {},
             'history': {}, # played songs
-            'users': {},
+            'users': {userId:token},
         }
 
         #@think is it ok to return values as head, users, master, _id as those are not needed
