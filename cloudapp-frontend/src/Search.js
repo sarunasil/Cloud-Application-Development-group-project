@@ -9,7 +9,7 @@ var spotifyApi = new SpotifyWebApi({
 
 class Search extends Component {
 
-    //will receive search tokens and an add function
+    //will receive search tokens
     constructor(props) {
         super(props);
         if(this.props.spotifyToken){
@@ -24,10 +24,6 @@ class Search extends Component {
 
     setQuery = (e) => {
         this.setState({ query: e.target.value });
-    }
-
-    setResults = (e) => {
-        this.setState({ results: e.target.value });
     }
 
     search = async (e) => {
@@ -93,7 +89,7 @@ class Search extends Component {
                     <button className="btn btn-outline-success my-2 my-sm-0" type="submit"><FontAwesomeIcon icon="search"/>
                     </button>
                 </form>
-                <ul className="list-group" style={{align:"left"}}>
+                <ul className="list-group" style={{textAlign:"left"}}>
                     {this.renderSearch()}
                 </ul>
             </div>
