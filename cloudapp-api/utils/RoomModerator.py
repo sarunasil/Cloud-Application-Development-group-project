@@ -7,8 +7,11 @@ from utils.Security import SecurityUtils
 This set of functions deals with:
 Room creation
 Room deletion
-Room editing
-General messages?
+Room editing?
+User joining
+User removing
+User blocking
+Get user list
 '''
 
 class RoomModerator:
@@ -59,18 +62,25 @@ class RoomModerator:
             return False, {}, msg
 
     @staticmethod
+    def delete_room(roomId):
+        '''
+        DESTROY EXISTING ROOM AND ALL IT"S DATA\n
+        Used as cleanup after the party happened and non of existing information is needed anymore\n
+        :param roomId - id of the room to be destroyed\n
+        :return Success/Failure json
+        '''
+        # no checks are required due to use of MiddlewareUtils in main.py
+        return DBUtils.delete_room(roomId)
+
+    @staticmethod
     def join_room(room_number):
         """
-        Register a new user
-
-        Generates users id, computes it's secret token, saves it in database
-
-        :param room_number:
-
+        Register a new user\n
+        Generates users id, computes it's secret token, saves it in database\n
+        :param room_number:\n
         :return: json{Status, [UserCookie]}
         """
 
-        result = "-> "
         #get unique ID
         try:
             userId = DBUtils.generateUniqueId(Purpose.USER, room_number)
@@ -93,22 +103,37 @@ class RoomModerator:
             return Response.responseFailure("Failed to add new party member");
 
     @staticmethod
-    def delete_room(roomId, masterCookie=None):
-        '''
-        DESTROY EXISTING ROOM AND ALL IT"S DATA
-        
-        Used as cleanup after the party happened and non of existing information is needed anymore
+    def kick(room_number, userId):
+        """
+        Kick a user from party\n
+        User can still reenter the party using the link
+        :param room_number:\n
+        :param userId:\n
+        :return: json{Status}
+        """
 
-        :param roomId - id of the room to be destroyed
-        :parma masterCookie - only party master can do this, thus verification is required
-        
-        :return Success/Failure json
-        '''
-        if masterCookie==None:
-            return False
+        #save in database
+        result = True
 
-        # check is masterCookie legit this room master identifier
-        if SecurityUtils.checkUser(roomId, masterCookie, True):
-            return DBUtils.delete_room(roomId)
+        if result:
+            return Response.responseSuccess( {''} )
+        else:
+            return Response.responseFailure("Failed");
 
-        return False
+    @staticmethod
+    def block(room_number, userId):
+        """
+        Block an existing user from entering a party\n
+        User is blocked according to IP?
+        :param room_number:\n
+        :param userId:\n
+        :return: json{Status}
+        """
+
+        #save in database
+        result = True
+
+        if result:
+            return Response.responseSuccess( {''} )
+        else:
+            return Response.responseFailure("Failed");

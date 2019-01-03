@@ -57,9 +57,7 @@ def delete_room(room_number):
     :bodyparam masterCookie: cookie to authenticate master\n
     :returns: JSON object holding a single key ("success" or "failure")
     '''
-    cookie = "5c2d575c435a8d02bf3b9700:bb8a4c76c529880d0a9b88a3291df6ea5b9c51732d0524e2420df5714b3a3ac0:33e522edafb477dce7300b215f9860f5bb35da4d53dc0c67824cef0cc794dceb"
-
-    status = Router.delete_room(room_number, cookie)
+    status = Router.delete_room(room_number)
     if status==True:
         return Response.responseSuccess({
             'message': "Room "+room_number+" has been successfully destroyed."
@@ -75,10 +73,34 @@ def join_room(room_number):
     Joins an existing party room\n
     Look at router.join_room for more detail\n
     :param room_number: party room identifier\n
-    :returns: ?
+    :returns: json{Status, [UserCookie]}
     """
 
     return Router.join_room(room_number)
+
+@app.route('/<room_number>/kick', methods=['POST'])
+def kick(room_number):
+    """
+    Kicks a party member out of the room\n
+    Look at router.kick for more detail\n
+    :param room_number: party room identifier\n
+    :bodyParam userId: member id to kick\n
+    :returns: 'status' - success/failure
+    """
+
+    return Router.kick(room_number, userId)
+
+@app.route('/<room_number>/block', methods=['POST'])
+def block(room_number):
+    """
+    Block a user from entering this party room\n
+    Look at router.block for more detail\n
+    :param room_number: party room identifier\n
+    :param userId: member id to be blocked\n
+    :returns: 'status' - success/failure
+    """
+
+    return Router.block(room_number, userId)
 
 @app.route('/<room_number>/enqueue-song', methods=['POST'])
 @MiddlewareUtils.valid_user
@@ -113,16 +135,13 @@ def enqueue_song(room_number):
 @MiddlewareUtils.valid_master
 def dequeue_song(room_number):
     """
-    Song is dequeued (removed from the queue) if it is in the queue list\n
+    Song is dequeued (removed from the queue) if it is in the queue list and places in history\n
     Look at router.dequeue_song for more detail\n
     :param room_number: party room identifier\n
-    :bodyparam url: url of the song (Spotify/Youtube), will act as a primary key in MongoDB\n
-    bodyparam name: name of the song (together with author?)\n
-    :returns: JSON object holding a single key ("success" or "failure"), holding queue, played songs, current song and a failure message (if any)
+    :returns: json success/failure
     """
 
-    user_id = request.headers.get('Authorization')
-    result, history, queue, song, message = Router.dequeue_song(room_number, user_id)
+    result, history, queue, song, message = Router.dequeue_song(room_number)
     if result:
         return Response.responseSuccess({
             'history': history,
@@ -138,14 +157,36 @@ def dequeue_song(room_number):
             'message': message
         })
 
+#TODO implement properly
+@app.route('/<room_number>/remove-song', methods=['POST'])
+@MiddlewareUtils.valid_master
+def remove_song(room_number):
+    """
+    Song is removed from the queue\n
+    Look at router.remove_song for more detail\n
+    :param room_number: party room identifier\n
+    :param songId: song to be removed id\n
+    :returns: json success/failure
+    """
+
+    result = True
+    #result, message = Router.remove_song(room_number)
+    if result:
+        return Response.responseSuccess({
+            'message': 'Song has been removed successfully'
+        })
+    else:
+        return Response.responseFailure({
+            'message': message
+        })   
+
 # TODO - get a dictionary (json object) with pending songs (queue), where key is the URL and value is a nested dictionary (object)
-@app.route('/pending-songs/<room_number>', methods=['POST'])
+@app.route('/<room_number>/pending-songs', methods=['POST'])
 @MiddlewareUtils.valid_user
 def get_pending_songs(room_number):
     """
-        retrieves the queue of songs that have not been played yet, SORTED by upvotes
+        retrieves the queue of songs that have not been played yet, SORTED by upvotes\n
         :param room_number: party room identifier\n
-        :bodyparam queue: list of songs
         :returns: Response.responseSuccess if retrieved successfully, Response.responseFailure if unable to get list
     """
 
@@ -161,7 +202,7 @@ def get_pending_songs(room_number):
         })
 
 # TODO - get a dictionary (json object) with played songs, where key is the URL and value is a nested dictionary (object)
-@app.route('/played-songs/<room_number>', methods=['POST'])
+@app.route('/<room_number>/played-songs', methods=['POST'])
 @MiddlewareUtils.valid_user
 def get_played_songs(room_number):
     history = Router.played_songs(room_number)
@@ -170,11 +211,12 @@ def get_played_songs(room_number):
         'message': 'List with played songs'
     })
 
-@app.route('/upvote/<room_number>', methods=['POST'])
+@app.route('/<room_number>/upvote', methods=['POST'])
 @MiddlewareUtils.valid_user
 def upvote_song(room_number):
     """
     :param room_number: room id
+    :param url: url of the song to upvote
     :authorization_headers: {
         "Authorization": "USER_ID FROM COOKIE"
     }
@@ -202,6 +244,42 @@ def upvote_song(room_number):
             'message': msg,
             'queue': queue
         })
+
+@app.route('/<room_number>/unvote', methods=['POST'])
+@MiddlewareUtils.valid_user
+def unvote_song(room_number):
+    """
+    :param room_number: room id
+    :param url: url of the song to unvote
+    :authorization_headers: {
+        "Authorization": "USER_ID FROM COOKIE"
+    }
+    :body: {
+        "url": "SONG URL"
+    }
+    :return:
+    """
+    #make sure user is unvoting his own song. 
+
+    # data = request.json
+    # if 'url' not in data:
+    #     msg = 'URL has not been found!'
+    #     return Response.responseFailure(msg)
+
+    # url = data['url']
+    # cookie = request.headers.get('Authorization')
+    # result, queue, msg = Router.upvote_song(room_number, url, cookie)
+
+    # if result:
+    #     return Response.responseSuccess({
+    #         'message': '',
+    #         'queue': queue
+    #     })
+    # else:
+    #     return Response.responseFailure({
+    #         'message': msg,
+    #         'queue': queue
+    #     })
 
 # get the token that lets the frontend search through the spotify library
 # return: a string token

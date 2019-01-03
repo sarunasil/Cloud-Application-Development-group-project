@@ -8,9 +8,8 @@ from DataStructures.AbstractDataStructures import DuplicatePriorityQueue
 from utils.RoomModerator import RoomModerator
 from utils.QueueModerator import QueueModerator
 from utils.TokenModerator import TokenModerator
-from utils.UserModerator import UserModerator
 
-class Router(RoomModerator, QueueModerator, TokenModerator, UserModerator):
+class Router(RoomModerator, QueueModerator, TokenModerator):
     """
     Hides all API actions complexity from main.py
 
@@ -18,8 +17,11 @@ class Router(RoomModerator, QueueModerator, TokenModerator, UserModerator):
     
     RoomModerator.py
     - create_room
-    - join_room
     - delete_room
+    - join_room
+    - kick
+    - block
+    - get_members
 
     QueueModerator.py
     - enqueue_song
@@ -28,8 +30,5 @@ class Router(RoomModerator, QueueModerator, TokenModerator, UserModerator):
     - upvote_song
 
     TokenModerator.py
-    -
-
-    UserModerator.py
     -
     """

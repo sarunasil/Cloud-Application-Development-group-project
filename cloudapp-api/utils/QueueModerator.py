@@ -54,7 +54,7 @@ class QueueModerator:
         return queue_list
 
     @staticmethod
-    def dequeue_song(room_number, master_id=None):
+    def dequeue_song(room_number):
         is_successful, dequeued_song, msg = DBUtils.dequeue_song(room_number)
         history, unsorted_queue = DBUtils.get_all_songs(room_number)
         queue = QueueModerator.sort_pending_songs(unsorted_queue)
