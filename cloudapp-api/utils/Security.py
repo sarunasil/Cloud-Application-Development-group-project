@@ -1,6 +1,7 @@
 import hashlib
 import secrets
 from utils.DatabaseUtilities import DBUtils
+import base64
 
 PEPPER = "XqM7PSC7iPSJVGYBESgiduinDBNmFOKqRbLSvYUYl38nyWX2Npy1cY275KIe5pbIcoj2U0NuBQwMzaIxsC1rkF8NVVfzU2b6EO6n40uFltehxFAzPUmsrqvCFf28Viae"
 
@@ -71,3 +72,20 @@ class SecurityUtils:
                     return True
 
         return False
+
+    @staticmethod
+    def encrypt_url(url):
+        byte_url = url.encode('UTF-8')
+        encoded = base64.b64encode(byte_url)
+        decoded = encoded.decode('UTF-8')
+        return decoded
+
+    @staticmethod
+    def decrypt_url(encrypted_url):
+        try:
+            byte_url_encoded = encrypted_url.encode('UTF-8')
+            byte_url_decoded = base64.b64decode(byte_url_encoded)
+            decoded = byte_url_decoded.decode('UTF-8')
+            return decoded
+        except:
+            return None
