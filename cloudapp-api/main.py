@@ -117,7 +117,8 @@ def dequeue_song(room_number):
     :returns: JSON object holding a single key ("success" or "failure"), holding queue, played songs, current song and a failure message (if any)
     """
 
-    result, history, queue, song, message = Router.dequeue_song(room_number)
+    user_id = request.headers.get('Authorization')
+    result, history, queue, song, message = Router.dequeue_song(room_number, user_id)
     if result:
         return Response.responseSuccess({
             'history': history,
@@ -136,7 +137,23 @@ def dequeue_song(room_number):
 # TODO - get a dictionary (json object) with pending songs (queue), where key is the URL and value is a nested dictionary (object)
 @app.route('/pending-songs/<room_number>', methods=['POST'])
 def get_pending_songs(room_number):
-    return room_number
+    """
+        retrieves the queue of songs that have not been played yet, SORTED by upvotes
+        :param room_number: party room identifier\n
+        :bodyparam queue: list of songs
+        :returns: Response.responseSuccess if retrieved successfully, Response.responseFailure if unable to get list
+    """
+
+    result, queue = Router.pending_songs(room_number)
+    if result:
+        return Response.responseSuccess({
+            'queue': queue,
+            'message': 'sorted queue of not yet played songs'
+        })
+    else:
+        return Response.responseFailure({
+            'message': 'failed to retrieve song queue'
+        })
 
 # TODO - get a dictionary (json object) with played songs, where key is the URL and value is a nested dictionary (object)
 @app.route('/played-songs/<room_number>', methods=['POST'])
@@ -188,7 +205,7 @@ def get_client_credentials_token():
 def get_auth_token(code):
     return TokenModerator.get_auth_token(code)
 
-#start the application
+# start the application
 if __name__ == '__main__':
     app.run()
     # app.run(host='127.0.0.1', port=8080, debug=True)

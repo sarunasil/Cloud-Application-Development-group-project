@@ -2,6 +2,7 @@ import config
 import pymongo
 import bson
 from enum import Enum
+from utils.ErrorUtils import ErrorMsg
 
 class Purpose(Enum):
     ROOM = 1
@@ -309,4 +310,66 @@ class DBUtils:
             s.commit_transaction()
 
         return is_successful
+
+    @staticmethod
+    def dequeue_song(room_number):
+        client = pymongo.MongoClient(
+            config.MONGODB_CONFIG['URL'])
+
+        db = client.pymongo_test
+        retrieved_fields = {
+            'head': 1,
+            'queue': 1
+        }
+
+        with client.start_session() as s:
+            s.start_transaction()
+            # Get head and queue
+            result = db.rooms.find({'_id': room_number}, retrieved_fields)
+            head = None if 'head' not in result[0] else result[0]['head']
+            queue = None if 'queue' not in result[0] else result[0]['queue']
+            if head is None:
+                s.commit_transaction()
+                return False, None, ErrorMsg.NO_HEAD # TODO change with appropriate return values
+            elif queue is None:
+                s.commit_transaction()
+                return False, None, ErrorMsg.NO_QUEUE # TODO change with appropriate return values
+
+            # Pop from queue object
+            song = {}
+            if head in queue:
+                song[head] = queue[head]
+                del queue[head]
+
+            if len(song[head].keys()) == 0:
+                s.commit_transaction()
+                return False, None, ErrorMsg.NO_SONG # TODO change with appropriate return values
+
+            # Get next highest scored song
+            next_head = None
+            if len(queue.keys()) > 0:
+                for x in queue.keys():
+                    if next_head is None:
+                        next_head = x
+                        continue
+                    if queue[x]['score'] > queue[next_head]['score']:
+                        next_head = x
+
+            updated_fields = {
+                '$set': {
+                    'history.' + head: song[head],
+                    'head': next_head
+                },
+                '$unset': {
+                    'queue.' + head: "" # emptry string according to MongoDB's doc
+                }
+            }
+
+            write_result = db.rooms.update({'_id': room_number}, updated_fields)
+            is_successful = write_result['nModified'] > 0
+            s.commit_transaction()
+        if not is_successful:
+            return is_successful, {}, ErrorMsg.DEQ_FAIL
+
+        return is_successful, song, ''
 
