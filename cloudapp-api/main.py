@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from routes.Router import Router
 from utils.Response import Response
 from utils.TokenModerator import TokenModerator
+from utils.Middleware import MiddlewareUtils
 
 app = Flask(__name__)
 
@@ -48,6 +49,7 @@ def create_room():
         return Response.responseFailure({'room': room, 'message': message})
 
 @app.route('/<room_number>/delete', methods=['POST'])
+@MiddlewareUtils.valid_master
 def delete_room(room_number):
     '''
     Completely deletes a party room and all associated information with it\n
@@ -79,6 +81,7 @@ def join_room(room_number):
     return Router.join_room(room_number)
 
 @app.route('/<room_number>/enqueue-song', methods=['POST'])
+@MiddlewareUtils.valid_user
 def enqueue_song(room_number):
     """
     Adds a song to the queue\n
@@ -107,6 +110,7 @@ def enqueue_song(room_number):
     return Response.responseFailure('Song was not enqueued! Please enter url and name of the song!')
 
 @app.route('/<room_number>/dequeue-song', methods=['POST'])
+@MiddlewareUtils.valid_master
 def dequeue_song(room_number):
     """
     Song is dequeued (removed from the queue) if it is in the queue list\n
@@ -136,6 +140,7 @@ def dequeue_song(room_number):
 
 # TODO - get a dictionary (json object) with pending songs (queue), where key is the URL and value is a nested dictionary (object)
 @app.route('/pending-songs/<room_number>', methods=['POST'])
+@MiddlewareUtils.valid_user
 def get_pending_songs(room_number):
     """
         retrieves the queue of songs that have not been played yet, SORTED by upvotes
@@ -157,6 +162,7 @@ def get_pending_songs(room_number):
 
 # TODO - get a dictionary (json object) with played songs, where key is the URL and value is a nested dictionary (object)
 @app.route('/played-songs/<room_number>', methods=['POST'])
+@MiddlewareUtils.valid_user
 def get_played_songs(room_number):
     history = Router.played_songs(room_number)
     return Response.responseSuccess({
@@ -165,6 +171,7 @@ def get_played_songs(room_number):
     })
 
 @app.route('/upvote/<room_number>', methods=['POST'])
+@MiddlewareUtils.valid_user
 def upvote_song(room_number):
     """
     :param room_number: room id
@@ -183,7 +190,6 @@ def upvote_song(room_number):
 
     url = data['url']
     user_id = request.headers.get('Authorization')
-    print(user_id)
     result, queue, msg = Router.upvote_song(room_number, url, user_id)
 
     if result:

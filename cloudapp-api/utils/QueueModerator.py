@@ -55,17 +55,6 @@ class QueueModerator:
 
     @staticmethod
     def dequeue_song(room_number, master_id=None):
-
-        # TODO - change when master is known
-        original_master = ''
-        is_allowed = False # assume no access
-        if master_id is not None:
-            is_allowed = SecurityUtils.checkUser(room_number, master_id, True) # update access
-
-        # TODO - uncomment once the master_id is on
-        if not is_allowed:
-            return False, None, None, None, ErrorMsg.NO_MASTER.value
-
         is_successful, dequeued_song, msg = DBUtils.dequeue_song(room_number)
         history, unsorted_queue = DBUtils.get_all_songs(room_number)
         queue = QueueModerator.sort_pending_songs(unsorted_queue)
@@ -88,17 +77,6 @@ class QueueModerator:
     @staticmethod
     def remove_song(room_number, url, name=None, master_id=None):
         url = SecurityUtils.encrypt_url(url)
-        # TODO - change when master is known
-        original_master = ''
-        master_id='test'
-        if master_id is not None:
-            original_master = DBUtils.get_master(room_number)
-
-        # TODO - uncomment once the master_id is on
-        # if original_master != master_id:
-        #     msg = 'Not a master to dequeue'
-        #     return False, None, None, msg
-
         history, queue = DBUtils.get_all_songs(room_number)
         if url in queue:
             del queue[url]
