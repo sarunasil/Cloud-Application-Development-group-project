@@ -167,31 +167,14 @@ class MasterRoom extends Component {
         return (
 
             <div className="container-fluid">
-                <div className="row">
-                    <div className="col">
-                        <nav className="navbar navbar-dark bg-dark justify-content-between">
-                            <a className="navbar-brand" style={{color:"white"}}>This is master</a>
-                            {/*<form className="form-inline" onSubmit={this.handleSubmit}>*/}
-                                {/*<input className="form-control mr-sm-2" type="search" placeholder="Look up song"*/}
-                                       {/*aria-label="Search" value={this.state.value} onChange={this.handleChange} style={{ width:"300px" }}></input>*/}
-                                {/*<button className="btn btn-outline-success my-2 my-sm-0" type="submit"><FontAwesomeIcon icon="search"/>*/}
-                                {/*</button>*/}
-                                {/*<span> &nbsp;</span>*/}
-                                <div className="float-right"><button type="button" className="btn btn-success"  onClick={this.addSpotify}>Add<br/>
-                                    Spotify</button></div>
-                            {/*</form>*/}
-                        </nav>
-                    </div>
+                <div className="col-md-6">
+                    {this.renderPlayer()}
+                    {this.renderSongs()}
                 </div>
-                <div className="row">
-                    <div className="col">{this.renderPlayer()}</div>
-                </div>
-                <div className="row">
-                    <div className="col-4">{this.renderSongs()}</div>
-                    <div className="col-8">
-                        {/*<Search spotifyToken={spTkn}/>*/}
-                        <Search/>
-                    </div>
+                <div className="col-md-6">
+                    <div className="float-right"><button type="button" className="btn btn-success"  onClick={this.addSpotify}>Add<br/>
+                        Spotify</button></div>
+                    <Search/>
                 </div>
             </div>
 
