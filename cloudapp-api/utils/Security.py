@@ -64,7 +64,8 @@ class SecurityUtils:
                 user = DBUtils.get_master(roomId)
             else:
                 user = DBUtils.get_member(userId, roomId);
-            
+
+            print(user)
             if user is not None:
                 
                 #check do tokens match

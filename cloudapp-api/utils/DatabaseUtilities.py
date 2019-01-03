@@ -134,11 +134,17 @@ class DBUtils:
 
         db = client.pymongo_test
 
-        #return first result. As it's unique, there should only be one
-        for r in db.rooms.find({'_id': roomId, 'users': userId}):
-            return r;
+        fields = [
+            'users.' + userId,
+        ]
 
-        return None; # no results found
+        result = DBUtils.get_fields(roomId, fields)
+
+        if result.count() == 0:
+            return None
+
+        user = None if 'users' not in result[0] else result[0]['users']
+        return user
 
     @staticmethod
     def enqueue_song(room_number, url, song, num_elements, client=None):
