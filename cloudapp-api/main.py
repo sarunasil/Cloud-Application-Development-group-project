@@ -117,7 +117,8 @@ def dequeue_song(room_number):
     :returns: JSON object holding a single key ("success" or "failure"), holding queue, played songs, current song and a failure message (if any)
     """
 
-    result, history, queue, song, message = Router.dequeue_song(room_number)
+    user_id = request.headers.get('Authorization')
+    result, history, queue, song, message = Router.dequeue_song(room_number, user_id)
     if result:
         return Response.responseSuccess({
             'history': history,

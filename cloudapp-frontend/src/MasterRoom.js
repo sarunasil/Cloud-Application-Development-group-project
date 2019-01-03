@@ -1,4 +1,4 @@
-//import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React, {Component} from 'react';
 import SpotifyWebApi from 'spotify-web-api-node';
 import './App.css';
@@ -39,11 +39,7 @@ class MasterRoom extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            roomId : "123newRoom",
-            title : "Current room",
-            spotifyAppToken : "",
-            spotifyAccessToken: "",
-            youtubeAppToken: "",
+            query: '',
             queue: [],
             currentlyPlaying : false,
             currentSong: {
@@ -54,11 +50,12 @@ class MasterRoom extends Component {
                 votes: "0"
 
             },
-            songsPlayed: 0,
-            test: ""
+            songsPlayed: 0
         };
+        this.child = React.createRef();
 
-        let timerId = setInterval(() => this.updateStateForServer('tick'), 2000);
+        //let timerId = setInterval(() => this.updateStateForServer('tick'), 2000);
+
         //TODO: will become our domain name
         spotifyApi.setRedirectURI('http://localhost:3000/callback');
 
@@ -69,6 +66,7 @@ class MasterRoom extends Component {
             spotifyApi.setAccessToken(this.props.cookies.get('accessToken'));
         }
         //TODO: use roomId to retrieve data : queue, search/access token for spotify/YT
+        this.updateStateForServer();
     }
 
     addSpotify = () => {
@@ -80,25 +78,33 @@ class MasterRoom extends Component {
         window.location = authorizeURL;
     }
 
-    updateStateForServer() {
+    async updateStateForServer() {
         // this function periodically updates the queue from the server
         // the server should send be a json like
         // we could only send the changes and, from time to time, send the full state, but for now we should keep this simple
         var newState = {
-            title : "Current room",
-            spotifyAppToken : "",
-            spotifyAccessToken: "",
-            youtubeAppToken: "AIzaSyCIoanDddBkwWAVQRmFl62ZmVwQ184Ggls",
             queue: [
+                // {
+                //     name : "Song 1",
+                //     link : "spotify:track:2SL6oP2YAEQbqsrkOzRGO4",
+                //     time: "150", // time in seconds
+                //     votes: "0"
+                // },
                 {
-                    name : "Song 1",
-                    link : "spotify:track:2SL6oP2YAEQbqsrkOzRGO4",
+                    name : "Song 2",
+                    link : "2g811Eo7K8U",
                     time: "150", // time in seconds
                     votes: "0"
                 },
                 {
-                    name : "Song 2",
-                    link : "2g811Eo7K8U",
+                    name : "Song 3",
+                    link : "Y1PVmANeyAg",
+                    time: "150", // time in seconds
+                    votes: "0"
+                },
+                {
+                    name : "Song 4",
+                    link : "3KL9mRus19o",
                     time: "150", // time in seconds
                     votes: "0"
                 }
@@ -113,7 +119,7 @@ class MasterRoom extends Component {
                 newState.queue[cnt].type = "y";
             }
         }
-        this.setState(newState);
+        await this.setState(newState);
         var cnt;
 
         // if user is master
@@ -128,24 +134,11 @@ class MasterRoom extends Component {
 
     //check if the queue contains a playable song and then
     playNextSong() {
-        if (this.state.queue === undefined || this.state.queue.length == 0) {
+        if(this.state.queue[0]) {
+            this.playSong(0);
+        }
+        else {
             this.setState({currentlyPlaying: false});
-        } else {
-            var possibleSong;
-            for(possibleSong = 0; possibleSong < this.state.queue.length; possibleSong++){
-                if(this.state.queue[possibleSong].type === "s" ){
-                    if( this.state.spotifyAccessToken === ""){
-                        //skip song
-                    }else{
-                        break;
-                    }
-                }else{
-                    break;
-                }
-            }
-            if(possibleSong < this.state.queue.length) {
-                this.playSong(possibleSong);
-            }
         }
     }
 
@@ -157,7 +150,10 @@ class MasterRoom extends Component {
     }
 
     removeSong(songNumberInQueue){
-        this.state.queue.splice(songNumberInQueue, 1);
+        this.setState({
+            queue: this.state.queue.slice(0, songNumberInQueue).concat(
+                this.state.queue.slice(songNumberInQueue+1, this.state.queue.length))
+        });
         // Now we have to remove the song from the queue from the server
         // API.delete("/id/songLink", body should contain the position of the song = songNumberInQueue)
     }
@@ -166,7 +162,14 @@ class MasterRoom extends Component {
         this.playNextSong();
     }
 
+    setQuery = (e) => {
+        this.setState({ query: e.target.value });
+    }
 
+    handleSubmit = (e) => {
+        e.preventDefault();
+        this.child.current.search(this.state.query)
+    }
 
     render() {
         const spTkn = 'BQC7cmdorLg82wSM7a2bXD25PjS6DAtgDLTAQV3EifbqIypnU5PEw0HaCLSXTaky7_13VlsMRfwJNCX6Whg'
@@ -177,15 +180,15 @@ class MasterRoom extends Component {
                     <div className="col">
                         <nav className="navbar navbar-dark bg-dark justify-content-between">
                             <a className="navbar-brand" style={{color:"white"}}>This is master</a>
-                            {/*<form className="form-inline" onSubmit={this.handleSubmit}>*/}
-                                {/*<input className="form-control mr-sm-2" type="search" placeholder="Look up song"*/}
-                                       {/*aria-label="Search" value={this.state.value} onChange={this.handleChange} style={{ width:"300px" }}></input>*/}
-                                {/*<button className="btn btn-outline-success my-2 my-sm-0" type="submit"><FontAwesomeIcon icon="search"/>*/}
-                                {/*</button>*/}
-                                {/*<span> &nbsp;</span>*/}
+                            <form className="form-inline" onSubmit={this.handleSubmit}>
+                                <input className="form-control mr-sm-2" type="search" placeholder="Look up song"
+                                       aria-label="Search" value={this.state.query} onChange={this.setQuery} style={{ width:"300px" }}></input>
+                                <button className="btn btn-outline-success my-2 my-sm-0" type="submit"><FontAwesomeIcon icon="search"/>
+                                </button>
+                                <span> &nbsp;</span>
                                 <div className="float-right"><button type="button" className="btn btn-success"  onClick={this.addSpotify}>Add<br/>
                                     Spotify</button></div>
-                            {/*</form>*/}
+                            </form>
                         </nav>
                     </div>
                 </div>
@@ -195,8 +198,9 @@ class MasterRoom extends Component {
                 <div className="row">
                     <div className="col-4">{this.renderSongs()}</div>
                     <div className="col-8">
-                        <Search spotifyToken={spTkn}/>
-
+                        <ul className="list-group" style={{align:"left"}}>
+                            <Search ref={this.child} />
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -210,7 +214,7 @@ class MasterRoom extends Component {
     renderPlayer(){
         return(
             <div>
-                { this.state.currentSong.type === "s" && this.state.songsPlayed % 2 === 1 &&
+                { this.state.currentSong.type === "s" &&
                 <SpotifyPlayer
                     uri= {this.state.currentSong.link}
                     allow="encrypted-media"
@@ -219,24 +223,8 @@ class MasterRoom extends Component {
                     theme={theme}
                 />
                 }
-                { this.state.currentSong.type === "s" && this.state.songsPlayed %2 === 0 &&
-                <SpotifyPlayer
-                    uri= {this.state.currentSong.link}
-                    allow="encrypted-media"
-                    size={size}
-                    view={view}
-                    theme={theme}
-                />
-                }
-                {this.state.currentSong.type === "y" &&  this.state.songsPlayed %2 === 0 &&
-                <YouTube
-                    videoId= {this.state.currentSong.link}
-                    opts={youtubeOptions}
-                    onEnd={this._onEnd}
-                />
 
-                }
-                {this.state.currentSong.type === "y" && this.state.songsPlayed %2 === 1 &&
+                {this.state.currentSong.type === "y" &&
                 <YouTube
                     videoId= {this.state.currentSong.link}
                     opts={youtubeOptions}

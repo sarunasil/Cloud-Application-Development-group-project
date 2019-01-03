@@ -22,7 +22,10 @@ class Router(RoomModerator, QueueModerator, TokenModerator, UserModerator):
     - delete_room
 
     QueueModerator.py
-    -
+    - enqueue_song
+    - dequeue_song
+    - remove_song
+    - upvote_song
 
     TokenModerator.py
     -
