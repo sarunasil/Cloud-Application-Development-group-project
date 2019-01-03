@@ -64,7 +64,7 @@ class MasterRoom extends Component {
         }
         //TODO: use roomId to retrieve data : queue, search/access token for spotify/YT
         this.updateStateForServer();
-        spotifyApi.setAccessToken('BQDagoVn7B8mwX8ksvnKKXa41vbev0g5j_llmOiz4GOo8v0Hr5p2lSaCtDrJc3sqeUCLYRVOp1XjkZiXvdGiX-YVAJnTnTRoePvgNHNjg_xraQhcwsEFmfuv8-3-nf7r7p2wpr7uzSiO1qXr5b_yCahbLUEJHPpl0IpsgDEGSEIx_NXqWXrvvIX2UYft')
+        spotifyApi.setAccessToken('BQAk3M13v9eoLAdvVPc-zFO1LU_vkMor2TmWl_-WBTtrscSaCD-X6bv-soGsaOBHNxJ_Z1zM_v_BXzw3g83ASQrj50mLJsk9x0eyU_KD8XXzytP4qJb4ownocXicYg-RQjuO0DWmK-33PAGuD8YzZPU-RsmbBQPXl4Jen_M_QMdW0SSkbydICdJNtcdw')
     }
 
     addSpotify = () => {
@@ -217,6 +217,7 @@ class MasterRoom extends Component {
                 <SpotifyPlayer
                     spotifyToken={spotifyApi.getAccessToken()}
                     songUri={this.state.currentSong.type === "s" ? this.state.currentSong.link : ''}
+                    songName={this.state.currentSong.name}
                     next={this._onEnd}
                 />
                 }

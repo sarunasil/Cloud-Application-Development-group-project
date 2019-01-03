@@ -51,7 +51,7 @@ class SpotifyPlayer extends Component {
         // Playback status updates
         this.player.on('player_state_changed', state => {
             console.log(state);
-            if(state.paused && state.position === 0) this.props.next()
+            if(!state || (state.paused && state.position === 0)) this.props.next()
         });
 
         // Ready
@@ -62,28 +62,47 @@ class SpotifyPlayer extends Component {
         });
     }
 
-    play(){
-        console.log("in play")
-        if(this.props.songUri === this.state.lastPlayed) return;
+    componentWillUpdate(nextProps, nextState){
+        console.log(nextProps);
+        console.log(nextState);
+        if(nextProps.songUri){
+            if(nextProps.songUri === this.state.lastPlayed) return;
 
-        const data = spotifyApi.play({
-            uris:[this.props.songUri],
-            device_id: this.state.deviceId
-        });
+            const data = spotifyApi.play({
+                uris:[nextProps.songUri],
+                device_id: this.state.deviceId
+            });
 
-        this.setState({lastPlayed: this.props.songUri});
-        //console.log(JSON.stringify(data.body));
-        return (
-            <h5>canta: {this.props.songUri}</h5>
-        )
+            this.setState({lastPlayed: nextProps.songUri});
+        } else {
+            spotifyApi.pause();
+        }
+    }
+
+    resume() {
+        spotifyApi.play()
+    }
+
+    pause() {
+        spotifyApi.pause()
+    }
+
+    next = () => {
+        spotifyApi.pause();
+        this.props.next();
     }
 
     render(){
         return (
             <div>
                 {this.props.songUri ?
-                this.play() :
-                <h3>no song</h3>}
+                    <div>
+                        <h3>Playing: {this.props.songName}</h3>
+                    <button onClick={this.pause}>Pause</button>
+                    <button onClick={this.resume}>Resume</button>
+                    <button onClick={this.next}>Next</button>
+                    </div> :
+                    <div></div>}
             </div>
         )
     }
