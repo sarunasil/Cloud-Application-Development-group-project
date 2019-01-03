@@ -399,3 +399,14 @@ class DBUtils:
 
         return is_successful, song, ''
 
+    @staticmethod
+    def remove_song(room_number, url):
+        client = pymongo.MongoClient(
+            config.MONGODB_CONFIG['URL'])
+
+        db = client.pymongo_test
+        retrieved_fields = {
+            'head': 1,
+            'queue': 1
+        }
+

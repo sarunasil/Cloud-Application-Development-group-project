@@ -75,7 +75,7 @@ class QueueModerator:
 
 
     @staticmethod
-    def remove_song(room_number, url, name=None, master_id=None):
+    def remove_song(room_number, url):
         url = SecurityUtils.encrypt_url(url)
         history, queue = DBUtils.get_all_songs(room_number)
         if url in queue:
