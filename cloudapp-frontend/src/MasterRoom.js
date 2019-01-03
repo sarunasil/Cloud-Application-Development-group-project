@@ -261,9 +261,13 @@ class MasterRoom extends Component {
                     {song.name}
                     <span> </span> Votes: {song.votes}
                     <span> </span>
-                    <button type="button" className="btn btn-success" onClick={() => this.playSong(i)}> <FontAwesomeIcon icon="play-circle"/></button>
-                    <span> </span>
-                    <button type="button" className="btn btn-danger" onClick={() => this.removeSong(i)}><FontAwesomeIcon icon="trash-alt"/></button>
+                    <div className="float-right">
+                    <div className="btn-group" role="group">
+                        <button type="button" className="btn btn-success" onClick={() => this.playSong(i)}> <FontAwesomeIcon icon="play-circle"/></button>
+                        <button type="button" className="btn btn-danger" onClick={() => this.removeSong(i)}><FontAwesomeIcon icon="trash-alt"/></button>
+                        <button type="button" className="btn btn-info"><FontAwesomeIcon icon="thumbs-up"/></button>
+                    </div>
+                    </div>
 
                 </li>
         );}

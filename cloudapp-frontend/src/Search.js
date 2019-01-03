@@ -69,7 +69,10 @@ class Search extends Component {
                     <span> </span>
                     {song.name}
                     <span> </span>
-                    <button type="button" className="btn btn-success" onClick={() => this.addSong(i)}><FontAwesomeIcon icon="plus-square"/></button>
+                    <div className="float-right">
+                        <button type="button" className="btn btn-success" onClick={() => this.addSong(i)}><FontAwesomeIcon icon="plus-square"/></button>
+                        </div>
+
                 </li>
 
 

@@ -13,7 +13,9 @@ import { faPlayCircle } from '@fortawesome/free-solid-svg-icons'
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import { faPlusSquare } from '@fortawesome/free-solid-svg-icons'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
+import { faThumbsUp} from '@fortawesome/free-solid-svg-icons'
 
+library.add(faThumbsUp)
 library.add(faPlayCircle)
 library.add(faTrashAlt)
 library.add(faPlusSquare)
