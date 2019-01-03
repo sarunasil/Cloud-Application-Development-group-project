@@ -15,7 +15,7 @@ class MiddlewareUtils:
             if is_allowed:
                 return f(*args, **kwargs)
             else:
-                return Response.responseFailure('Not a user belonging to this room')
+                return Response.responseFailure(ErrorMsg.NO_USER.value)
 
         return logged_in_route
 
