@@ -189,8 +189,8 @@ def upvote_song(room_number):
         return Response.responseFailure(msg)
 
     url = data['url']
-    user_id = request.headers.get('Authorization')
-    result, queue, msg = Router.upvote_song(room_number, url, user_id)
+    cookie = request.headers.get('Authorization')
+    result, queue, msg = Router.upvote_song(room_number, url, cookie)
 
     if result:
         return Response.responseSuccess({

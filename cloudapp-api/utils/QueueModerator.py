@@ -93,7 +93,8 @@ class QueueModerator:
             return False, history, queue, msg
 
     @staticmethod
-    def upvote_song(room_number, url, user_id):
+    def upvote_song(room_number, url, cookie):
+        user_id = SecurityUtils.get_user_id(cookie)
         url = SecurityUtils.encrypt_url(url)
         pending_songs = DBUtils.get_pending_songs(room_number)
 

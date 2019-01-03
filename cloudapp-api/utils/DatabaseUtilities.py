@@ -298,7 +298,7 @@ class DBUtils:
 
         db = client.pymongo_test
         updated_fields = {
-            'users.' + user_id + '.' + url: 1
+            'users.' + user_id + '.songs.' + url: 1
         }
 
         with client.start_session() as s:
@@ -311,9 +311,29 @@ class DBUtils:
                         'queue.' + url + '.score': 1
                     }
                 }
-                write_result = db.rooms.update({'_id': room_number}, score_field)
-                is_successful = write_result['nModified'] == 1 and is_successful
-            s.commit_transaction()
+                write_result_score_update = db.rooms.update({'_id': room_number}, score_field)
+                is_successful = write_result_score_update['nModified'] == 1 and is_successful
+
+                result = db.rooms.find({'_id': room_number}, {'queue': 1, 'head': 1})
+                queue = None if 'queue' not in result[0] else result[0]['queue']
+                current_head = None if 'head' not in result[0] else result[0]['head']
+                upvoted_song_score = -1
+                current_head_score = -1
+                if url in queue and 'score' in queue[url]:
+                    upvoted_song_score = queue[url]['score']
+                if current_head in queue and 'score' in queue[current_head]:
+                    current_head_score = queue[current_head]['score']
+                if current_head_score == -1 or upvoted_song_score == -1:
+                    s.abort_transaction()
+                    return False
+
+                if upvoted_song_score > current_head_score:
+                    write_result_head_update = db.rooms.update({'_id': room_number}, {'$set': {'head': url}})
+                    is_successful = write_result_head_update['nModified'] == 1 and is_successful
+                s.commit_transaction()
+            else:
+                s.abort_transaction()
+                return False
 
         return is_successful
 

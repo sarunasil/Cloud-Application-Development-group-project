@@ -62,15 +62,11 @@ class SecurityUtils:
             #check is cookie not fake
             if master:
                 user = DBUtils.get_master(roomId)
+                return user is not None and token == user[userId] # check if tokens match
             else:
-                user = DBUtils.get_member(userId, roomId);
+                user = DBUtils.get_member(userId, roomId)
+                return user is not None and token == user[userId]['token']
 
-            print(user)
-            if user is not None:
-                
-                #check do tokens match
-                if token == user[userId]:
-                    return True
 
         return False
 
@@ -90,3 +86,10 @@ class SecurityUtils:
             return decoded
         except:
             return None
+
+    @staticmethod
+    def get_user_id(cookie):
+        parts = cookie.split(':')
+        if len(parts) > 1:
+            return parts[0]
+        return None
