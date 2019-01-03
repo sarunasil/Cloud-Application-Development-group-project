@@ -17,6 +17,7 @@ class QueueModerator:
 
     @staticmethod
     def enqueue_song(room_number, url, name):
+        url = url.replace('.', '@')
         room = DBUtils.get_room(room_number)
         queue = room['queue']
 
@@ -77,6 +78,7 @@ class QueueModerator:
 
     @staticmethod
     def remove_song(room_number, url, name=None, master_id=None):
+        url = url.replace('.', '@')
         # TODO - change when master is known
         original_master = ''
         master_id='test'
@@ -105,6 +107,7 @@ class QueueModerator:
 
     @staticmethod
     def upvote_song(room_number, url, user_id):
+        url = url.replace('.', '@')
         pending_songs = DBUtils.get_pending_songs(room_number)
 
         # Check if a song is in the queue/pending songs
