@@ -18,18 +18,14 @@ class Search extends Component {
     }
 
     state = {
-        query: '',
         results: []
     }
 
-    setQuery = (e) => {
-        this.setState({ query: e.target.value });
-    }
 
-    search = async (e) => {
-        e.preventDefault();
+
+    search = async (word) => {
         var entries = [];
-        searchYouTube({key: "AIzaSyCIoanDddBkwWAVQRmFl62ZmVwQ184Ggls", term: this.state.query, maxResults: 6}, (videos) => {
+        searchYouTube({key: "AIzaSyCIoanDddBkwWAVQRmFl62ZmVwQ184Ggls", term: word, maxResults: 6}, (videos) => {
             for(var video of videos){
                 entries.push({
                     link: video.id.videoId,
@@ -41,7 +37,7 @@ class Search extends Component {
         });
 
         if(spotifyApi.getAccessToken()){
-            var tracks  = await spotifyApi.searchTracks(this.state.query, {limit: 6});
+            var tracks  = await spotifyApi.searchTracks(word, {limit: 6});
             for(var track of tracks.body.tracks.items){
                 entries.push({
                     name: track.artists[0].name + ' - ' + track.name,
@@ -83,12 +79,6 @@ class Search extends Component {
     render() {
         return (
             <div>
-                <form className="form-inline" onSubmit={this.search}>
-                    <input className="form-control mr-sm-2" type="search" placeholder="Look up song"
-                           aria-label="Search" value={this.state.query} onChange={this.setQuery} style={{ width:"300px" }}></input>
-                    <button className="btn btn-outline-success my-2 my-sm-0" type="submit"><FontAwesomeIcon icon="search"/>
-                    </button>
-                </form>
                 <ul className="list-group" style={{textAlign:"left"}}>
                     {this.renderSearch()}
                 </ul>

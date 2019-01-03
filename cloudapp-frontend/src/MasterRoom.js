@@ -1,4 +1,4 @@
-//import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React, {Component} from 'react';
 import SpotifyWebApi from 'spotify-web-api-node';
 import './App.css';
@@ -39,6 +39,7 @@ class MasterRoom extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            query: '',
             queue: [],
             currentlyPlaying : false,
             currentSong: {
@@ -51,6 +52,7 @@ class MasterRoom extends Component {
             },
             songsPlayed: 0
         };
+        this.child = React.createRef();
 
         //let timerId = setInterval(() => this.updateStateForServer('tick'), 2000);
 
@@ -160,21 +162,46 @@ class MasterRoom extends Component {
         this.playNextSong();
     }
 
+    setQuery = (e) => {
+        this.setState({ query: e.target.value });
+    }
 
+    handleSubmit = (e) => {
+        e.preventDefault();
+        this.child.current.search(this.state.query)
+    }
 
     render() {
         const spTkn = 'BQC7cmdorLg82wSM7a2bXD25PjS6DAtgDLTAQV3EifbqIypnU5PEw0HaCLSXTaky7_13VlsMRfwJNCX6Whg'
         return (
 
             <div className="container-fluid">
-                <div className="col-md-6">
-                    {this.renderPlayer()}
-                    {this.renderSongs()}
+                <div className="row">
+                    <div className="col">
+                        <nav className="navbar navbar-dark bg-dark justify-content-between">
+                            <a className="navbar-brand" style={{color:"white"}}>This is master</a>
+                            <form className="form-inline" onSubmit={this.handleSubmit}>
+                                <input className="form-control mr-sm-2" type="search" placeholder="Look up song"
+                                       aria-label="Search" value={this.state.query} onChange={this.setQuery} style={{ width:"300px" }}></input>
+                                <button className="btn btn-outline-success my-2 my-sm-0" type="submit"><FontAwesomeIcon icon="search"/>
+                                </button>
+                                <span> &nbsp;</span>
+                                <div className="float-right"><button type="button" className="btn btn-success"  onClick={this.addSpotify}>Add<br/>
+                                    Spotify</button></div>
+                            </form>
+                        </nav>
+                    </div>
                 </div>
-                <div className="col-md-6">
-                    <div className="float-right"><button type="button" className="btn btn-success"  onClick={this.addSpotify}>Add<br/>
-                        Spotify</button></div>
-                    <Search/>
+                <div className="row">
+                    <div className="col">{this.renderPlayer()}</div>
+                </div>
+                <div className="row">
+                    <div className="col-4">{this.renderSongs()}</div>
+                    <div className="col-8">
+                        <ul className="list-group" style={{align:"left"}}>
+                            <Search ref={this.child} />
+                        </ul>
+                    </div>
                 </div>
             </div>
 
