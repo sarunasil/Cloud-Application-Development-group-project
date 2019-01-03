@@ -9,7 +9,7 @@ import SpotifyPlayer from 'react-spotify-player';
 import YouTube from 'react-youtube';
 import { Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
+import Search from './Search'
 
 var scopes = ['user-modify-playback-state', 'user-read-currently-playing', 'app-remote-control', 'streaming', 'user-read-playback-state'],
     clientId = '1811c9058bad498b8d829cd37564fdc6', //my own code, will prbs be changed
@@ -55,13 +55,9 @@ class MasterRoom extends Component {
 
             },
             songsPlayed: 0,
-            test: "",
-            searchResults: [],
-            value: ""
+            test: ""
         };
 
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
         let timerId = setInterval(() => this.updateStateForServer('tick'), 2000);
         //TODO: will become our domain name
         spotifyApi.setRedirectURI('http://localhost:3000/callback');
@@ -170,78 +166,10 @@ class MasterRoom extends Component {
         this.playNextSong();
     }
 
-    handleChange(event) {
-        this.setState({value: event.target.value});
-    }
 
-    //search
-    async handleSubmit(event) {
-        event.preventDefault();
-        var ytResults;
-        searchYouTube({key: this.state.youtubeAppToken, term: this.state.value, maxResults: 6}, (videos) => {
-            console.log("asdasdasdasd")
-            console.log(videos);
-            var cnt = 0;
-            var newEntryList = [];
-            for(cnt = 0; cnt < videos.length; cnt++){
-                var newEntry =
-                    {
-                        link: "",
-                        name: ""
-                    };
-                newEntry.link = videos[cnt].id.videoId;
-                newEntry.name = videos[cnt].snippet.title;
-                newEntryList.push(newEntry);
-            }
-            console.log(newEntryList);
-            this.setState({searchResults: newEntryList});
-        });
-        // add after spotify search
-
-        if(this.props.cookies.get('accessToken')){
-             console.log(this.props.cookies.get('accessToken'));
-             console.log(spotifyApi.getAccessToken());
-             var tracksCompleteResponse  = await spotifyApi.searchTracks(this.state.value, {limit: 6});
-             var cnt;
-             var tracks = [];
-             console.log(tracksCompleteResponse);
-             console.log(tracksCompleteResponse.body.tracks);
-             for(cnt=0; cnt < tracksCompleteResponse.body.tracks.items.length; cnt++){
-                var track = tracksCompleteResponse.body.tracks.items[cnt];
-                 var newTrack = {
-                     name: "",
-                     link: "",
-                     time: 0,
-                 }
-                 newTrack.name  = track.name;
-                 newTrack.link = track.uri;
-                 newTrack.time = track.duration_ms;
-                 tracks.push(newTrack);
-             }
-
-            this.setState({
-                searchResults: tracks.concat(this.state.searchResults)
-            });
-             console.log(this.state.searchResults);
-        }
-    }
-
-
-
-    addSongToQueue(position) {
-        var currentSong = {
-            name : this.state.searchResults[position].name,
-            link : this.state.searchResults[position].link,
-            votes : 0,
-            time : "100"
-        }
-        var newQueue = this.state.queue;
-        newQueue.push(currentSong);
-        this.setState({newQueue: this.state.queue});
-        // API call to add the song to queue,
-    }
 
     render() {
+        const spTkn = 'BQC7cmdorLg82wSM7a2bXD25PjS6DAtgDLTAQV3EifbqIypnU5PEw0HaCLSXTaky7_13VlsMRfwJNCX6Whg'
         return (
 
             <div className="container-fluid">
@@ -249,15 +177,15 @@ class MasterRoom extends Component {
                     <div className="col">
                         <nav className="navbar navbar-dark bg-dark justify-content-between">
                             <a className="navbar-brand" style={{color:"white"}}>This is master</a>
-                            <form className="form-inline" onSubmit={this.handleSubmit}>
-                                <input className="form-control mr-sm-2" type="search" placeholder="Look up song"
-                                       aria-label="Search" value={this.state.value} onChange={this.handleChange} style={{ width:"300px" }}></input>
-                                <button className="btn btn-outline-success my-2 my-sm-0" type="submit"><FontAwesomeIcon icon="search"/>
-                                </button>
-                                <span> &nbsp;</span>
+                            {/*<form className="form-inline" onSubmit={this.handleSubmit}>*/}
+                                {/*<input className="form-control mr-sm-2" type="search" placeholder="Look up song"*/}
+                                       {/*aria-label="Search" value={this.state.value} onChange={this.handleChange} style={{ width:"300px" }}></input>*/}
+                                {/*<button className="btn btn-outline-success my-2 my-sm-0" type="submit"><FontAwesomeIcon icon="search"/>*/}
+                                {/*</button>*/}
+                                {/*<span> &nbsp;</span>*/}
                                 <div className="float-right"><button type="button" className="btn btn-success"  onClick={this.addSpotify}>Add<br/>
                                     Spotify</button></div>
-                            </form>
+                            {/*</form>*/}
                         </nav>
                     </div>
                 </div>
@@ -267,9 +195,8 @@ class MasterRoom extends Component {
                 <div className="row">
                     <div className="col-4">{this.renderSongs()}</div>
                     <div className="col-8">
-                        <ul className="list-group" style={{align:"left"}}>
-                        {this.renderSearch()}
-                        </ul>
+                        <Search spotifyToken={spTkn}/>
+
                     </div>
                 </div>
             </div>
@@ -278,30 +205,6 @@ class MasterRoom extends Component {
     }
 
 
-    renderSearch(){
-        var searchResults = this.state.searchResults;
-        return searchResults.map(
-            (song, i) =>
-
-
-
-                    <li style={{border:"0"}} className="list-group-item" key = {i}  >
-
-
-                        { !song.link.startsWith('spotify:') &&
-                    <img src={require('./youtubeLogo.png')} width="50" height="40"/>
-                    }
-                        {  song.link.startsWith('spotify:') &&
-                        <img src={require('./spotifyLogo.png')} width="40" height="40"/>
-                        }
-                        <span> </span>
-                        {song.name}
-                        <span> </span>
-                        <button type="button" className="btn btn-success" onClick={() => this.addSongToQueue(i)}><FontAwesomeIcon icon="plus-square"/></button>
-                        </li>
-
-
-        );}
 
     // the songs played part ensures that the player gets refreshed at the end of a song
     renderPlayer(){
