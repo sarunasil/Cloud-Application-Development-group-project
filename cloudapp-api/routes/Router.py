@@ -103,7 +103,13 @@ class Router(RoomModerator, QueueModerator, TokenModerator, UserModerator):
 
     @staticmethod
     def pending_songs(room_number):
-        return
+        try:
+            unsorted_queue = DBUtils.get_pending_songs(room_number)
+            # possible type error - idk if unsorted_queue is of type dict
+            sorted_queue = QueueModerator.sort_pending_songs(unsorted_queue)
+            return True, sorted_queue
+        except:
+            return False, []
 
     @staticmethod
     def played_songs(room_number):
