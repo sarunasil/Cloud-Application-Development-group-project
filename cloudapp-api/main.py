@@ -158,7 +158,11 @@ def get_pending_songs(room_number):
 # TODO - get a dictionary (json object) with played songs, where key is the URL and value is a nested dictionary (object)
 @app.route('/played-songs/<room_number>', methods=['POST'])
 def get_played_songs(room_number):
-    return room_number
+    history = Router.played_songs(room_number)
+    return Response.responseSuccess({
+        'played_songs': history,
+        'message': 'List with played songs'
+    })
 
 @app.route('/upvote/<room_number>', methods=['POST'])
 def upvote_song(room_number):

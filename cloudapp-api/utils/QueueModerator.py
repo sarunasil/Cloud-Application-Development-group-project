@@ -17,7 +17,7 @@ class QueueModerator:
 
     @staticmethod
     def enqueue_song(room_number, url, name):
-        url = url.replace('.', '@')
+        url = SecurityUtils.encrypt_url(url)
         room = DBUtils.get_room(room_number)
         queue = room['queue']
 
@@ -25,7 +25,8 @@ class QueueModerator:
         exists = False
         if url in queue:
             exists = True
-            return False, queue
+            queue_list = QueueModerator.sort_pending_songs(queue)
+            return False, queue_list
         song = {
             'name': name,
             'score': 0  # initial score is always 0
@@ -44,7 +45,7 @@ class QueueModerator:
         if type(songs) is dict:
             for x in songs.keys():
                 song = songs[x]
-                song['url'] = x
+                song['url'] = SecurityUtils.decrypt_url(x)
                 priority_queue.enqueue(songs[x], songs[x]['score'])
 
             while len(priority_queue) > 0:
@@ -68,17 +69,25 @@ class QueueModerator:
         is_successful, dequeued_song, msg = DBUtils.dequeue_song(room_number)
         history, unsorted_queue = DBUtils.get_all_songs(room_number)
         queue = QueueModerator.sort_pending_songs(unsorted_queue)
+        history = QueueModerator.decrypt_urls(history)
+        decrypted_song = None
 
-        print(msg)
+        if dequeued_song is not None:
+            for x in dequeued_song.keys():
+                decrypted_song = dequeued_song[x]
+                decrypted_song['url'] = SecurityUtils.decrypt_url(x)
+
+                break
+
         if is_successful:
-            return True, history, queue, dequeued_song, None
+            return True, history, queue, decrypted_song, None
         else:
-            return False, history, queue, dequeued_song, msg.value
+            return False, history, queue, decrypted_song, msg.value
 
 
     @staticmethod
     def remove_song(room_number, url, name=None, master_id=None):
-        url = url.replace('.', '@')
+        url = SecurityUtils.encrypt_url(url)
         # TODO - change when master is known
         original_master = ''
         master_id='test'
@@ -107,7 +116,7 @@ class QueueModerator:
 
     @staticmethod
     def upvote_song(room_number, url, user_id):
-        url = url.replace('.', '@')
+        url = SecurityUtils.encrypt_url(url)
         pending_songs = DBUtils.get_pending_songs(room_number)
 
         # Check if a song is in the queue/pending songs
@@ -132,9 +141,25 @@ class QueueModerator:
         return False, sorted_queue, None
 
     @staticmethod
+    def decrypt_urls(songs_object):
+        decrypted_url_songs = {}
+        for x in songs_object.keys():
+            decoded_url = SecurityUtils.decrypt_url(x)
+            decrypted_url_songs[decoded_url] = songs_object[x]
+        return decrypted_url_songs
+
+    @staticmethod
     def pending_songs(room_number):
-        return
+        try:
+            unsorted_queue = DBUtils.get_pending_songs(room_number)
+            # possible type error - idk if unsorted_queue is of type dict
+            sorted_queue = QueueModerator.sort_pending_songs(unsorted_queue)
+            return True, sorted_queue
+        except:
+            return False, []
 
     @staticmethod
     def played_songs(room_number):
-        return
+        history = DBUtils.get_played_songs(room_number)
+        history = QueueModerator.decrypt_urls(history)
+        return history
