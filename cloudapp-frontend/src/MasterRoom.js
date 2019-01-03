@@ -2,10 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React, {Component} from 'react';
 import SpotifyWebApi from 'spotify-web-api-node';
 import './App.css';
-import {Route, Switch, Link} from 'react-router-dom'
-import SplitterLayout from 'react-splitter-layout';
-import searchYouTube from 'youtube-api-search';
-import SpotifyPlayer from 'react-spotify-player';
+import SpotifyPlayer from './SpotifyPlayer';
 import YouTube from 'react-youtube';
 import { Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -67,6 +64,7 @@ class MasterRoom extends Component {
         }
         //TODO: use roomId to retrieve data : queue, search/access token for spotify/YT
         this.updateStateForServer();
+        spotifyApi.setAccessToken('BQDagoVn7B8mwX8ksvnKKXa41vbev0g5j_llmOiz4GOo8v0Hr5p2lSaCtDrJc3sqeUCLYRVOp1XjkZiXvdGiX-YVAJnTnTRoePvgNHNjg_xraQhcwsEFmfuv8-3-nf7r7p2wpr7uzSiO1qXr5b_yCahbLUEJHPpl0IpsgDEGSEIx_NXqWXrvvIX2UYft')
     }
 
     addSpotify = () => {
@@ -96,9 +94,10 @@ class MasterRoom extends Component {
                     time: "150", // time in seconds
                     votes: "0"
                 },
+
                 {
                     name : "Song 3",
-                    link : "Y1PVmANeyAg",
+                    link : "spotify:track:47YfeZOuxkGsiFwY97ubRQ",
                     time: "150", // time in seconds
                     votes: "0"
                 },
@@ -214,13 +213,11 @@ class MasterRoom extends Component {
     renderPlayer(){
         return(
             <div>
-                { this.state.currentSong.type === "s" &&
+                { spotifyApi.getAccessToken() &&
                 <SpotifyPlayer
-                    uri= {this.state.currentSong.link}
-                    allow="encrypted-media"
-                    size={size}
-                    view={view}
-                    theme={theme}
+                    spotifyToken={spotifyApi.getAccessToken()}
+                    songUri={this.state.currentSong.type === "s" ? this.state.currentSong.link : ''}
+                    next={this._onEnd}
                 />
                 }
 
