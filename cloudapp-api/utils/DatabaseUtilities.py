@@ -68,6 +68,24 @@ class DBUtils:
         return room[0]
 
     @staticmethod
+    def delete_room(roomId):
+        '''
+        Delete room by roomId\n
+        :param roomId: room id to be destroyed\n
+        :return: True - if sucessfull, False - overwhise
+        '''
+        client = pymongo.MongoClient(config.MONGODB_CONFIG['URL'])
+
+        db = client.pymongo_test
+        result = db.rooms.remove(roomId)
+        
+        print(result)
+        if 'ok' in result and result['ok']==1.0:
+            return True
+
+        return False
+
+    @staticmethod
     def add_member(roomId, user, client=None):
         if client is None:
             client = pymongo.MongoClient(

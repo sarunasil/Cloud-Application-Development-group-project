@@ -88,3 +88,24 @@ class RoomModerator:
             return Response.responseSuccess( {"UserCookie":cookie, "UserId":userId} )
         else:
             return Response.responseFailure("Failed to add new party member");
+
+    @staticmethod
+    def delete_room(roomId, masterCookie=None):
+        '''
+        DESTROY EXISTING ROOM AND ALL IT"S DATA
+        
+        Used as cleanup after the party happened and non of existing information is needed anymore
+
+        :param roomId - id of the room to be destroyed
+        :parma masterCookie - only party master can do this, thus verification is required
+        
+        :return Success/Failure json
+        '''
+        if masterCookie==None:
+            return False
+
+        # check is masterCookie legit this room master identifier
+        if SecurityUtils.checkUser(roomId, masterCookie, True):
+            return DBUtils.delete_room(roomId)
+
+        return False

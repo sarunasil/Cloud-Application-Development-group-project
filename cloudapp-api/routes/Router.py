@@ -13,6 +13,22 @@ from utils.UserModerator import UserModerator
 class Router(RoomModerator, QueueModerator, TokenModerator, UserModerator):
     """
     Hides all API actions complexity from main.py
+
+    Functions are split between files:
+    
+    RoomModerator.py
+    - create_room
+    - join_room
+    - delete_room
+
+    QueueModerator.py
+    -
+
+    TokenModerator.py
+    -
+
+    UserModerator.py
+    -
     """
     
     @staticmethod
@@ -117,7 +133,3 @@ class Router(RoomModerator, QueueModerator, TokenModerator, UserModerator):
 
         sorted_queue = QueueModerator.sort_pending_songs(pending_songs)
         return False, sorted_queue, None
-
-    @staticmethod
-    def delete_room(room_number, url):
-        return Response.responseSuccess(room_number)

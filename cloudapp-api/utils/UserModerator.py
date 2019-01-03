@@ -6,3 +6,6 @@ User joining
 User removing
 User blocking
 '''
+
+class UserModerator:
+    pass

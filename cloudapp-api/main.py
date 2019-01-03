@@ -27,8 +27,7 @@ This is a reST style.
 @app.route('/', methods=['GET'])
 def home():
     """
-    Home page message
-
+    Home page message\n
     :returns: Welcome string
     """
     
@@ -37,10 +36,8 @@ def home():
 @app.route('/', methods=['POST'])
 def create_room():
     """
-    Create a room with a given room ID (if this ID is not used yet)
-
-    Look at router.create_room for more detail
-    
+    Create a room with a given room ID (if this ID is not used yet)\n
+    Look at router.create_room for more detail\n
     :returns: response message, either success or failure which holds a room object
     """
 
@@ -50,34 +47,45 @@ def create_room():
     else:
         return Response.responseFailure({'room': room, 'message': message})
 
+@app.route('/<room_number>/delete', methods=['POST'])
+def delete_room(room_number):
+    '''
+    Completely deletes a party room and all associated information with it\n
+    :param room_number: room id to be destroyed\n
+    :bodyparam masterCookie: cookie to authenticate master\n
+    :returns: JSON object holding a single key ("success" or "failure")
+    '''
+    cookie = "5c2d575c435a8d02bf3b9700:bb8a4c76c529880d0a9b88a3291df6ea5b9c51732d0524e2420df5714b3a3ac0:33e522edafb477dce7300b215f9860f5bb35da4d53dc0c67824cef0cc794dceb"
+
+    status = Router.delete_room(room_number, cookie)
+    if status==True:
+        return Response.responseSuccess({
+            'message': "Room "+room_number+" has been successfully destroyed."
+        })
+    else:
+        return Response.responseFailure({
+            'message': "Failed to destroy room "+room_number+". "+str(status)
+        })
 
 @app.route('/<room_number>', methods=['POST'])
 def join_room(room_number):
     """
-    Joins an existing party room
-
-    Look at router.join_room for more detail
-
-    :param room_number: party room identifier
-
+    Joins an existing party room\n
+    Look at router.join_room for more detail\n
+    :param room_number: party room identifier\n
     :returns: ?
     """
 
     return Router.join_room(room_number)
 
-@app.route('/enqueue-song/<room_number>', methods=['POST'])
+@app.route('/<room_number>/enqueue-song', methods=['POST'])
 def enqueue_song(room_number):
     """
-    Adds a song to the queue
-
-    Look at router.enqueue_song for more detail
-
-    :param room_number: party room identifier
-
-    :bodyparam url: url of the song (Spotify/Youtube), will act as a primary key in MongoDB
-
-    bodyparam name: name of the song (together with author?)
-    
+    Adds a song to the queue\n
+    Look at router.enqueue_song for more detail\n
+    :param room_number: party room identifier\n
+    :bodyparam url: url of the song (Spotify/Youtube), will act as a primary key in MongoDB\n
+    bodyparam name: name of the song (together with author?)\n
     :returns: Response.responseSuccess if added successfully, Response.responseFailure if unable to add.
     """
 
@@ -98,19 +106,14 @@ def enqueue_song(room_number):
 
     return Response.responseFailure('Song was not enqueued! Please enter url and name of the song!')
 
-@app.route('/dequeue-song/<room_number>', methods=['POST'])
+@app.route('/<room_number>/dequeue-song', methods=['POST'])
 def dequeue_song(room_number):
     """
-    Song is dequeued (removed from the queue) if it is in the queue list
-
-    Look at router.dequeue_song for more detail
-
-    :param room_number: party room identifier
-
-    :bodyparam url: url of the song (Spotify/Youtube), will act as a primary key in MongoDB
-
-    bodyparam name: name of the song (together with author?)
-
+    Song is dequeued (removed from the queue) if it is in the queue list\n
+    Look at router.dequeue_song for more detail\n
+    :param room_number: party room identifier\n
+    :bodyparam url: url of the song (Spotify/Youtube), will act as a primary key in MongoDB\n
+    bodyparam name: name of the song (together with author?)\n
     :returns: JSON object holding a single key ("success" or "failure"), holding queue, played songs, current song and a failure message (if any)
     """
 
@@ -139,12 +142,6 @@ def get_pending_songs(room_number):
 @app.route('/played-songs/<room_number>', methods=['POST'])
 def get_played_songs(room_number):
     return room_number
-
-# TODO - delete a room given its number and a cookie (with master ID)
-@app.route('/delete/<room_number>', methods=['POST'])
-def delete_room(room_number):
-    return room_number
-
 
 @app.route('/upvote/<room_number>', methods=['POST'])
 def upvote_song(room_number):
