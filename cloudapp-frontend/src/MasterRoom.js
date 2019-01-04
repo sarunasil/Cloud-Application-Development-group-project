@@ -8,6 +8,7 @@ import { Table, Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Search from './Search'
 import publicIP from 'react-native-public-ip';
+import SongList from "./SongList";
 
 var scopes = ['user-modify-playback-state', 'user-read-currently-playing', 'app-remote-control', 'streaming', 'user-read-playback-state'],
     clientId = '1811c9058bad498b8d829cd37564fdc6', //my own code, will prbs be changed
@@ -72,7 +73,6 @@ class MasterRoom extends Component {
         }
         //TODO: use roomId to retrieve data : queue, search/access token for spotify/YT
         this.updateStateForServer();
-        spotifyApi.setAccessToken('BQAk3M13v9eoLAdvVPc-zFO1LU_vkMor2TmWl_-WBTtrscSaCD-X6bv-soGsaOBHNxJ_Z1zM_v_BXzw3g83ASQrj50mLJsk9x0eyU_KD8XXzytP4qJb4ownocXicYg-RQjuO0DWmK-33PAGuD8YzZPU-RsmbBQPXl4Jen_M_QMdW0SSkbydICdJNtcdw')
     }
 
     saveIP = () => {
@@ -162,6 +162,12 @@ class MasterRoom extends Component {
     }
 
     playSong(songNumberInQueue){
+        //if we dont have spotify enabled, we skip the song
+        if(this.state.queue[songNumberInQueue].type === 's' && !spotifyApi.getAccessToken()){
+            this.removeSong(songNumberInQueue);
+            this.playNextSong();
+            return;
+        }
         this.setState({currentlyPlaying: true});
         this.setState({currentSong: this.state.queue[songNumberInQueue]});
         this.setState({songsPlayed: this.state.songsPlayed+1});
@@ -207,7 +213,6 @@ class MasterRoom extends Component {
     };
 
     render() {
-        const spTkn = 'BQC7cmdorLg82wSM7a2bXD25PjS6DAtgDLTAQV3EifbqIypnU5PEw0HaCLSXTaky7_13VlsMRfwJNCX6Whg'
         return (
 
             <div className="container-fluid">
@@ -231,8 +236,13 @@ class MasterRoom extends Component {
                     <div className="col">{this.renderPlayer()}</div>
                 </div>
                 <div className="row">
-                    <div className="col">{this.renderSongs()}</div>
-                    <div className="col">
+                    <div className="col-4">
+                        <SongList
+                            queue={this.state.queue}
+                            play={this.playSong}
+                            remove={this.renderSongs}/>
+                    </div>
+                    <div className="col-8">
                         <ul className="list-group" style={{align:"left"}}>
                             <Search ref={this.child} />
                         </ul>
@@ -273,6 +283,8 @@ class MasterRoom extends Component {
         </div>
     }
 
+
+
     // the songs played part ensures that the player gets refreshed at the end of a song
     renderPlayer(){
         return(
@@ -297,42 +309,6 @@ class MasterRoom extends Component {
             </div>
         );
     }
-
-    renderSongs(){
-        return(
-            <div className = "songs">
-                <ListGroup>
-                    {this.renderSongList()}
-                </ListGroup>
-            </div>
-        );
-    }
-
-    renderSongList(){
-        var currentSongsInQueue = this.state.queue;
-        return currentSongsInQueue.map(
-            (song, i) =>
-                <li className="list-group-item" key = {i} style={{border:"0"}}>
-                    { !song.link.startsWith('spotify:') &&
-                    <img src={require('./youtubeLogo.png')} width="50" height="40"/>
-                    }
-                    {  song.link.startsWith('spotify:') &&
-                    <img src={require('./spotifyLogo.png')} width="40" height="40"/>
-                    }
-                    <span> </span>
-                    {song.name}
-                    <span> </span> Votes: {song.votes}
-                    <span> </span>
-                    <div className="float-right">
-                    <div className="btn-group" role="group">
-                        <button type="button" className="btn btn-success" onClick={() => this.playSong(i)}> <FontAwesomeIcon icon="play-circle"/></button>
-                        <button type="button" className="btn btn-danger" onClick={() => this.removeSong(i)}><FontAwesomeIcon icon="trash-alt"/></button>
-                        <button type="button" className="btn btn-info"><FontAwesomeIcon icon="thumbs-up"/></button>
-                    </div>
-                    </div>
-
-                </li>
-        );}
 
 }
 

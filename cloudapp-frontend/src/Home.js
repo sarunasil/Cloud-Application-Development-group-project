@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Input, Button} from 'semantic-ui-react'
 import publicIP from "react-native-public-ip";
+import axios from 'axios'
 
 class Home extends Component {
     constructor(props) {
@@ -34,11 +35,14 @@ class Home extends Component {
         this.props.history.push('/someRandomIdToBeReplaced');
     }
 
-    create = () => {
-        //TODO: api post call to create new room
-        //return ID and redirect to master/id
+    create = async () => {
+        const response = await axios.post('https://cloud-app-dev-227512.appspot.com/')
+        console.log(response.data.success.room);
 
-        this.props.history.push('master/someOtherIdTOBeReplaced')
+        //TODO set whatever cookies need to be set
+
+
+        this.props.history.push('master/' + response.data.success.room._id);
     }
 
     render() {

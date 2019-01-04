@@ -1,10 +1,13 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS, cross_origin
 from routes.Router import Router
 from utils.Response import Response
 from utils.TokenModerator import TokenModerator
 from utils.Middleware import MiddlewareUtils
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 '''
@@ -190,7 +193,7 @@ def remove_song(room_number):
         })   
 
 # TODO - get a dictionary (json object) with pending songs (queue), where key is the URL and value is a nested dictionary (object)
-@app.route('/<room_number>/pending-songs', methods=['POST'])
+@app.route('/<room_number>/pending-songs', methods=['GET'])
 @MiddlewareUtils.valid_user
 def get_pending_songs(room_number):
     """
@@ -211,7 +214,7 @@ def get_pending_songs(room_number):
         })
 
 # TODO - get a dictionary (json object) with played songs, where key is the URL and value is a nested dictionary (object)
-@app.route('/<room_number>/played-songs', methods=['POST'])
+@app.route('/<room_number>/played-songs', methods=['GET'])
 @MiddlewareUtils.valid_user
 def get_played_songs(room_number):
     history = Router.played_songs(room_number)
@@ -270,29 +273,29 @@ def unvote_song(room_number):
     """
     #make sure user is unvoting his own song. 
 
-    # data = request.json
-    # if 'url' not in data:
-    #     msg = 'URL has not been found!'
-    #     return Response.responseFailure(msg)
+    data = request.json
+    if 'url' not in data:
+        msg = 'URL has not been found!'
+        return Response.responseFailure(msg)
 
-    # url = data['url']
-    # cookie = request.headers.get('Authorization')
-    # result, queue, msg = Router.upvote_song(room_number, url, cookie)
+    url = data['url']
+    cookie = request.headers.get('Authorization')
+    result, queue, msg = Router.unvote_song(room_number, url, cookie)
 
-    # if result:
-    #     return Response.responseSuccess({
-    #         'message': '',
-    #         'queue': queue
-    #     })
-    # else:
-    #     return Response.responseFailure({
-    #         'message': msg,
-    #         'queue': queue
-    #     })
+    if result:
+        return Response.responseSuccess({
+            'message': '',
+            'queue': queue
+        })
+    else:
+        return Response.responseFailure({
+            'message': msg,
+            'queue': queue
+        })
 
 # get the token that lets the frontend search through the spotify library
 # return: a string token
-@app.route('/', methods=['POST'])
+@app.route('/credentials', methods=['GET'])
 def get_client_credentials_token():
     return TokenModerator.get_client_credentials_token()
 

@@ -286,8 +286,8 @@ class DBUtils:
 
         users = None if 'users' not in result[0] else result[0]['users']
         songs = {}
-        if users is not None and user_id in users:
-            songs = users[user_id]
+        if users is not None and user_id in users and 'songs' in users[user_id]:
+            songs = users[user_id]['songs']
 
         return songs
 
@@ -336,6 +336,73 @@ class DBUtils:
                 return False
 
         return is_successful
+
+    @staticmethod
+    def unvote(room_number, url, user_id):
+        client = pymongo.MongoClient(
+            config.MONGODB_CONFIG['URL'])
+
+        db = client.pymongo_test
+        unset_fields = {
+           '$unset': {
+               'users.' + user_id + '.songs.' + url: ""
+           }
+        }
+
+        with client.start_session() as s:
+            s.start_transaction()
+            # Update user votes
+            write_result = db.rooms.update({'_id': room_number}, unset_fields)
+            is_successful = write_result['nModified'] == 1
+            # Update queue with song's new score
+            if is_successful:
+                score_field = {
+                    '$inc': {
+                        'queue.' + url + '.score': -1
+                    }
+                }
+                write_result_score_update = db.rooms.update({'_id': room_number}, score_field)
+                is_successful = write_result_score_update['nModified'] == 1 and is_successful
+
+                # Update head if necessary
+                result = db.rooms.find({'_id': room_number}, {'queue': 1, 'head': 1})
+                queue = None if 'queue' not in result[0] else result[0]['queue']
+                current_head = None if 'head' not in result[0] else result[0]['head']
+                if current_head is None:
+                    if queue is not None:
+                        # If queue is not empty, it must have a head
+                        if len(queue.keys()) > 0:
+                            s.abort_transaction()
+                            return False, ErrorMsg.HEAD_MISMATCH
+                    else:
+                        # No queue returned
+                        s.abort_transaction()
+                        return False, ErrorMsg.NO_QUEUE
+                elif current_head in queue and url in queue:
+                    # Check if the head (downvoted song) is actually leading again
+                    if current_head == url:
+                        for x in queue.keys():
+                            if queue[x]['score'] > queue[current_head]['score'] - 1:
+                                current_head = x
+                                # Update head if it is not head anymore
+                                updated_fields = {
+                                    '$set': {
+                                        'head': current_head
+                                    }
+                                }
+                                write_result_score_update = db.rooms.update({'_id': room_number},
+                                                                            updated_fields)
+                                break
+                else:
+                    # head or unvoted song are not in the queue, abort
+                    s.abort_transaction()
+                    return False, ErrorMsg.ERROR
+                s.commit_transaction()
+            else:
+                s.abort_transaction()
+                return False, ErrorMsg.VOTE_NOT_REMOVED
+
+        return is_successful, None
 
     @staticmethod
     def dequeue_song(room_number):
