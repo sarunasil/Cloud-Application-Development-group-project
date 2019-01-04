@@ -1,11 +1,7 @@
 import React, {Component} from 'react';
 import SpotifyWebApi from 'spotify-web-api-node';
 import './App.css';
-import {Route, Switch, Link} from 'react-router-dom'
-import SplitterLayout from 'react-splitter-layout';
 import searchYouTube from 'youtube-api-search';
-import SpotifyPlayer from 'react-spotify-player';
-import YouTube from 'react-youtube';
 import { Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 import publicIP from "react-native-public-ip";
 

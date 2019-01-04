@@ -70,7 +70,7 @@ class MasterRoom extends Component {
         }
         //TODO: use roomId to retrieve data : queue, search/access token for spotify/YT
         this.updateStateForServer();
-        spotifyApi.setAccessToken('BQAk3M13v9eoLAdvVPc-zFO1LU_vkMor2TmWl_-WBTtrscSaCD-X6bv-soGsaOBHNxJ_Z1zM_v_BXzw3g83ASQrj50mLJsk9x0eyU_KD8XXzytP4qJb4ownocXicYg-RQjuO0DWmK-33PAGuD8YzZPU-RsmbBQPXl4Jen_M_QMdW0SSkbydICdJNtcdw')
+        spotifyApi.setAccessToken('BQC3TnftTzQiz7xgoYPC4rSj6juA8hTk7SRiG8BmXA9o8XQhOjNRzmkaq8bjJPc2rYLtTJZMStRfIyOH00Q-J8hY79SkB2Q4coMS851MHCTnpt0ShiwvZFcsO4GiXHm5c0nPIIXgyJ51J5XF3YJ3Z97CFNQow6eviIpCtK3CcF_ChNIg5YCIK0PrkVHB')
     }
 
     saveIP = () => {
