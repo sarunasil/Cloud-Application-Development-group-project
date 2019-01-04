@@ -70,6 +70,20 @@ def delete_room(room_number):
             'message': "Failed to destroy room "+room_number+". "+str(status)
         })
 
+@app.route('/<room_number>/nickname', methods=['GET'])
+def generate_nickname(room_number):
+    """
+    Generates a random nickname using third-party API
+    :param room_number:
+    :return: json {Status, [msg, nickname]}
+    """
+
+    nickname = Router.generate_nickname(room_number)
+    if nickname!="":
+        return Response.responseSuccess({'nickname':nickname})
+    return Response.responseFailure({'msg': 'Failed to generate unique nickname'})
+    
+
 @app.route('/<room_number>', methods=['POST'])
 def join_room(room_number):
     """

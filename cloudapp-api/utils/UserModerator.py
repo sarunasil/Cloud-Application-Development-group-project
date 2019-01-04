@@ -2,9 +2,11 @@ from utils.Response import Response
 from utils.DatabaseUtilities import DBUtils
 from utils.DatabaseUtilities import Purpose
 from utils.Security import SecurityUtils
+import requests
 
 '''
 This class deals with:
+Nickname generator
 User joining
 Get user list
 User removing
@@ -12,6 +14,28 @@ User blocking
 '''
 
 class UserModerator:
+    @staticmethod
+    def generate_nickname(room_number):
+        '''
+        Generates a unique nickname for a specific room\n
+        :param room_number: \n
+        :return: string nickname
+        '''
+
+        nickname = ''
+        while True:
+            response = requests.post("https://api.codetunnel.net/random-nick", json={'sizelimit':'20'}).json()
+
+            if response['success']: #make sure this doesn't enter infinite loop
+                nickname = response['nickname']
+            else:
+                return ""
+
+            if DBUtils.nicknameUnique(room_number, nickname):
+                break
+
+        return nickname
+
     @staticmethod
     def join_room(room_number, nickname, ip):
         """
@@ -39,8 +63,6 @@ class UserModerator:
                 'songs': {}
             },
         }
-
-        #TODO: CHECK THAT nickname is unique!
 
         #save in database
         result = DBUtils.add_member(room_number, user)

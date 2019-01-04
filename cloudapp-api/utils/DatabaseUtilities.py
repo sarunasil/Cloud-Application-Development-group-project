@@ -14,12 +14,9 @@ class DBUtils:
     @staticmethod
     def generateUniqueId(purpose, room_id=None, client=None):
         '''
-        Generates a unique identifier using ObjectId - same as MongoDb auto-assigned _id
-
-        :param purpose: one of Purpose Enum value
-
-        :return unique ObjectId string
-
+        Generates a unique identifier using ObjectId - same as MongoDb auto-assigned _id\n
+        :param purpose: one of Purpose Enum value\n
+        :return unique ObjectId string\n
         :Exception ValueError: if room with roomId does not exist. 
         '''
 
@@ -42,6 +39,33 @@ class DBUtils:
             if existing_id is None:
                 break
         return str(id)
+
+    @staticmethod
+    def nicknameUnique(roomId, nickname):
+        '''
+        Test if a nickname is already used in the room
+        :param roomId:
+        :param nickname: nickname to check
+        :return: True - nickname is unique; False - nickname is not unique
+        '''
+
+        fields = [
+            'users'
+        ]
+        users = DBUtils.get_fields(roomId, fields)
+
+        nicknames=[]
+        if users is not None:
+            users = users[0]['users']
+            for id in users.keys():#go through every user entry and extract nickname
+                nick = users[id]['nickname']
+                nicknames.append(nick)
+
+            #self-explanatory
+            if nickname not in nicknames:
+                return True
+
+        return False
 
     @staticmethod
     def create_room(room):
@@ -103,6 +127,18 @@ class DBUtils:
             for r in db.rooms.find( {'_id': roomId}, {"users": 1} ):
                 users = r['users'];
                 break
+
+            #check user nickname for uniqueness
+            nicknames=[]
+            if users is not None:
+                for id in users.keys():#go through every user entry and extract nickname
+                    nick = users[id]['nickname']
+                    nicknames.append(nick)
+
+                #self-explanatory
+                if list(user.values())[0]['nickname'] in nicknames:
+                    s.abort_transaction()
+                    return False
 
             if users != '' and  list(user.keys())[0] not in users:
                 users = {**users, **user}
