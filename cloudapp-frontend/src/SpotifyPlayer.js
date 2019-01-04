@@ -15,7 +15,7 @@ class SpotifyPlayer extends Component {
         this.playerCheckInterval = setInterval(() => this.checkForPlayer(), 1000);
     }
 
-    componentDidMount() {
+    componentWillMount() {
         const script = document.createElement("script");
         script.src = "https://sdk.scdn.co/spotify-player.js";
         document.body.appendChild(script);
@@ -65,32 +65,46 @@ class SpotifyPlayer extends Component {
     componentWillUpdate(nextProps, nextState){
         console.log(nextProps);
         console.log(nextState);
-        if(nextProps.songUri){
-            if(nextProps.songUri === this.state.lastPlayed) return;
+        //check that we have a spotify song and that the player is ready
 
-            const data = spotifyApi.play({
-                uris:[nextProps.songUri],
-                device_id: this.state.deviceId
-            });
+            if (nextProps.songUri && this.state.deviceId) {
+                if (nextProps.songUri === this.state.lastPlayed) return;
 
-            this.setState({lastPlayed: nextProps.songUri});
-        } else {
-            spotifyApi.pause();
-        }
+                const data = spotifyApi.play({
+                    uris: [nextProps.songUri],
+                    device_id: this.state.deviceId
+                });
+
+                this.setState({lastPlayed: nextProps.songUri});
+            } else {
+                spotifyApi.pause();
+            }
+
     }
 
-    resume() {
-        spotifyApi.play()
+    resume = () => {
+        this.player.resume();
     }
 
-    pause() {
-        spotifyApi.pause()
+    pause = () => {
+       this.player.pause();
     }
 
     next = () => {
-        spotifyApi.pause();
+        this.player.pause();
         this.props.next();
     }
+
+    back = async () => {
+        const data = await this.player.getCurrentState();
+        this.player.seek(data.position - 10000 > 0 ? data.position - 10000 : 0);
+    }
+
+    forward = async () => {
+        const data = await this.player.getCurrentState();
+        this.player.seek(data.position + 10000 < data.duration ? data.position + 10000 : data.duration-1);
+    }
+
 
     render(){
         return (
@@ -98,9 +112,11 @@ class SpotifyPlayer extends Component {
                 {this.props.songUri ?
                     <div>
                         <h3>Playing: {this.props.songName}</h3>
-                    <button onClick={this.pause}>Pause</button>
-                    <button onClick={this.resume}>Resume</button>
-                    <button onClick={this.next}>Next</button>
+                        <button onClick={this.back}>Back 10 sec</button>
+                        <button onClick={this.pause}>Pause</button>
+                        <button onClick={this.resume}>Resume</button>
+                        <button onClick={this.next}>Next</button>
+                        <button onClick={this.forward}>Forward 10 sec</button>
                     </div> :
                     <div></div>}
             </div>

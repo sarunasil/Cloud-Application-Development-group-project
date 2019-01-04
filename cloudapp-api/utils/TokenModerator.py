@@ -61,3 +61,9 @@ class TokenModerator:
             return True, spotify_res["access_token"]
         except:
             return False, ""
+
+    # get api key for searching youtube content
+    # return Youtube_Data_Api_v3 key
+    @staticmethod
+    def get_youtube_search_key():
+        return config.TOKEN_KEYS['YOUTUBE_DATA_API']

@@ -12,6 +12,8 @@ class Search extends Component {
     //will receive search tokens
     constructor(props) {
         super(props);
+
+        //TODO rather than expecting the token from the parent, make an API call and obtain it directly here
         if(this.props.spotifyToken){
             spotifyApi.setAccessToken(this.props.spotifyToken);
         }
