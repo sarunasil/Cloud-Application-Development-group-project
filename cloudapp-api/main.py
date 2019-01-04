@@ -78,8 +78,20 @@ def join_room(room_number):
 
     return Router.join_room(room_number)
 
+@app.route('/<room_number>/get-members', methods=['POST'])
+@MiddlewareUtils.valid_master
+def get_members(room_number):#TODO
+    """
+    Gets the list of party members\n
+    :param room_number: party room identifier\n
+    :returns: json{Status, [UserCookie]}
+    """
+
+    return Router.get_members(room_number)
+
 @app.route('/<room_number>/kick', methods=['POST'])
-def kick(room_number):
+@MiddlewareUtils.valid_master
+def kick(room_number):#TODO
     """
     Kicks a party member out of the room\n
     Look at router.kick for more detail\n
@@ -91,7 +103,8 @@ def kick(room_number):
     return Router.kick(room_number, userId)
 
 @app.route('/<room_number>/block', methods=['POST'])
-def block(room_number):
+@MiddlewareUtils.valid_master
+def block(room_number):#TODO
     """
     Block a user from entering this party room\n
     Look at router.block for more detail\n
