@@ -1,6 +1,7 @@
 ### prerequisites
 if you dont want all packages to be installed globally you need `virtual env`
-`pip install -r requirements.txt`
+
+to install packages: `pip install -r requirements.txt`
 
 ## to run server locally:
 rename configExample.py to config.py
