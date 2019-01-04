@@ -35,13 +35,14 @@ class RoomModerator:
         userId = DBUtils.generateUniqueId(Purpose.USER)
         token = SecurityUtils.generateToken()
         cookie = SecurityUtils.generateCookie(userId, token)
-        search = TokenModerator.get_client_credentials_token()
+        spotify_search_token = TokenModerator.get_client_credentials_token()
+        youtube_key = TokenModerator.get_youtube_search_key()
 
         room_obj = {
             '_id': DBUtils.generateUniqueId(Purpose.ROOM),
             'master': {userId: token},
-            'SpotifySearchToken': search,
-            'SpotifyAccessToken': '', # TODO - add script to acquire token
+            'SpotifySearchToken': spotify_search_token,
+            'YoutubeSearchToken': youtube_key,
             'head': None,
             'queue': {},
             'history': {}, # played songs
