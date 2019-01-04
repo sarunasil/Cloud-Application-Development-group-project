@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Input, Button} from 'semantic-ui-react'
+import publicIP from "react-native-public-ip";
 
 class Home extends Component {
     constructor(props) {
@@ -13,7 +14,18 @@ class Home extends Component {
         this.setState({ roomCode: e.target.value });
     }
 
-    join = () => {
+    join = async () => {
+        // This ip will be needed when calling the join API
+        var ip = await publicIP()
+            .then(ip => {
+                console.log("User IP: ", ip);
+                return ip;
+            })
+            .catch(error => {
+                console.log(error);
+            });
+
+
         //TODO: api calls to join the room
         //map code to room ID
         //return ID and redirect to it

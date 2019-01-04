@@ -77,6 +77,7 @@ class PeasantRoom extends Component {
     saveIP = () => {
         publicIP()
             .then(ip => {
+
                 //add the user IP to the cookie
                 this.props.cookies.set('ip', ip, { path: '/', maxAge: 3600 });
                 console.log("User IP: ", ip);
