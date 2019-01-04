@@ -93,8 +93,7 @@ class QueueModerator:
 
         # Check if a song is in the queue/pending songs
         if url not in pending_songs:
-            msg = "Song does not belong to queue"
-            return False, msg
+            return False, ErrorMsg.NO_SONG.value
 
         songs = DBUtils.get_votes_per_user(room_number, user_id)
         if url not in songs:
@@ -111,6 +110,32 @@ class QueueModerator:
 
         sorted_queue = QueueModerator.sort_pending_songs(pending_songs)
         return False, sorted_queue, None
+
+    @staticmethod
+    def unvote_song(room_number, url, cookie):
+        user_id = SecurityUtils.get_user_id(cookie)
+        url = SecurityUtils.encrypt_url(url)
+        pending_songs = DBUtils.get_pending_songs(room_number)
+
+        # Check if a song is in the queue/pending songs
+        if url not in pending_songs:
+            sorted_queue = QueueModerator.sort_pending_songs(pending_songs)
+            return False, sorted_queue, ErrorMsg.NO_SONG.value
+
+        songs = DBUtils.get_votes_per_user(room_number, user_id)
+
+        if url not in songs or songs[url] == 0:
+            sorted_queue = QueueModerator.sort_pending_songs(pending_songs)
+            return False, sorted_queue, ErrorMsg.NO_VOTE.value
+
+        result, err = DBUtils.unvote(room_number, url, user_id)
+        pending_songs = DBUtils.get_pending_songs(room_number)
+        sorted_queue = QueueModerator.sort_pending_songs(pending_songs)
+
+        if result:
+            return True, sorted_queue, None
+        else:
+            return False, sorted_queue, err.value
 
     @staticmethod
     def decrypt_urls(songs_object):
