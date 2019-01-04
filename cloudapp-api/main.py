@@ -305,7 +305,7 @@ def unvote_song(room_number):
 
 # get the token that lets the frontend search through the spotify library
 # return: a string token
-@app.route('/', methods=['POST'])
+@app.route('/credentials', methods=['GET'])
 def get_client_credentials_token():
     return TokenModerator.get_client_credentials_token()
 

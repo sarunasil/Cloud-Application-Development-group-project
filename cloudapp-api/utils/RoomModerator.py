@@ -36,7 +36,7 @@ class RoomModerator:
         room_obj = {
             '_id': DBUtils.generateUniqueId(Purpose.ROOM),
             'master': {userId: token},
-            'SpotifySearchToken': {"SearchToken": search}, # TODO - add script to acquire token
+            'SpotifySearchToken': search,
             'SpotifyAccessToken': '', # TODO - add script to acquire token
             'head': None,
             'queue': {},

@@ -7,6 +7,7 @@ import searchYouTube from 'youtube-api-search';
 import SpotifyPlayer from 'react-spotify-player';
 import YouTube from 'react-youtube';
 import { Button, ListGroup, ListGroupItem } from 'react-bootstrap';
+import publicIP from "react-native-public-ip";
 
 
 var scopes = ['user-modify-playback-state', 'user-read-currently-playing', 'app-remote-control', 'streaming', 'user-read-playback-state'],
@@ -67,7 +68,22 @@ class PeasantRoom extends Component {
     }
 
     componentDidMount(){
+        // Obtains the user IP and adds it to the cookie
+        this.saveIP();
+
         //TODO: use roomId to retrieve data : queue, search/access token for spotify/YT
+    }
+
+    saveIP = () => {
+        publicIP()
+            .then(ip => {
+                //add the user IP to the cookie
+                this.props.cookies.set('ip', ip, { path: '/', maxAge: 3600 });
+                console.log("User IP: ", ip);
+            })
+            .catch(error => {
+                console.log(error);
+            })
     }
 
     updateStateForServer() {
