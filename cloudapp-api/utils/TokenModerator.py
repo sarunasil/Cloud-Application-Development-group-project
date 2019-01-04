@@ -17,7 +17,7 @@ class TokenModerator:
 
     redirect_uri = "https://google.com"
     scopes = "user-read-private"
-    concat = ''#config.TOKEN_KEYS['CLIENT_ID'] + ":" + config.TOKEN_KEYS['CLIENT_SECRET']
+    concat = config.TOKEN_KEYS['CLIENT_ID'] + ":" + config.TOKEN_KEYS['CLIENT_SECRET']
     encoded_str = base64.b64encode(concat.encode("UTF-8"))
     decoded_bytes = encoded_str.decode("UTF-8")
     spotify_token_endpoint = "https://accounts.spotify.com/api/token"
@@ -33,7 +33,6 @@ class TokenModerator:
         payload = {'grant_type': 'client_credentials'}
 
         spotify_res = requests.post(TokenModerator.spotify_token_endpoint, headers=headers, data=payload)
-        print(spotify_res.text)
         spotify_res = json.loads(spotify_res.text)
         return spotify_res["access_token"]
 
@@ -55,8 +54,16 @@ class TokenModerator:
             'content-type': 'application/x-www-form-urlencoded',
             'Authorization': 'Basic ' + TokenModerator.decoded_bytes
         }
+        try:
+            payload = {'grant_type': 'authorization_code', 'code': code, 'redirect_uri': TokenModerator.redirect_uri}
+            spotify_res = requests.post(TokenModerator.spotify_token_endpoint, headers=headers, data=payload)
+            spotify_res = json.loads(spotify_res.text)
+            return True, spotify_res["access_token"]
+        except:
+            return False, ""
 
-        payload = {'grant_type': 'authorization_code', 'code': code, 'redirect_uri': TokenModerator.redirect_uri}
-        spotify_res = requests.post(TokenModerator.spotify_token_endpoint, headers=headers, data=payload)
-        spotify_res = json.loads(spotify_res.text)
-        return spotify_res["access_token"]
+    # get api key for searching youtube content
+    # return Youtube_Data_Api_v3 key
+    @staticmethod
+    def get_youtube_search_key():
+        return config.TOKEN_KEYS['YOUTUBE_DATA_API']

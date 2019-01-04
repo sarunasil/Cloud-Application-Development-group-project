@@ -295,15 +295,26 @@ def unvote_song(room_number):
 
 # get the token that lets the frontend search through the spotify library
 # return: a string token
-@app.route('/', methods=['POST'])
+@app.route('/credentials', methods=['GET'])
 def get_client_credentials_token():
     return TokenModerator.get_client_credentials_token()
 
 # token generated when a user has alawed our application to use their spotify data
 # return: a string token
-@app.route('/spotify', methods=['POST'])
+@app.route('/<room_number>/spotify', methods=['POST'])
 def get_auth_token(code):
-    return TokenModerator.get_auth_token(code)
+    data = request.json
+    if 'code' in data:
+        result, token = TokenModerator.get_auth_token(data['code'])
+        if result:
+            return Response.responseSuccess({
+                'auth': token,
+                'msg': 'Token successfully generated'
+            })
+        else:
+            return Response.responseFailure({
+                'msg': 'Problem with generating token'
+            })
 
 # start the application
 if __name__ == '__main__':
