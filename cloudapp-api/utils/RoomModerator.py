@@ -48,6 +48,7 @@ class RoomModerator:
                 'IP': "localhost",
                 'songs': {}
             }},
+            'blocked_ips': []
         }
 
         #@think is it ok to return values as head, users, master, _id as those are not needed

@@ -162,6 +162,7 @@ class DBUtils:
         if userId in master:
             return False
 
+        #kick
         with client.start_session() as s:
             s.start_transaction()
             fields = {
@@ -180,6 +181,36 @@ class DBUtils:
                 s.abort_transaction()
 
             return is_successful
+
+    @staticmethod
+    def block_ip(ip, roomId, client=None):
+        if client is None:
+            client = pymongo.MongoClient(
+                config.MONGODB_CONFIG['URL'])
+
+        db = client.pymongo_test
+
+        with client.start_session() as s:
+            s.start_transaction()
+
+            #break after first result. As it's unique, there should only be one
+            ips = '';
+            for r in db.rooms.find( {'_id': roomId}, {"blocked_ips": 1} ):
+                ips = r['blocked_ips'];
+                break
+
+            if ips != '' and  ip not in ips:
+                ips.append(ip)
+            else:
+                s.abort_transaction()
+                return False
+
+            result = db.rooms.update(
+                { '_id': roomId },
+                { '$set': {'blocked_ips': ips} }
+            )
+            s.commit_transaction()
+        return True
 
 
     @staticmethod

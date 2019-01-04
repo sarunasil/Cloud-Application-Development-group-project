@@ -82,7 +82,8 @@ def join_room(room_number):
     """
 
     data = request.json
-    if 'nickname' in data and 'IP' in data:
+    print (str(data))
+    if data is not None and 'nickname' in data and 'IP' in data:
         return Router.join_room(room_number, data['nickname'], data['IP'])
 
     return Response.responseFailure({'msg': 'Failed to join the room.'})
@@ -99,8 +100,8 @@ def get_members(room_number):
     return Router.get_members(room_number)
 
 @app.route('/<room_number>/kick', methods=['POST'])
-# @MiddlewareUtils.valid_master
-def kick(room_number):#TODO
+@MiddlewareUtils.valid_master
+def kick(room_number):
     """
     Kicks a party member out of the room\n
     Look at router.kick for more detail\n
@@ -117,16 +118,20 @@ def kick(room_number):#TODO
 
 @app.route('/<room_number>/block', methods=['POST'])
 @MiddlewareUtils.valid_master
-def block(room_number):#TODO
+def block(room_number):
     """
     Block a user from entering this party room\n
     Look at router.block for more detail\n
     :param room_number: party room identifier\n
-    :param userId: member id to be blocked\n
+    :bodyParam userId: member id to be blocked\n
     :returns: 'status' - success/failure
     """
 
-    return Router.block(room_number, userId)
+    data = request.json
+    if 'userId' in data:
+        return Router.block(room_number, data['userId'])
+
+    return Response.responseFailure({'msg': 'Failed to join the room.'})
 
 @app.route('/<room_number>/enqueue-song', methods=['POST'])
 @MiddlewareUtils.valid_user

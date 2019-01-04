@@ -39,6 +39,9 @@ class UserModerator:
                 'songs': {}
             },
         }
+
+        #TODO: CHECK THAT nickname is unique!
+
         #save in database
         result = DBUtils.add_member(room_number, user)
 
@@ -99,10 +102,23 @@ class UserModerator:
         :return: json{Status}
         """
 
-        #save in database
-        result = True
+        #get user
+        member = DBUtils.get_member(userId, room_number)
+        
+        if member is None or userId not in member:
+            return Response.responseFailure("User is not a member of this party room.");    
+        member = member[userId]
 
-        if result:
-            return Response.responseSuccess( {''} )
-        else:
-            return Response.responseFailure("Failed");
+        if member is not None:
+            #block user IP to block
+            result = DBUtils.block_ip(member['IP'], room_number)
+
+            if result:
+                #kick user out
+                result = DBUtils.delete_member(userId, room_number)
+
+            if result:
+                return Response.responseSuccess( "Kicked user successfully. Blocked "+member['IP']+" address." )
+
+        return Response.responseFailure("Failed to block user.");
+    
