@@ -24,11 +24,13 @@ class Home extends Component {
     }
 
     create = async () => {
-        //TODO: api post call to create new room
-        //return ID and redirect to master/id
         const response = await axios.post('https://cloud-app-dev-227512.appspot.com/')
-        console.log(response);
-        //this.props.history.push('master/someOtherIdTOBeReplaced')
+        console.log(response.data.success.room);
+
+        //TODO set whatever cookies need to be set
+
+
+        this.props.history.push('master/' + response.data.success.room._id);
     }
 
     render() {

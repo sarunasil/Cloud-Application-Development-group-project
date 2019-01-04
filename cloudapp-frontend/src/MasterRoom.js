@@ -70,7 +70,6 @@ class MasterRoom extends Component {
         }
         //TODO: use roomId to retrieve data : queue, search/access token for spotify/YT
         this.updateStateForServer();
-        spotifyApi.setAccessToken('BQC3TnftTzQiz7xgoYPC4rSj6juA8hTk7SRiG8BmXA9o8XQhOjNRzmkaq8bjJPc2rYLtTJZMStRfIyOH00Q-J8hY79SkB2Q4coMS851MHCTnpt0ShiwvZFcsO4GiXHm5c0nPIIXgyJ51J5XF3YJ3Z97CFNQow6eviIpCtK3CcF_ChNIg5YCIK0PrkVHB')
     }
 
     saveIP = () => {
@@ -160,6 +159,12 @@ class MasterRoom extends Component {
     }
 
     playSong(songNumberInQueue){
+        //if we dont have spotify enabled, we skip the song
+        if(this.state.queue[songNumberInQueue].type === 's' && !spotifyApi.getAccessToken()){
+            this.removeSong(songNumberInQueue);
+            this.playNextSong();
+            return;
+        }
         this.setState({currentlyPlaying: true});
         this.setState({currentSong: this.state.queue[songNumberInQueue]});
         this.setState({songsPlayed: this.state.songsPlayed+1});
