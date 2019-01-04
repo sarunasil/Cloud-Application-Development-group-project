@@ -301,11 +301,15 @@ def get_client_credentials_token():
 
 # token generated when a user has alawed our application to use their spotify data
 # return: a string token
-@app.route('/<room_number>/spotify', methods=['POST'])
-def get_auth_token(code):
+@app.route('/spotify', methods=['POST'])
+@cross_origin()
+def get_auth_token():
     data = request.json
+    # print(data)
+    print(data['code'])
     if 'code' in data:
         result, token = TokenModerator.get_auth_token(data['code'])
+        print("TOKEN!!!!!:   ", token)
         if result:
             return Response.responseSuccess({
                 'auth': token,

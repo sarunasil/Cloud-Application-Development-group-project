@@ -15,7 +15,7 @@ class TokenModerator:
     # static variables
     # these CLIENT_ID an SECRET should be environment variables... not HARDCODED
 
-    redirect_uri = "https://google.com"
+    redirect_uri = "http://localhost:3000/callback"
     scopes = "user-read-private"
     concat = config.TOKEN_KEYS['CLIENT_ID'] + ":" + config.TOKEN_KEYS['CLIENT_SECRET']
     encoded_str = base64.b64encode(concat.encode("UTF-8"))
@@ -57,6 +57,7 @@ class TokenModerator:
         try:
             payload = {'grant_type': 'authorization_code', 'code': code, 'redirect_uri': TokenModerator.redirect_uri}
             spotify_res = requests.post(TokenModerator.spotify_token_endpoint, headers=headers, data=payload)
+            # print("SPOTIFY RESPONCE: ",spotify_res)
             spotify_res = json.loads(spotify_res.text)
             return True, spotify_res["access_token"]
         except:
