@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Input, Button} from 'semantic-ui-react'
+import axios from 'axios'
 
 class Home extends Component {
     constructor(props) {
@@ -22,11 +23,12 @@ class Home extends Component {
         this.props.history.push('/someRandomIdToBeReplaced');
     }
 
-    create = () => {
+    create = async () => {
         //TODO: api post call to create new room
         //return ID and redirect to master/id
-
-        this.props.history.push('master/someOtherIdTOBeReplaced')
+        const response = await axios.post('https://cloud-app-dev-227512.appspot.com/')
+        console.log(response);
+        //this.props.history.push('master/someOtherIdTOBeReplaced')
     }
 
     render() {
