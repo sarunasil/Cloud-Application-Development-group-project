@@ -77,20 +77,13 @@ class QueueModerator:
     @staticmethod
     def remove_song(room_number, url):
         url = SecurityUtils.encrypt_url(url)
-        history, queue = DBUtils.get_all_songs(room_number)
-        if url in queue:
-            del queue[url]
-        else:
-            msg = 'Song does not exist in queue'
-            return False, history, queue, msg
-
-        is_successful, history, queue = DBUtils.update_song_lists(room_number, history, queue)
+        is_successful, unsorted_queue = DBUtils.remove_song(room_number, url)
+        sorted_queue = QueueModerator.sort_pending_songs(unsorted_queue)
 
         if is_successful:
-            return True, history, queue, None
+            return True, sorted_queue, None
         else:
-            msg = 'Something went wrong! please try again'
-            return False, history, queue, msg
+            return False, sorted_queue, ErrorMsg.NOT_REMOVED.value
 
     @staticmethod
     def upvote_song(room_number, url, cookie):
