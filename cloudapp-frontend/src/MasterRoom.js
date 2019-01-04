@@ -4,7 +4,7 @@ import SpotifyWebApi from 'spotify-web-api-node';
 import './App.css';
 import SpotifyPlayer from './SpotifyPlayer';
 import YouTube from 'react-youtube';
-import { Button, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Table, Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Search from './Search'
 import publicIP from 'react-native-public-ip';
@@ -18,6 +18,8 @@ var scopes = ['user-modify-playback-state', 'user-read-currently-playing', 'app-
 var spotifyApi = new SpotifyWebApi({
     clientId: clientId
 });
+
+var users = ["Monkey", "Octopus", "Giraffe", "Rabbit", "Cat"];
 
 
 const size = {
@@ -194,6 +196,22 @@ class MasterRoom extends Component {
         this.child.current.search(this.state.query)
     }
 
+    handleKick = (e) => {
+        var userToKick = e.target.value;
+        //TODO: api call for kicking a user
+        //TODO: api call for list of users (to update users)
+
+        console.log("Kicking user: ", e.target.value);
+    };
+
+    handleBlock = (e) => {
+        var userToBlock = e.target.value;
+        //TODO: api call for blocking a user
+        //TODO: api call for list of users (to update users)
+
+        console.log("Blocking user: ", e.target.value);
+    };
+
     render() {
         return (
 
@@ -229,10 +247,40 @@ class MasterRoom extends Component {
                             <Search ref={this.child} />
                         </ul>
                     </div>
+                    <div className="col">{this.renderUsersTable()}</div>
                 </div>
             </div>
 
         );
+    }
+
+
+    renderUsersTable() {
+        return <div>
+            <Table striped bordered condensed hover>
+                <thead>
+                <tr>
+                    <th colSpan="3">Users Admin Panel</th>
+                </tr>
+                <tr>
+                    <th>Nickname</th>
+                    <th>Kick</th>
+                    <th>Block</th>
+                </tr>
+
+                </thead>
+                <tbody>
+                {users.map(
+                    (user)=>
+                        <tr>
+                            <td>{user}</td>
+                            <td><Button value={user} onClick={this.handleKick}>Kick</Button></td>
+                            <td><Button value={user} onClick={this.handleBlock}>Block</Button></td>
+                        </tr>
+                )}
+                </tbody>
+            </Table>;
+        </div>
     }
 
 

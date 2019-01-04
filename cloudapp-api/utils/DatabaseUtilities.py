@@ -31,11 +31,12 @@ class DBUtils:
             existing_id = ""
             #check if id is already used
             if purpose == Purpose.ROOM:
-                existing_id = DBUtils.get_room(id, client)
+                existing_id = DBUtils.get_room(str(id), client)
             elif purpose == Purpose.USER and room_id is not None:
-                existing_id = DBUtils.get_member(id, room_id, client)
+                existing_id = DBUtils.get_member(str(id), room_id, client)
             else:#this is expected to fire if generating id for party master
                 break;
+            print(id)
 
             # repeat while Id is unique
             if existing_id is None:
@@ -106,7 +107,7 @@ class DBUtils:
             if users != '' and  list(user.keys())[0] not in users:
                 users = {**users, **user}
             else:
-                s.commit_transaction()
+                s.abort_transaction()
                 return False
 
             result = db.rooms.update(
@@ -120,11 +121,9 @@ class DBUtils:
     @staticmethod
     def get_member(userId, roomId, client=None):
         '''
-        :param userId: user id to search for
-        :param roomId: room id to search in
-
-        :return: user object of a specific room if exists, else - None
-
+        :param userId: user id to search for\n
+        :param roomId: room id to search in\n
+        :return: user object of a specific room if exists, else - None\n
         :Exception ValueError: if room with roomId does not exist. 
         '''
 
@@ -143,8 +142,45 @@ class DBUtils:
         if result.count() == 0:
             return None
 
-        user = None if 'users' not in result[0] else result[0]['users']
+        user = None if 'users' not in result[0] or len(result[0]['users'])==0 else result[0]['users']
         return user
+
+    @staticmethod
+    def delete_member(userId, roomId, client=None):
+        '''
+        :param userId: user id to remove for\n
+        :param roomId: room id to remove from in\n
+        :return: status - success/failure
+        '''
+        client = pymongo.MongoClient(
+            config.MONGODB_CONFIG['URL'])
+
+        db = client.pymongo_test
+
+        #don't kick master!
+        master = DBUtils.get_master(roomId)
+        if userId in master:
+            return False
+
+        with client.start_session() as s:
+            s.start_transaction()
+            fields = {
+                '$unset': {
+                    'users.' + userId: ""
+                }
+            }
+
+            #remove according to fields
+            remove_user_result = db.rooms.update({'_id': roomId}, fields)
+            is_successful = remove_user_result['nModified'] > 0
+
+            if is_successful:
+                s.commit_transaction()
+            else:
+                s.abort_transaction()
+
+            return is_successful
+
 
     @staticmethod
     def enqueue_song(room_number, url, song, num_elements, client=None):
