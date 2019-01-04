@@ -13,7 +13,7 @@
                     "score": 15 // not really useful
                 }
             },
-            "master": "UserIdOfMaster",
+            "master": {"userId":"token"},
             "head": {
                 "song_url_id": {
                     "score": 10, 
@@ -24,7 +24,10 @@
             "accessToken": "Token",
             "users": {
                 "first_user_id": {
-                    "upvoted_song_url": 1 // dummy value, better than list in terms of time complexity (worse space complexity, however)
+                    "nickname":"bla",
+                    "token":"token",
+                    "IP":"bla",
+                    "songs":["song_url_one"]
                 }
             }
         }, 

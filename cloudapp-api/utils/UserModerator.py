@@ -13,11 +13,13 @@ User blocking
 
 class UserModerator:
     @staticmethod
-    def join_room(room_number):
+    def join_room(room_number, nickname, ip):
         """
         Register a new user\n
         Generates users id, computes it's secret token, saves it in database\n
         :param room_number:\n
+        :param nickname: \n
+        :param ip: \n
         :return: json{Status, [UserCookie]}
         """
 
@@ -30,7 +32,12 @@ class UserModerator:
         token = SecurityUtils.generateToken()
 
         user = {
-            userId: {}
+            userId:{
+                'nickname': nickname,
+                'token': token,
+                'IP': ip,
+                'songs': {}
+            },
         }
         #save in database
         result = DBUtils.add_member(room_number, user)
@@ -48,16 +55,22 @@ class UserModerator:
         Get the list of all party members\n
         
         :param room_number:\n
-        :return: json{Status, {party_members_data}}
+        :return: json{Status, users:{party_members_data}}
         """
 
-        #save in database
-        result = True
+        fields = [
+            'users'
+        ]
 
-        if result:
-            return Response.responseSuccess( {''} )
+        users = DBUtils.get_fields(room_number, fields)
+        result = False
+        for u in users:
+            result = u['users']
+        
+        if result is not False:
+            return Response.responseSuccess( result )
         else:
-            return Response.responseFailure("Failed");
+            return Response.responseFailure("Failed to retrieve users list.")
 
     @staticmethod
     def kick(room_number, userId):
@@ -69,13 +82,12 @@ class UserModerator:
         :return: json{Status}
         """
 
-        #save in database
-        result = True
+        result = DBUtils.delete_member(userId, room_number)
 
         if result:
-            return Response.responseSuccess( {''} )
+            return Response.responseSuccess( "User kicked successfully" )
         else:
-            return Response.responseFailure("Failed");
+            return Response.responseFailure("Failed to kick the user")
 
     @staticmethod
     def block(room_number, userId):

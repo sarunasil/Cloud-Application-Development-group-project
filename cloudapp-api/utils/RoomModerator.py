@@ -42,7 +42,9 @@ class RoomModerator:
             'queue': {},
             'history': {}, # played songs
             'users': {userId:{
+                'nickname': 'Master',
                 'token': token,
+                'IP': "localhost",
                 'songs': {}
             }},
         }

@@ -62,10 +62,10 @@ class SecurityUtils:
             #check is cookie not fake
             if master:
                 user = DBUtils.get_master(roomId)
-                return user is not None and token == user[userId] # check if tokens match
+                return user is not None and userId in user and token == user[userId] # check if tokens match
             else:
                 user = DBUtils.get_member(userId, roomId)
-                return user is not None and token == user[userId]['token']
+                return user is not None and userId in user and token == user[userId]['token']
 
 
         return False
