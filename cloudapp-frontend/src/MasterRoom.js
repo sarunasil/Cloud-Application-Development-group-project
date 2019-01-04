@@ -7,6 +7,7 @@ import YouTube from 'react-youtube';
 import { Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Search from './Search'
+import publicIP from 'react-native-public-ip';
 
 var scopes = ['user-modify-playback-state', 'user-read-currently-playing', 'app-remote-control', 'streaming', 'user-read-playback-state'],
     clientId = '1811c9058bad498b8d829cd37564fdc6', //my own code, will prbs be changed
@@ -59,12 +60,29 @@ class MasterRoom extends Component {
     }
 
     componentDidMount(){
+        //Obtains the User's IP and saves it in the cookie
+        console.log("First from master, ", this.props.cookies.get("ip"));
+
+        this.saveIP();
+
         if(this.props.cookies.get('accessToken')){
             spotifyApi.setAccessToken(this.props.cookies.get('accessToken'));
         }
         //TODO: use roomId to retrieve data : queue, search/access token for spotify/YT
         this.updateStateForServer();
         spotifyApi.setAccessToken('BQC3TnftTzQiz7xgoYPC4rSj6juA8hTk7SRiG8BmXA9o8XQhOjNRzmkaq8bjJPc2rYLtTJZMStRfIyOH00Q-J8hY79SkB2Q4coMS851MHCTnpt0ShiwvZFcsO4GiXHm5c0nPIIXgyJ51J5XF3YJ3Z97CFNQow6eviIpCtK3CcF_ChNIg5YCIK0PrkVHB')
+    }
+
+    saveIP = () => {
+        publicIP()
+            .then(ip => {
+                //add the user IP to the cookie
+                this.props.cookies.set('ip', ip, { path: '/', maxAge: 3600 });
+                console.log("User IP: ", ip);
+            })
+            .catch(error => {
+                console.log(error);
+            })
     }
 
     addSpotify = () => {

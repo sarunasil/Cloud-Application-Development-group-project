@@ -1,3 +1,4 @@
+from utils.TokenModerator import TokenModerator
 from utils.Response import Response
 from utils.DatabaseUtilities import DBUtils
 from utils.DatabaseUtilities import Purpose
@@ -34,11 +35,12 @@ class RoomModerator:
         userId = DBUtils.generateUniqueId(Purpose.USER)
         token = SecurityUtils.generateToken()
         cookie = SecurityUtils.generateCookie(userId, token)
+        search = TokenModerator.get_client_credentials_token()
 
         room_obj = {
             '_id': DBUtils.generateUniqueId(Purpose.ROOM),
             'master': {userId: token},
-            'SpotifySearchToken': '', # TODO - add script to acquire token
+            'SpotifySearchToken': search,
             'SpotifyAccessToken': '', # TODO - add script to acquire token
             'head': None,
             'queue': {},
