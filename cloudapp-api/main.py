@@ -76,13 +76,31 @@ def join_room(room_number):
     Joins an existing party room\n
     Look at router.join_room for more detail\n
     :param room_number: party room identifier\n
+    :bodyParam nickname: \n
+    :bodyParam IP: \n
     :returns: json{Status, [UserCookie]}
     """
 
-    return Router.join_room(room_number)
+    data = request.json
+    if 'nickname' in data and 'IP' in data:
+        return Router.join_room(room_number, data['nickname'], data['IP'])
+
+    return Response.responseFailure({'msg': 'Failed to join the room.'})
+
+@app.route('/<room_number>/get-members', methods=['POST'])
+@MiddlewareUtils.valid_master
+def get_members(room_number):
+    """
+    Gets the list of party members\n
+    :param room_number: party room identifier\n
+    :returns: json{Status, users:{}}
+    """
+
+    return Router.get_members(room_number)
 
 @app.route('/<room_number>/kick', methods=['POST'])
-def kick(room_number):
+# @MiddlewareUtils.valid_master
+def kick(room_number):#TODO
     """
     Kicks a party member out of the room\n
     Look at router.kick for more detail\n
@@ -91,10 +109,15 @@ def kick(room_number):
     :returns: 'status' - success/failure
     """
 
-    return Router.kick(room_number, userId)
+    data = request.json
+    if 'userId' in data:
+        return Router.kick(room_number, data['userId'])
+
+    return Response.responseFailure({'msg': 'Failed to join the room.'})
 
 @app.route('/<room_number>/block', methods=['POST'])
-def block(room_number):
+@MiddlewareUtils.valid_master
+def block(room_number):#TODO
     """
     Block a user from entering this party room\n
     Look at router.block for more detail\n
