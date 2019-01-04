@@ -55,8 +55,10 @@ class TokenModerator:
             'content-type': 'application/x-www-form-urlencoded',
             'Authorization': 'Basic ' + TokenModerator.decoded_bytes
         }
-
-        payload = {'grant_type': 'authorization_code', 'code': code, 'redirect_uri': TokenModerator.redirect_uri}
-        spotify_res = requests.post(TokenModerator.spotify_token_endpoint, headers=headers, data=payload)
-        spotify_res = json.loads(spotify_res.text)
-        return spotify_res["access_token"]
+        try:
+            payload = {'grant_type': 'authorization_code', 'code': code, 'redirect_uri': TokenModerator.redirect_uri}
+            spotify_res = requests.post(TokenModerator.spotify_token_endpoint, headers=headers, data=payload)
+            spotify_res = json.loads(spotify_res.text)
+            return True, spotify_res["access_token"]
+        except:
+            return False, ""

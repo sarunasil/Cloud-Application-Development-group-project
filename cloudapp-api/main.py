@@ -182,15 +182,24 @@ def remove_song(room_number):
     :returns: json success/failure
     """
 
+    data = request.json
+    if 'url' not in data:
+        msg = 'URL has not been found!'
+        return Response.responseFailure(msg)
+
+    url = data['url']
+
     result = True
-    #result, message = Router.remove_song(room_number)
-    if result:
+    is_successful, updated_queue, msg = Router.remove_song(room_number, url)
+    if is_successful:
         return Response.responseSuccess({
+            'queue': updated_queue,
             'message': 'Song has been removed successfully'
         })
     else:
         return Response.responseFailure({
-            'message': message
+            'queue': updated_queue,
+            'message': msg
         })   
 
 # TODO - get a dictionary (json object) with pending songs (queue), where key is the URL and value is a nested dictionary (object)
@@ -302,9 +311,20 @@ def get_client_credentials_token():
 
 # token generated when a user has alawed our application to use their spotify data
 # return: a string token
-@app.route('/spotify', methods=['POST'])
+@app.route('/<room_number>/spotify', methods=['POST'])
 def get_auth_token(code):
-    return TokenModerator.get_auth_token(code)
+    data = request.json
+    if 'code' in data:
+        result, token = TokenModerator.get_auth_token(data['code'])
+        if result:
+            return Response.responseSuccess({
+                'auth': token,
+                'msg': 'Token successfully generated'
+            })
+        else:
+            return Response.responseFailure({
+                'msg': 'Problem with generating token'
+            })
 
 # start the application
 if __name__ == '__main__':

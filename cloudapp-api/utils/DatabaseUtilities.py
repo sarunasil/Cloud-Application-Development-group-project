@@ -399,3 +399,69 @@ class DBUtils:
 
         return is_successful, song, ''
 
+    @staticmethod
+    def remove_song(room_number, url):
+        client = pymongo.MongoClient(
+            config.MONGODB_CONFIG['URL'])
+
+        db = client.pymongo_test
+
+        fields = {
+            '$unset': {
+                'queue.' + url: ""
+            }
+        }
+
+        with client.start_session() as s:
+            s.start_transaction()
+            head_result = db.rooms.find({'_id': room_number}, {'head': 1})
+            head = None
+
+            for x in head_result:
+                head = x['head']
+                break
+
+            queue = None
+            # Check if the deleted song is at the head of the queue
+            if head is not None and url == head:
+                result = db.rooms.find({'_id': room_number}, {'queue': 1})
+
+                # get actual queue if the deleted song is at the head, because we need to change the head
+                for x in result:
+                    queue = x['queue']
+                    if head in queue:
+                        del queue[head]
+                    break
+
+            # check the next highest-voted song
+            if queue is not None:
+                max_head = None
+                for x in queue.keys():
+                    if max_head is None:
+                        max_head = x
+                        continue
+
+                    if queue[x]['score'] > queue[max_head]['score']:
+                        max_head = x
+
+                if max_head is not None:
+                    fields['$set'] = {
+                        'head': max_head
+                    }
+
+            remove_song_result = db.rooms.update({'_id': room_number}, fields)
+            is_successful = remove_song_result['nModified'] > 0
+
+            # get up-to-date queue
+            updated_queue_result = db.rooms.find({'_id': room_number}, {'queue': 1})
+            for x in updated_queue_result:
+                queue = x['queue']
+                break
+
+            if is_successful:
+                s.commit_transaction()
+            else:
+                s.abort_transaction()
+
+            return is_successful, queue
+
