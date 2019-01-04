@@ -8,6 +8,7 @@ import { Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Search from './Search'
 import publicIP from 'react-native-public-ip';
+import SongList from "./SongList";
 
 var scopes = ['user-modify-playback-state', 'user-read-currently-playing', 'app-remote-control', 'streaming', 'user-read-playback-state'],
     clientId = '1811c9058bad498b8d829cd37564fdc6', //my own code, will prbs be changed
@@ -194,7 +195,6 @@ class MasterRoom extends Component {
     }
 
     render() {
-        const spTkn = 'BQC7cmdorLg82wSM7a2bXD25PjS6DAtgDLTAQV3EifbqIypnU5PEw0HaCLSXTaky7_13VlsMRfwJNCX6Whg'
         return (
 
             <div className="container-fluid">
@@ -218,7 +218,12 @@ class MasterRoom extends Component {
                     <div className="col">{this.renderPlayer()}</div>
                 </div>
                 <div className="row">
-                    <div className="col-4">{this.renderSongs()}</div>
+                    <div className="col-4">
+                        <SongList
+                            queue={this.state.queue}
+                            play={this.playSong}
+                            remove={this.renderSongs}/>
+                    </div>
                     <div className="col-8">
                         <ul className="list-group" style={{align:"left"}}>
                             <Search ref={this.child} />
@@ -256,42 +261,6 @@ class MasterRoom extends Component {
             </div>
         );
     }
-
-    renderSongs(){
-        return(
-            <div className = "songs">
-                <ListGroup>
-                    {this.renderSongList()}
-                </ListGroup>
-            </div>
-        );
-    }
-
-    renderSongList(){
-        var currentSongsInQueue = this.state.queue;
-        return currentSongsInQueue.map(
-            (song, i) =>
-                <li className="list-group-item" key = {i} style={{border:"0"}}>
-                    { !song.link.startsWith('spotify:') &&
-                    <img src={require('./youtubeLogo.png')} width="50" height="40"/>
-                    }
-                    {  song.link.startsWith('spotify:') &&
-                    <img src={require('./spotifyLogo.png')} width="40" height="40"/>
-                    }
-                    <span> </span>
-                    {song.name}
-                    <span> </span> Votes: {song.votes}
-                    <span> </span>
-                    <div className="float-right">
-                    <div className="btn-group" role="group">
-                        <button type="button" className="btn btn-success" onClick={() => this.playSong(i)}> <FontAwesomeIcon icon="play-circle"/></button>
-                        <button type="button" className="btn btn-danger" onClick={() => this.removeSong(i)}><FontAwesomeIcon icon="trash-alt"/></button>
-                        <button type="button" className="btn btn-info"><FontAwesomeIcon icon="thumbs-up"/></button>
-                    </div>
-                    </div>
-
-                </li>
-        );}
 
 }
 
