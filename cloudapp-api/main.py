@@ -131,7 +131,7 @@ def kick(room_number):
     return Response.responseFailure({'msg': 'Failed to join the room.'})
 
 @app.route('/<room_number>/block', methods=['POST'])
-@MiddlewareUtils.valid_master
+# @MiddlewareUtils.valid_master
 def block(room_number):
     """
     Block a user from entering this party room\n

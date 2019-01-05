@@ -47,12 +47,18 @@ class UserModerator:
         :return: json{Status, [UserCookie]}
         """
 
+        blocked_ips = DBUtils.get_fields(room_number, ['blocked_ips'])
+        if blocked_ips is not None:
+            blocked_ips = blocked_ips[0]['blocked_ips']
+            if ip in blocked_ips:
+                return Response.responseFailure("Blocked from entering this party room")
+
         #get unique ID
         try:
             userId = DBUtils.generateUniqueId(Purpose.USER, room_number)
             result = userId
         except ValueError as error:
-            return Response.responseFailure("Room does not exist");
+            return Response.responseFailure("Room does not exist")
         token = SecurityUtils.generateToken()
 
         user = {
@@ -140,7 +146,7 @@ class UserModerator:
                 result = DBUtils.delete_member(userId, room_number)
 
             if result:
-                return Response.responseSuccess( "Kicked user successfully. Blocked "+member['IP']+" address." )
+                return Response.responseSuccess( "Kicked user successfully. Blocked IP address "+member['IP']+"." )
 
         return Response.responseFailure("Failed to block user.");
     
