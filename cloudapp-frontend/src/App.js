@@ -31,10 +31,10 @@ class App extends Component {
     return (
       <div className="App">
           <Switch>
-              <Route exact path='/' component={Home}/>
+              <Route exact path='/' render={(props) => <Home {...props} cookies={this.props.cookies}/>}/>
               <Route path='/callback' render={(props) => <Callback {...props} cookies={this.props.cookies}/>}/>
               <Route path='/master/:id' render={(props) => <MasterRoom {...props} cookies={this.props.cookies}/>}/>
-              <Route path='/:id' render={(props) => <PeasantRoom {...props} cookies={this.props.cookies}/>}/>
+              <Route path='/:id' render={(props) => <PeasantRoom {...props}/>}/>
               <Route path='*' component={() => <div><h1>404 Not Found!</h1></div>}/>
           </Switch>
       </div>

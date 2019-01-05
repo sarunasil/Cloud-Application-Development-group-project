@@ -26,7 +26,6 @@ class Home extends Component {
                 console.log(error);
             });
 
-
         //TODO: api calls to join the room
         //map code to room ID
         //return ID and redirect to it
@@ -40,6 +39,14 @@ class Home extends Component {
         console.log(response.data.success.room);
 
         //TODO set whatever cookies need to be set
+        // Saving the room id (the long code) and the identification cooked in the client-side cookie
+        // Haven't done anything for the spotify/youtube tokes
+        console.log("Master Cookie, ", response.data.success.room.MasterCookie);
+        var masterCookie = response.data.success.room.MasterCookie;
+        var id = response.data.success.room._id;
+
+        this.props.cookies.set('identificationCookie', masterCookie, { path: '/', maxAge: 3600 });
+        this.props.cookies.set('id', id, { path: '/', maxAge: 3600 });
 
 
         this.props.history.push('master/' + response.data.success.room._id);
