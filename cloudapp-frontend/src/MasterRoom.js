@@ -262,13 +262,6 @@ class MasterRoom extends Component {
             }
         }
 
-        var users = this.state.users;
-        users = users.filter(item => item !== nicknameToKick)
-        this.setState({
-            users: users
-        })
-        console.log(users);
-
         if(idToKick == null) {
             alert("Could not find user " + nicknameToKick + " in the database!");
             return;
