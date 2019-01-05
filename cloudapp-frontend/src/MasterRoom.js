@@ -22,9 +22,6 @@ var spotifyApi = new SpotifyWebApi({
     clientId: clientId
 });
 
-var users = ["Monkey", "Octopus", "Giraffe", "Rabbit", "Cat"];
-
-
 const size = {
     width: '100%',
     height: '390',
@@ -54,7 +51,8 @@ class MasterRoom extends Component {
                 votes: "0"
 
             },
-            songsPlayed: 0
+            songsPlayed: 0,
+            users: ["Monkey", "Octopus", "Giraffe", "Rabbit", "Cat"]
         };
         this.child = React.createRef();
 
@@ -72,6 +70,9 @@ class MasterRoom extends Component {
         console.log("Reading cookie from master: room id", this.props.cookies.get("id"));
 
         this.saveIP();
+
+        //TODO: Uncommnet to populate table with users
+        //this.updateUsersTable();
 
         if(this.props.cookies.get('accessToken')){
             spotifyApi.setAccessToken(this.props.cookies.get('accessToken'));
@@ -139,8 +140,11 @@ class MasterRoom extends Component {
         const response = await api.get(url, this.props.cookies.get('userId'));
         console.log(response);
 
+         //TODO: Uncomment to update the users table as well
+         //this.updateUsersTable();
 
-        if(this.state.currentlyPlaying == false){
+
+         if(this.state.currentlyPlaying == false){
             this.playNextSong();
         }
     }
@@ -256,6 +260,13 @@ class MasterRoom extends Component {
             }
         }
 
+        var users = this.state.users;
+        users = users.filter(item => item !== nicknameToKick)
+        this.setState({
+            users: users
+        })
+        console.log(users);
+
         if(idToKick == null) {
             alert("Could not find user " + nicknameToKick + " in the database!");
             return;
@@ -268,10 +279,13 @@ class MasterRoom extends Component {
         };
         const responseKick = await api.post(urlKick, this.props.cookies.get('MasterCookie'), body);
         if(responseKick.status === 200) {
-            alert("User" + nicknameToKick + "was kicked!")
+            alert("User " + nicknameToKick + " was kicked!")
         } else {
             alert("Could not kick user!");
         }
+
+        // update the table
+        this.updateUsersTable();
 
     }
 
@@ -301,7 +315,7 @@ class MasterRoom extends Component {
             console.log("Current id", id)
             var currentNickname = usersList[id]["nickname"];
             console.log("Current nickname", currentNickname);
-            if(currentNickname=== nicknameToBlock) {
+            if(currentNickname === nicknameToBlock) {
                 idToBlock = currentNickname
             }
         }
@@ -318,12 +332,43 @@ class MasterRoom extends Component {
         };
         const responseBlock = await api.post(urlKick, this.props.cookies.get('MasterCookie'), body);
         if(responseBlock.status === 200) {
-            alert("User" + nicknameToBlock + "was blocked!")
+            alert("User " + nicknameToBlock + " was blocked!")
         } else {
             alert("Could not block user!");
         }
 
+        //update the table
+        this.updateUsersTable();
     };
+
+    updateUsersTable = async () => {
+        // HOW THIS Works:
+        // 1. The API to get all users is called
+        // 2. The users table is populated with all the users (except for the master)
+
+        var users = [];
+
+        //Calling API for all users
+        var url = testId + this.props.cookies.get('roomId')+ '/get-members';
+        const response = await api.post(url, this.props.cookies.get('MasterCookie'));
+
+        console.log("Get-all members API ", response);
+        const usersList = response.data.success;
+        console.log("Get-all members API Users", usersList);
+
+        for (var id in usersList){
+            console.log("Current id", id)
+            var currentNickname = usersList[id]["nickname"];
+            if(currentNickname != "Master") {
+                users.push(currentNickname);
+            }
+        }
+
+        this.setState({
+            users: users
+        })
+
+    }
 
     render() {
         return (
@@ -385,7 +430,7 @@ class MasterRoom extends Component {
 
                 </thead>
                 <tbody>
-                {users.map(
+                {this.state.users.map(
                     (user, i)=>
                         <tr key ={i}>
                             <td>{user}</td>
