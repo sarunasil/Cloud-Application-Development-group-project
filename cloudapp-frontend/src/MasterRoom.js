@@ -56,7 +56,7 @@ class MasterRoom extends Component {
         };
         this.child = React.createRef();
 
-        //let timerId = setInterval(() => this.updateStateForServer('tick'), 2000);
+        let timerId = setInterval(() => this.updateStateForServer('tick'), 3000);
         this.playSong= this.playSong.bind(this);
         this.removeSong = this.removeSong.bind(this);
         //TODO: will become our domain name

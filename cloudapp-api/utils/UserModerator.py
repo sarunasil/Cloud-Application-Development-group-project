@@ -2,7 +2,9 @@ from utils.Response import Response
 from utils.DatabaseUtilities import DBUtils
 from utils.DatabaseUtilities import Purpose
 from utils.Security import SecurityUtils
+from utils.TokenModerator import TokenModerator
 import requests
+import config
 
 '''
 This class deals with:
@@ -83,7 +85,8 @@ class UserModerator:
         if result:
             #generate user identifiers
             cookie = SecurityUtils.generateCookie(userId, token)
-            return Response.responseSuccess( {"UserCookie":cookie, "UserId":userId} )
+            return Response.responseSuccess( {"UserCookie":cookie, "UserId":userId, "SpotifySearchToken": TokenModerator.get_client_credentials_token(),
+            "YoutubeSearchToken": config.TOKEN_KEYS['YOUTUBE_DATA_API']} )
         else:
             return Response.responseFailure("Failed to add new party member");
 

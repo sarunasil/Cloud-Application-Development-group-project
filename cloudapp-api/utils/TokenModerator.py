@@ -60,7 +60,7 @@ class TokenModerator:
         try:
             payload = {'grant_type': 'authorization_code', 'code': code, 'redirect_uri': TokenModerator.redirect_uri}
             spotify_res = requests.post(TokenModerator.spotify_token_endpoint, headers=headers, data=payload)
-            # print("SPOTIFY RESPONCE: ",spotify_res)
+            print("SPOTIFY RESPONCE: ",spotify_res)
             spotify_res = json.loads(spotify_res.text)
             return True, spotify_res["access_token"]
         except:
