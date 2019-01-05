@@ -11,6 +11,8 @@ import publicIP from 'react-native-public-ip';
 import SongList from "./SongList";
 import axios from 'axios'
 
+
+const testId = 'https://cloud-app-dev-227512.appspot.com/';
 var scopes = ['user-modify-playback-state', 'user-read-currently-playing', 'app-remote-control', 'streaming', 'user-read-playback-state'],
     clientId = '1811c9058bad498b8d829cd37564fdc6', //my own code, will prbs be changed
     //can be used for security, CSRF shit
@@ -185,13 +187,24 @@ class MasterRoom extends Component {
         this.removeSong(songNumberInQueue);
     }
 
-    removeSong(songNumberInQueue){
+    removeSong = async (songNumberInQueue) => {
         this.setState({
             queue: this.state.queue.slice(0, songNumberInQueue).concat(
                 this.state.queue.slice(songNumberInQueue+1, this.state.queue.length))
         });
         // Now we have to remove the song from the queue from the server
         // API.delete("/id/songLink", body should contain the position of the song = songNumberInQueue)
+        const linkToSend = testId + this.props.cookies.get('roomId') + '/dequeue-song';
+        const data = {
+            Authorization : this.props.cookies.get('MasterCookie'),
+            body: {
+                name : this.state.queue[songNumberInQueue].name,
+                url : this.state.queue[songNumberInQueue].url
+            }
+        }
+        const response = await axios.post(linkToSend, code);
+
+
     }
 
     updateUsers = async () => {
@@ -220,6 +233,17 @@ class MasterRoom extends Component {
     handleSubmit = (e) => {
         e.preventDefault();
         this.child.current.search(this.state.query)
+    }
+
+    handleDeleteRoom = async () => {
+        var postLink = testId + this.props.cookies.get('roomId') + '/delete';
+        var code  = {
+            Authorization : this.props.cookies.get('MasterCookie'),
+            body: {
+                MasterId: this.props.cookies.get('MasterCookie')
+            }
+        };
+        const response = await axios.post(postLink, code);
     }
 
     handleKick = async (e) => {
