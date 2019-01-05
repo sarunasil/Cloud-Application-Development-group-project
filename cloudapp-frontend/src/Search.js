@@ -54,7 +54,8 @@ class Search extends Component {
     addSong = async (index) => {
         //TODO api call to add the song
         console.log(JSON.stringify(this.state.results[index]) + ' will be added')
-        var postLink = 'http://127.0.0.1:5000/' + this.props.cookies.get('roomId') + '/enqueue-song';
+        // var postLink = 'http://127.0.0.1:5000/' + this.props.cookies.get('roomId') + '/enqueue-song';
+        var postLink = 'https://cloud-app-dev-227512.appspot.com/' + this.props.cookies.get('roomId') + '/enqueue-song';
         var code  = {
             Authorization : this.props.cookies.get('MasterCookie'),
             body: {

@@ -18,9 +18,8 @@ class Callback  extends Component {
         console.log(code);
 
         const response = await axios.post(
-            'http://127.0.0.1:5000/' + 'spotify',
-            // 'http://127.0.0.1:5000/spotify',
-            // 'https://cloud-app-dev-227512.appspot.com/' + room + '/spotify',
+            // 'http://127.0.0.1:5000/' + 'spotify',
+            'https://cloud-app-dev-227512.appspot.com/' + '/spotify',
             {code: code}
         );
         //console.log(response);
