@@ -189,17 +189,18 @@ def enqueue_song(room_number):
     :param room_number: party room identifier\n
     :bodyparam url: url of the song (Spotify/Youtube), will act as a primary key in MongoDB\n
     bodyparam name: name of the song (together with author?)\n
-    :bodyparam duration: duration of the song\n
+    :bodyparam time: time of the song\n
     :returns: Response.responseSuccess if added successfully, Response.responseFailure if unable to add.
     """
     data = request.json
+    print(request.json)
 
-    param = {'url','name','duration'}
+    param = {'url','name','time'}
     if  data is not None and param.issubset(set(data.keys())):
         #make sure userId is the same as in the cookie
         cookie = request.headers.get('Authorization')
 
-        result, queue = Router.enqueue_song(room_number, data['url'], data['name'], data['duration'], MiddlewareUtils.get_userId(cookie))
+        result, queue = Router.enqueue_song(room_number, data['url'], data['name'], data['time'], MiddlewareUtils.get_userId(cookie))
 
         if result:
             return Response.responseSuccess({
@@ -383,7 +384,6 @@ def get_client_credentials_token():
 # token generated when a user has alawed our application to use their spotify data
 # return: a string token
 @app.route('/spotify', methods=['POST'])
-@cross_origin()
 def get_auth_token():
     data = request.json
     # print(data)
@@ -400,6 +400,9 @@ def get_auth_token():
             return Response.responseFailure({
                 'msg': 'Problem with generating token'
             })
+    return Response.responseFailure({
+        'msg': 'No code parameter in the body'
+    })
 
 # start the application
 if __name__ == '__main__':
