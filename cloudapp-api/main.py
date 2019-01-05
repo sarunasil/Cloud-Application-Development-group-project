@@ -130,9 +130,13 @@ def kick(room_number):
     # print(data)
     if 'userId' in data:
         # print("I se: e   ", data['userId'])
-        return Router.kick(room_number, data['userId'])
+        result = Router.kick(room_number, data['userId'])
+        if result:
+            return Response.responseSuccess({'msg': 'User kicked successfully'})
+        else:
+            return Response.responseFailure({'msg': 'Failed to kick user'})
 
-    return Response.responseFailure({'msg': 'Failed to join the room.'})
+    return Response.responseFailure({'msg': 'No userId field posted'})
 
 @app.route('/<room_number>/block', methods=['POST'])
 @MiddlewareUtils.valid_master

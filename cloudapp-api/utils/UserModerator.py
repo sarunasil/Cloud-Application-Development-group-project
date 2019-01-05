@@ -110,11 +110,7 @@ class UserModerator:
         """
 
         result = DBUtils.delete_member(userId, room_number)
-
-        if result:
-            return Response.responseSuccess( "User kicked successfully" )
-        else:
-            return Response.responseFailure("Failed to kick the user")
+        return result
 
     @staticmethod
     def block(room_number, userId):
