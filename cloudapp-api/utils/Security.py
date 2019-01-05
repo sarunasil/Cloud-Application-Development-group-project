@@ -17,23 +17,14 @@ class SecurityUtils:
         '''
         Generates a unique string
         '''
-        return secrets.token_hex(length);
+        return secrets.token_hex(length)
 
     @staticmethod
-    def getCookieUserId(userId, token):
-        """
-        Get's userId from cookie
-        :param cookie: user id used to refer to the user\n
-        :returns: success - UserId\n
-        :Exception ValueError: if failed
-        """
-
+    def get_userId(cookie):
         parts = cookie.split(':')
-        if len(parts) == 3:
-            userId = parts[0]
-            return userId
-        
-        raise ValueError('Corrupt cookie')
+        if len(parts) > 1:
+            return parts[0]
+    return None
 
     @staticmethod
     def generateCookie(userId, token):

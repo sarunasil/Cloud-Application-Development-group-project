@@ -90,7 +90,7 @@ class QueueModerator:
 
     @staticmethod
     def upvote_song(room_number, url, cookie):
-        user_id = SecurityUtils.get_user_id(cookie)
+        user_id = SecurityUtils.get_userId(cookie)
         url = SecurityUtils.encrypt_url(url)
         pending_songs = DBUtils.get_pending_songs(room_number)
 
@@ -116,7 +116,7 @@ class QueueModerator:
 
     @staticmethod
     def unvote_song(room_number, url, cookie):
-        user_id = SecurityUtils.get_user_id(cookie)
+        user_id = SecurityUtils.get_userId(cookie)
         url = SecurityUtils.encrypt_url(url)
         pending_songs = DBUtils.get_pending_songs(room_number)
 
