@@ -4,6 +4,7 @@ import searchYouTube from "youtube-api-search";
 import SpotifyWebApi from 'spotify-web-api-node';
 import axios from 'axios'
 
+
 var spotifyApi = new SpotifyWebApi({
     clientId: '1811c9058bad498b8d829cd37564fdc6'
 });
@@ -39,7 +40,7 @@ class Search extends Component {
             this.setState({results: entries});
         });
 
-        if(spotifyApi.getAccessToken()){
+        if(this.props.cookies.get('SpotifySearchToken')){
             var tracks  = await spotifyApi.searchTracks(word, {limit: 6});
             for(var track of tracks.body.tracks.items){
                 entries.push({
