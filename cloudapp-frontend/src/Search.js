@@ -57,7 +57,7 @@ class Search extends Component {
         let body = {
             name: this.state.results[index].name,
             url : this.state.results[index].url,
-            duration: this.state.results[index].time
+            time: this.state.results[index].time
         }
 
         var postLink = 'https://cloud-app-dev-227512.appspot.com/' + this.props.cookies.get('roomId') + '/enqueue-song';
