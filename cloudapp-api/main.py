@@ -125,7 +125,7 @@ def kick(room_number):
     """
 
     data = request.json
-    data = data['body']
+    # data = data['body']
     # print("LOOK AT THIS", data)
     # print(data)
     if 'userId' in data:
@@ -152,7 +152,7 @@ def block(room_number):
     return Response.responseFailure({'msg': 'Failed to join the room.'})
 
 @app.route('/<room_number>/enqueue-song', methods=['POST'])
-# @MiddlewareUtils.valid_user
+@MiddlewareUtils.valid_user
 def enqueue_song(room_number):
     """
     Adds a song to the queue\n
@@ -165,7 +165,7 @@ def enqueue_song(room_number):
     # print('Debug code')
     data = request.json
     # print("pre BODY: ", data)
-    data = data['body']
+    # data = data['body']
     # print(data)
     if 'url' in data and 'name' in data:
         result, queue = Router.enqueue_song(room_number, data['url'], data['name'])

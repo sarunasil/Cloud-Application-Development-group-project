@@ -53,16 +53,18 @@ class Search extends Component {
 
     addSong = async (index) => {
         //TODO api call to add the song
+        let body = {
+            name: this.state.results[index].name,
+            url : this.state.results[index].url,
+            time: this.state.results[index].time
+        }
         console.log(JSON.stringify(this.state.results[index]) + ' will be added')
-        var postLink = 'http://127.0.0.1:5000/' + this.props.cookies.get('roomId') + '/enqueue-song';
+        var postLink = 'https://cloud-app-dev-227512.appspot.com/' + this.props.cookies.get('roomId') + '/enqueue-song';
         var code  = {
-            Authorization : this.props.cookies.get('MasterCookie'),
-            body: {
-                name: this.state.results[index].name,
-                url : this.state.results[index].url,
-                time: this.state.results[index].time
-
-            }
+            headers: {
+                Authorization : this.props.cookies.get('MasterCookie'),
+            },
+            body
         };
         const response = await axios.post(postLink, code);
         console.log(response);    
