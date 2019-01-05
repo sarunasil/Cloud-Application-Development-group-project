@@ -136,7 +136,7 @@ def kick(room_number):
     return Response.responseFailure({'msg': 'No userId field posted'})
 
 @app.route('/<room_number>/block', methods=['POST'])
-# @MiddlewareUtils.valid_master
+@MiddlewareUtils.valid_master
 def block(room_number):
     """
     Block a user from entering this party room\n
@@ -153,7 +153,7 @@ def block(room_number):
     return Response.responseFailure({'msg': 'Failed to block user.'})
 
 @app.route('/<room_number>/unblock', methods=['POST'])
-# @MiddlewareUtils.valid_master
+@MiddlewareUtils.valid_master
 def unblock(room_number):
     """
     Unblock a user\n
@@ -170,7 +170,7 @@ def unblock(room_number):
     return Response.responseFailure({'msg': 'Failed to unblock user.'})
 
 @app.route('/<room_number>/get-blocked-members', methods=['POST'])
-# @MiddlewareUtils.valid_master
+@MiddlewareUtils.valid_master
 def get_blocked_members(room_number):
     """
     Gets the list of blocked party members\n
@@ -181,7 +181,7 @@ def get_blocked_members(room_number):
     return Router.get_blocked_members(room_number)
 
 @app.route('/<room_number>/enqueue-song', methods=['POST'])
-# @MiddlewareUtils.valid_user
+@MiddlewareUtils.valid_user
 def enqueue_song(room_number):
     """
     Adds a song to the queue\n
