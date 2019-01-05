@@ -47,17 +47,21 @@ class UserModerator:
         :return: json{Status, [UserCookie]}
         """
         
-        blocked_ips = DBUtils.get_fields(room_number, ['blocked_ips'])
-        if blocked_ips is not None:
-            blocked_ips = blocked_ips[0]['blocked_ips']
-            if ip in blocked_ips:
+        #do not allow blocked IP users join
+        blocked_members = DBUtils.get_fields(room_number, ['blocked_members'])
+        if blocked_members is not None:
+            ips = []
+            for member in blocked_members[0]['blocked_members']:
+                ips.append(member['IP'])
+
+            if ip in ips:
                 return Response.responseFailure("Blocked from entering this party room")
 
         #get unique ID
         try:
-            print("pre user ID")
+            # print("pre user ID")
             userId = DBUtils.generateUniqueId(Purpose.USER, room_number)
-            print("after UserID has been assigned")
+            # print("after UserID has been assigned")
             result = userId
         except ValueError as error:
             return Response.responseFailure("Room does not exist")
@@ -133,18 +137,18 @@ class UserModerator:
         
         if member is None or userId not in member:
             return Response.responseFailure("User is not a member of this party room.");    
-        member = member[userId]
+        # member = member[userId]
 
         if member is not None:
             #block user IP to block
-            result = DBUtils.block_ip(member['IP'], room_number)
+            result = DBUtils.block_member(member, room_number)
 
             if result:
                 #kick user out
                 result = DBUtils.delete_member(userId, room_number)
 
             if result:
-                return Response.responseSuccess( "Kicked user successfully. Blocked IP address "+member['IP']+"." )
+                return Response.responseSuccess( "Kicked user successfully. Blocked user "+member[userId]['nickname']+"." )
 
         return Response.responseFailure("Failed to block user.");
     

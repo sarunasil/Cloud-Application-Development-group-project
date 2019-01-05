@@ -24,7 +24,23 @@ class SecurityUtils:
         parts = cookie.split(':')
         if len(parts) > 1:
             return parts[0]
-    return None
+        return None
+
+    @staticmethod
+    def getCookieUserId(userId, token):
+        """
+        Get's userId from cookie
+        :param cookie: user id used to refer to the user\n
+        :returns: success - UserId\n
+        :Exception ValueError: if failed
+        """
+
+        parts = cookie.split(':')
+        if len(parts) == 3:
+            userId = parts[0]
+            return userId
+        
+        raise ValueError('Corrupt cookie')
 
     @staticmethod
     def generateCookie(userId, token):

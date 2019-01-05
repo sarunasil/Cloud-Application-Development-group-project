@@ -27,12 +27,13 @@ class QueueModerator:
             exists = True
             queue_list = QueueModerator.sort_pending_songs(queue)
             return False, queue_list
+
         song = {
             'name': name,
             'score': 0,  # initial score is always 0
             'duration': duration,
-            
-
+            'nickname': DBUtils.get_member(userId, room_number)[userId]['nickname'],
+            'userId': userId
         }
 
         result = DBUtils.enqueue_song(room['_id'], url, song, len(queue.keys()) + 1)
