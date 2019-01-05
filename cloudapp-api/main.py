@@ -126,8 +126,6 @@ def kick(room_number):
 
     data = request.json
 
-    # print("LOOK AT THIS", data)
-    # print(data)
     if 'userId' in data:
         result = Router.kick(room_number, data['userId'])
         if result:
@@ -152,7 +150,35 @@ def block(room_number):
     if 'userId' in data:
         return Router.block(room_number, data['userId'])
 
-    return Response.responseFailure({'msg': 'Failed to join the room.'})
+    return Response.responseFailure({'msg': 'Failed to block user.'})
+
+@app.route('/<room_number>/unblock', methods=['POST'])
+# @MiddlewareUtils.valid_master
+def unblock(room_number):
+    """
+    Unblock a user\n
+    Look at router.unblock for more detail\n
+    :param room_number: party room identifier\n
+    :bodyParam userId: member id to be unblocked\n
+    :returns: 'status' - success/failure
+    """
+
+    data = request.json
+    if 'userId' in data:
+        return Router.unblock(room_number, data['userId'])
+
+    return Response.responseFailure({'msg': 'Failed to unblock user.'})
+
+@app.route('/<room_number>/get-blocked-members', methods=['POST'])
+# @MiddlewareUtils.valid_master
+def get_blocked_members(room_number):
+    """
+    Gets the list of blocked party members\n
+    :param room_number: party room identifier\n
+    :returns: json{Status, users:{}}
+    """
+
+    return Router.get_blocked_members(room_number)
 
 @app.route('/<room_number>/enqueue-song', methods=['POST'])
 # @MiddlewareUtils.valid_user

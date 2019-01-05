@@ -42,13 +42,15 @@ class RoomModerator:
             'head': None,
             'queue': {},
             'history': {}, # played songs
-            'users': {userId:{
+            'users': {
+                userId:{
                 'nickname': 'Master',
                 'token': token,
                 'IP': "localhost",
-                'songs': {}
-            }},
-            'blocked_members': []
+                'songs': {} #master does not have 'blocked' field on purpose
+                }
+            },
+            'blocked_members':{}
         }
 
         #@think is it ok to return values as head, users, master, _id as those are not needed

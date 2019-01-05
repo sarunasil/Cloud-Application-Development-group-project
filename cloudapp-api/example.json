@@ -4,7 +4,11 @@
             "queue": {
                 "song_url_id": {
                     "name": "Song name",
-                    "score": 10
+                    "score": 10,
+                    "user":{
+                        "nickname":"",
+                        "userId":""
+                    }
                 }
             }, 
             "history": {
@@ -28,6 +32,12 @@
                     "token":"token",
                     "IP":"bla",
                     "songs":["song_url_one"]
+                }
+            },
+            "blocked_members":{
+                "userId":{
+                    "nickname":"",
+                    "IP":""
                 }
             }
         }, 
