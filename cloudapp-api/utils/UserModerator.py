@@ -46,10 +46,12 @@ class UserModerator:
         :param ip: \n
         :return: json{Status, [UserCookie]}
         """
-
+        print("in UserModerator", room_number, nickname, ip)
         #get unique ID
         try:
+            print("pre user ID")
             userId = DBUtils.generateUniqueId(Purpose.USER, room_number)
+            print("after UserID has been assigned")
             result = userId
         except ValueError as error:
             return Response.responseFailure("Room does not exist");

@@ -3,6 +3,7 @@ import {Input, Button} from 'semantic-ui-react'
 import publicIP from "react-native-public-ip";
 import axios from 'axios'
 
+
 class Home extends Component {
     constructor(props) {
         super(props);
@@ -30,19 +31,38 @@ class Home extends Component {
         //TODO: api calls to join the room
         //map code to room ID
         //return ID and redirect to it
+        const name = "spas2";
+        const room = this.props.cookies.get('roomId');
+
+        // const response = await axios.post(
+        //     'http://127.0.0.1:5000/' + room,
+
+        //     {nickname: name},
+        //     {IP: ip},
+        //     {room_number: room}
+        // );
 
         console.log(this.state.roomCode);
         this.props.history.push('/someRandomIdToBeReplaced');
     }
 
     create = async () => {
-        const response = await axios.post('https://cloud-app-dev-227512.appspot.com/')
+        const response = await axios.post('http://127.0.0.1:5000/');
+        // const response = await axios.post('https://cloud-app-dev-227512.appspot.com/');
         console.log(response.data.success.room);
 
-        //TODO set whatever cookies need to be set
+        console.log(response);
+        if(response.status === 200){
+            this.props.cookies.set('MasterCookie', response.data.success.room.MasterCookie, { path: '/', maxAge: 3600 });
+            this.props.cookies.set('SpotifySearchToken', response.data.success.room.SpotifySearchToken, { path: '/', maxAge: 3600 });
+            this.props.cookies.set('YoutubeSearchToken', response.data.success.room.YoutubeSearchToken, { path: '/', maxAge: 3600 });
+            this.props.cookies.set('roomId', response.data.success.room._id, { path: '/', maxAge: 3600 });
+            this.props.history.push('master/' + response.data.success.room._id);
+        }else{
+            alert("Could not create room");
+        }
 
-
-        this.props.history.push('master/' + response.data.success.room._id);
+        
     }
 
     render() {

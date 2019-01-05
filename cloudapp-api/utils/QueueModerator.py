@@ -147,6 +147,7 @@ class QueueModerator:
 
     @staticmethod
     def pending_songs(room_number):
+        # print("whats going on")
         try:
             unsorted_queue = DBUtils.get_pending_songs(room_number)
             # possible type error - idk if unsorted_queue is of type dict

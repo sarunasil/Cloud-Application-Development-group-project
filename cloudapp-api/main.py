@@ -94,7 +94,7 @@ def join_room(room_number):
     :bodyParam IP: \n
     :returns: json{Status, [UserCookie]}
     """
-
+    # print("in main.py")
     data = request.json
     print (str(data))
     if data is not None and 'nickname' in data and 'IP' in data:
@@ -125,7 +125,11 @@ def kick(room_number):
     """
 
     data = request.json
+    data = data['body']
+    # print("LOOK AT THIS", data)
+    # print(data)
     if 'userId' in data:
+        # print("I se: e   ", data['userId'])
         return Router.kick(room_number, data['userId'])
 
     return Response.responseFailure({'msg': 'Failed to join the room.'})
@@ -148,7 +152,7 @@ def block(room_number):
     return Response.responseFailure({'msg': 'Failed to join the room.'})
 
 @app.route('/<room_number>/enqueue-song', methods=['POST'])
-@MiddlewareUtils.valid_user
+# @MiddlewareUtils.valid_user
 def enqueue_song(room_number):
     """
     Adds a song to the queue\n
@@ -158,20 +162,24 @@ def enqueue_song(room_number):
     bodyparam name: name of the song (together with author?)\n
     :returns: Response.responseSuccess if added successfully, Response.responseFailure if unable to add.
     """
-
+    # print('Debug code')
     data = request.json
+    # print("pre BODY: ", data)
+    data = data['body']
+    # print(data)
     if 'url' in data and 'name' in data:
         result, queue = Router.enqueue_song(room_number, data['url'], data['name'])
 
         if result:
             return Response.responseSuccess({
                 'queue': queue,
-                'msg': 'Song has been enqueued'
+                'msg': 'Song has been enqueued',
             })
         else: 
             return Response.responseFailure({
                 'queue': queue,
-                'msg': 'Song was already enqueued'
+                'msg': 'Song was already enqueued',
+
             })
 
     return Response.responseFailure('Song was not enqueued! Please enter url and name of the song!')
@@ -243,7 +251,7 @@ def get_pending_songs(room_number):
         :param room_number: party room identifier\n
         :returns: Response.responseSuccess if retrieved successfully, Response.responseFailure if unable to get list
     """
-
+    # print("in Pending songs")
     result, queue = Router.pending_songs(room_number)
     if result:
         return Response.responseSuccess({
@@ -348,10 +356,10 @@ def get_client_credentials_token():
 def get_auth_token():
     data = request.json
     # print(data)
-    print(data['code'])
+    # print(data['code'])
     if 'code' in data:
         result, token = TokenModerator.get_auth_token(data['code'])
-        print("TOKEN!!!!!:   ", token)
+        # print("TOKEN!!!!!:   ", token)
         if result:
             return Response.responseSuccess({
                 'auth': token,

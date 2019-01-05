@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Search from './Search'
 import publicIP from 'react-native-public-ip';
 import SongList from "./SongList";
+import axios from 'axios'
 
 var scopes = ['user-modify-playback-state', 'user-read-currently-playing', 'app-remote-control', 'streaming', 'user-read-playback-state'],
     clientId = '1811c9058bad498b8d829cd37564fdc6', //my own code, will prbs be changed
@@ -19,7 +20,6 @@ var spotifyApi = new SpotifyWebApi({
     clientId: clientId
 });
 
-var users = ["Monkey", "Octopus", "Giraffe", "Rabbit", "Cat"];
 
 
 const size = {
@@ -40,22 +40,24 @@ class MasterRoom extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            users: ["Monkey", "Octopus", "Giraffe", "Rabbit", "Cat"],
             query: '',
             queue: [],
             currentlyPlaying : false,
             currentSong: {
                 name : "",
-                link : "",
+                url : "",
                 time : "",
                 type : "",
-                votes: "0"
+                score: 0
 
             },
             songsPlayed: 0
         };
         this.child = React.createRef();
+        this.playSong = this.playSong.bind(this);
 
-        //let timerId = setInterval(() => this.updateStateForServer('tick'), 2000);
+        //let timerId = setInterval(() => this.updateStateForServer('tick'), 10000);
 
         //TODO: will become our domain name
         spotifyApi.setRedirectURI('http://localhost:3000/callback');
@@ -64,7 +66,7 @@ class MasterRoom extends Component {
 
     componentDidMount(){
         //Obtains the User's IP and saves it in the cookie
-        console.log("First from master, ", this.props.cookies.get("ip"));
+        //console.log("First from master, ", this.props.cookies.get("ip"));
 
         this.saveIP();
 
@@ -75,7 +77,7 @@ class MasterRoom extends Component {
         this.updateStateForServer();
     }
 
-    saveIP = () => {
+    saveIP = async () => {
         publicIP()
             .then(ip => {
                 //add the user IP to the cookie
@@ -100,6 +102,7 @@ class MasterRoom extends Component {
         // this function periodically updates the queue from the server
         // the server should send be a json like
         // we could only send the changes and, from time to time, send the full state, but for now we should keep this simple
+
         var newState = {
             queue: [
                 // {
@@ -110,36 +113,37 @@ class MasterRoom extends Component {
                 // },
                 {
                     name : "Song 2",
-                    link : "2g811Eo7K8U",
+                    url : "2g811Eo7K8U",
                     time: "150", // time in seconds
-                    votes: "0"
+                    score: "0"
                 },
 
                 {
                     name : "Song 3",
-                    link : "spotify:track:47YfeZOuxkGsiFwY97ubRQ",
+                    url : "spotify:track:47YfeZOuxkGsiFwY97ubRQ",
                     time: "150", // time in seconds
-                    votes: "0"
+                    score: "0"
                 },
                 {
                     name : "Song 4",
-                    link : "3KL9mRus19o",
+                    url : "3KL9mRus19o",
                     time: "150", // time in seconds
-                    votes: "0"
+                    score: "0"
                 }
             ]
         }
 
-        //newState = API.get(this.roomId, emptyBody)
-        for(cnt = 0; cnt < newState.queue.length; cnt++){
-            if(this.isSpotifySong(newState.queue[cnt].link)){
-                newState.queue[cnt].type = "s";
-            }else{
-                newState.queue[cnt].type = "y";
+        var postLink = 'http://127.0.0.1:5000/' + this.props.cookies.get('roomId') + '/pending-songs';
+        var code = {
+            "headers":{
+                "Authorization" : this.props.cookies.get('MasterCookie') 
             }
         }
-        await this.setState(newState);
-        var cnt;
+        const response = await axios.get(postLink, code);
+        console.log(response);
+        if(response.status === 200){
+            this.setState({queue: response.data.success.queue});
+        }
 
         // if user is master
         if(this.state.currentlyPlaying == false){
@@ -163,12 +167,19 @@ class MasterRoom extends Component {
 
     playSong(songNumberInQueue){
         //if we dont have spotify enabled, we skip the song
+        console.log(songNumberInQueue);
         if(this.state.queue[songNumberInQueue].type === 's' && !spotifyApi.getAccessToken()){
             this.removeSong(songNumberInQueue);
             this.playNextSong();
             return;
         }
         this.setState({currentlyPlaying: true});
+        var newSong = this.state.queue[songNumberInQueue];
+        if(newSong.url.startsWith('spotify')){
+            newSong.type = 's';
+        }else{
+            newSong.type = 'y';
+        }
         this.setState({currentSong: this.state.queue[songNumberInQueue]});
         this.setState({songsPlayed: this.state.songsPlayed+1});
         this.removeSong(songNumberInQueue);
@@ -181,6 +192,21 @@ class MasterRoom extends Component {
         });
         // Now we have to remove the song from the queue from the server
         // API.delete("/id/songLink", body should contain the position of the song = songNumberInQueue)
+    }
+
+    updateUsers = async () => {
+        var postLink = 'http://127.0.0.1:5000/' + this.props.cookies.get('roomId') + '/get-members';
+        var code = {
+            Authorization : this.props.cookies.get('MasterCookie'),
+        }
+        const response = await axios.post(postLink, code);
+        console.log(response);
+        if(response.status === 200){
+            // set users
+            this.setState({users : response.users});
+        }else{
+            alert("Could not kick a user");
+        }
     }
 
     _onEnd = async event => {
@@ -196,12 +222,25 @@ class MasterRoom extends Component {
         this.child.current.search(this.state.query)
     }
 
-    handleKick = (e) => {
+    handleKick = async (e) => {
         var userToKick = e.target.value;
         //TODO: api call for kicking a user
         //TODO: api call for list of users (to update users)
 
         console.log("Kicking user: ", e.target.value);
+        var postLink = 'http://127.0.0.1:5000/' + this.props.cookies.get('roomId') + '/kick';
+        var code  = {
+            Authorization : this.props.cookies.get('MasterCookie'),
+            body: {
+                userId: e.target.value
+            }
+        };
+        const response = await axios.post(postLink, code);
+        if(response.status === 200){
+            this.updateUsers();
+        }else{
+            alert("Could not kick a user");
+        }
     };
 
     handleBlock = (e) => {
@@ -240,11 +279,11 @@ class MasterRoom extends Component {
                         <SongList
                             queue={this.state.queue}
                             play={this.playSong}
-                            remove={this.renderSongs}/>
+                            remove={this.removeSong}/>
                     </div>
                     <div className="col-8">
                         <ul className="list-group" style={{align:"left"}}>
-                            <Search ref={this.child} />
+                            <Search ref={this.child} cookies={this.props.cookies} />
                         </ul>
                     </div>
                     <div className="col">{this.renderUsersTable()}</div>
@@ -265,17 +304,15 @@ class MasterRoom extends Component {
                 <tr>
                     <th>Nickname</th>
                     <th>Kick</th>
-                    <th>Block</th>
                 </tr>
 
                 </thead>
                 <tbody>
-                {users.map(
-                    (user)=>
-                        <tr>
+                {this.state.users.map(
+                    (user, i)=>
+                        <tr key = {i}>
                             <td>{user}</td>
                             <td><Button value={user} onClick={this.handleKick}>Kick</Button></td>
-                            <td><Button value={user} onClick={this.handleBlock}>Block</Button></td>
                         </tr>
                 )}
                 </tbody>
@@ -292,7 +329,7 @@ class MasterRoom extends Component {
                 { spotifyApi.getAccessToken() &&
                 <SpotifyPlayer
                     spotifyToken={spotifyApi.getAccessToken()}
-                    songUri={this.state.currentSong.type === "s" ? this.state.currentSong.link : ''}
+                    songUri={this.state.currentSong.type === "s" ? this.state.currentSong.url : ''}
                     songName={this.state.currentSong.name}
                     next={this._onEnd}
                 />
@@ -300,7 +337,7 @@ class MasterRoom extends Component {
 
                 {this.state.currentSong.type === "y" &&
                 <YouTube
-                    videoId= {this.state.currentSong.link}
+                    videoId= {this.state.currentSong.url}
                     opts={youtubeOptions}
                     onEnd={this._onEnd}
 
