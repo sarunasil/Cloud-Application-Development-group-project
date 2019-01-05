@@ -94,11 +94,14 @@ class MasterRoom extends Component {
 
     addSpotify = () => {
         // Create the authorization URL
+        console.log("Entered");
         var authorizeURL = spotifyApi.createAuthorizeURL(scopes, state);
+        console.log(authorizeURL);
 
         //set cookie with the room ID to be used in the callback component
         this.props.cookies.set('roomId', this.props.match.params.id, { path: '/', maxAge: 120 });
         window.location = authorizeURL;
+
     }
 
      updateStateForServer = async ()=> {

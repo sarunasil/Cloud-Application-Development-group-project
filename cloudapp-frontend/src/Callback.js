@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import queryString from 'query-string';
-import axios from 'axios'
-
+import axios from 'axios';
+import api from './api';
 //this component exists only to handle spotify authorization
 //it will redirect to the master room, so no need for a pretty interface
 class Callback  extends Component {
@@ -16,12 +16,11 @@ class Callback  extends Component {
         const code = queryString.parse(this.props.location.search, { ignoreQueryPrefix: true }).code;
         console.log(room);
         console.log(code);
+        var toSend = {
+            code : code
+        };
 
-        const response = await axios.post(
-            // 'http://127.0.0.1:5000/' + 'spotify',
-            'https://cloud-app-dev-227512.appspot.com/' + 'spotify',
-            {code: code}
-        );
+        const response = await api.post('https://cloud-app-dev-227512.appspot.com/spotify', this.props.cookies.get('MasterCookie'), toSend);
         console.log(response);
 
         this.props.cookies.set('accessToken', response.data.success.auth, { path: '/', maxAge: 3600 });
