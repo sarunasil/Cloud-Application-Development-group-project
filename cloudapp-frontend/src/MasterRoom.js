@@ -48,7 +48,7 @@ class MasterRoom extends Component {
                 url : "",
                 time : "",
                 type : "",
-                votes: "0"
+                score: 0
 
             },
             songsPlayed: 0,
@@ -139,12 +139,14 @@ class MasterRoom extends Component {
         var url = testId + this.props.cookies.get('roomId')+ '/pending-songs';
         const response = await api.get(url, this.props.cookies.get('userId'));
         console.log(response);
+        var newQueue =  response.data.success.queue;
+        this.setState({queue: newQueue});
 
          //TODO: Uncomment to update the users table as well
          //this.updateUsersTable();
 
 
-         if(this.state.currentlyPlaying == false){
+        if(this.state.currentlyPlaying == false){
             this.playNextSong();
         }
     }
@@ -183,6 +185,14 @@ class MasterRoom extends Component {
     }
 
     removeSong = async (songNumberInQueue) => {
+        const linkToSend = testId + this.props.cookies.get('roomId') + '/dequeue-song';
+        const data = {
+            name : this.state.queue[songNumberInQueue].name,
+            url : this.state.queue[songNumberInQueue].url
+        }
+
+        const response = await api.post(linkToSend, this.props.cookies.get('MasterCookie'), data);
+
         this.setState({
             queue: this.state.queue.slice(0, songNumberInQueue).concat(
                 this.state.queue.slice(songNumberInQueue+1, this.state.queue.length))
@@ -190,15 +200,7 @@ class MasterRoom extends Component {
         // Now we have to remove the song from the queue from the server
         // API.delete("/id/songLink", body should contain the position of the song = songNumberInQueue)
 
-        const linkToSend = testId + this.props.cookies.get('roomId') + '/dequeue-song';
-        const data = {
-            Authorization : this.props.cookies.get('MasterCookie'),
-            body: {
-                name : this.state.queue[songNumberInQueue].name,
-                url : this.state.queue[songNumberInQueue].url
-            }
-        }
-        const response = await axios.post(linkToSend, data);
+
 
 
     }
@@ -400,6 +402,7 @@ class MasterRoom extends Component {
                             queue={this.state.queue}
                             play={this.playSong}
                             remove={this.removeSong}
+                            cookies = {this.props.cookies}
                         />
                     </div>
                     <div className="col-7">

@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import axios from 'axios'
 import {ListGroup} from "react-bootstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-
+import api from './api.js'
 
 const testId = 'https://cloud-app-dev-227512.appspot.com/';
 
@@ -12,16 +12,13 @@ class SongList  extends Component {
     }
 
     like = async (i) => {
-        console.log('like song ' + this.props.queue[i].name);
+
         const linkToSend = testId + this.props.cookies.get('roomId') + '/upvote';
         const data = {
-            Authorization : this.props.cookies.get('userId'),
-            body : {
-                url : this.props.queue[i].url,
-                userId : this.props.cookies.get('userId')
-            }
+            url : this.props.queue[i].url,
+            userId : this.props.cookies.get('userId')
         };
-        const response = axios.post(linkToSend, data);
+        const response = api.post(linkToSend, this.props.cookies.get('userId'), data);
         //TODO api call to like this song
         //no need to update state, it will update itself every 2 seconds anyway
     }
@@ -30,13 +27,11 @@ class SongList  extends Component {
         console.log('like song ' + this.props.queue[i].name);
         const linkToSend = testId + this.props.cookies.get('roomId') + '/unvote';
         const data = {
-            Authorization : this.props.cookies.get('userId'),
-            body : {
-                url : this.props.queue[i].url,
-                userId : this.props.cookies.get('userId')
-            }
+            url : this.props.queue[i].url,
+            userId : this.props.cookies.get('userId')
+
         };
-        const response = axios.post(linkToSend, data);
+        const response = api.post(linkToSend, this.props.cookies.get('userId'), data);
         //TODO api call to like this song
         //no need to update state, it will update itself every 2 seconds anyway
     }
@@ -65,7 +60,7 @@ class SongList  extends Component {
                     }
                     <span> </span>
                     {song.name}
-                    <span> </span> Votes: {song.votes}
+                    <span> </span> Votes: {song.score}
                     <span> </span>
                     <div className="float-right">
                         <div className="btn-group" role="group">
@@ -77,8 +72,14 @@ class SongList  extends Component {
                             <button type="button" className="btn btn-danger" onClick={() => this.props.remove(i)}>
                                 <FontAwesomeIcon icon="trash-alt"/></button> :
                                 <div></div>}
-                            <button type="button" className="btn btn-info" onClick={() => this.props.like(i)}>
-                                <FontAwesomeIcon icon="thumbs-up"/></button>
+
+                                <button type="button" className="btn btn-info" onClick={() => this.like(i)}>
+                                    <FontAwesomeIcon icon="thumbs-up"/></button>
+
+
+                                <button type="button" className="btn btn-secondary" onClick={() => this.unlike(i)}>
+                                    <FontAwesomeIcon icon="thumbs-down"/></button>
+
                         </div>
                     </div>
 
