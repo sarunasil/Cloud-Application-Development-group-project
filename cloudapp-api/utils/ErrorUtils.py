@@ -12,3 +12,4 @@ class ErrorMsg(Enum):
     VOTE_NOT_REMOVED = 'Vote was not removed! Please try again!'
     ERROR = 'An error has occurred! Please try again'
     HEAD_MISMATCH = 'Head does not correspond to state of queue'
+    NO_AUTH = 'No authorization header is attached to the request'

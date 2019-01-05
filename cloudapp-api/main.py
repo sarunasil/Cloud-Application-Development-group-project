@@ -94,7 +94,7 @@ def join_room(room_number):
     :bodyParam IP: \n
     :returns: json{Status, [UserCookie]}
     """
-
+    # print("in main.py")
     data = request.json
     print (str(data))
     if data is not None and 'nickname' in data and 'IP' in data:
@@ -125,10 +125,17 @@ def kick(room_number):
     """
 
     data = request.json
-    if 'userId' in data:
-        return Router.kick(room_number, data['userId'])
 
-    return Response.responseFailure({'msg': 'Failed to join the room.'})
+    # print("LOOK AT THIS", data)
+    # print(data)
+    if 'userId' in data:
+        result = Router.kick(room_number, data['userId'])
+        if result:
+            return Response.responseSuccess({'msg': 'User kicked successfully'})
+        else:
+            return Response.responseFailure({'msg': 'Failed to kick user'})
+
+    return Response.responseFailure({'msg': 'No userId field posted'})
 
 @app.route('/<room_number>/block', methods=['POST'])
 # @MiddlewareUtils.valid_master
@@ -148,7 +155,7 @@ def block(room_number):
     return Response.responseFailure({'msg': 'Failed to join the room.'})
 
 @app.route('/<room_number>/enqueue-song', methods=['POST'])
-@MiddlewareUtils.valid_user
+# @MiddlewareUtils.valid_user
 def enqueue_song(room_number):
     """
     Adds a song to the queue\n
@@ -156,22 +163,35 @@ def enqueue_song(room_number):
     :param room_number: party room identifier\n
     :bodyparam url: url of the song (Spotify/Youtube), will act as a primary key in MongoDB\n
     bodyparam name: name of the song (together with author?)\n
+    :bodyparam duration: duration of the song\n
+    :bodyparam userId: user who added the song\n
     :returns: Response.responseSuccess if added successfully, Response.responseFailure if unable to add.
     """
 
     data = request.json
-    if 'url' in data and 'name' in data:
-        result, queue = Router.enqueue_song(room_number, data['url'], data['name'])
+
+    param = {'url','name','duration','userId'}
+    if  data is not None and param.issubset(set(data.keys())):
+        #make sure userId is the same as in the cookie
+        cookie = request.headers.get('Authorization')
+        if MiddlewareUtils.get_userId(cookie) != data['userId']:
+            return Response.responseFailure({
+                'queue': '',
+                'msg': 'User authentication unsuccessful',
+            })
+
+        result, queue = Router.enqueue_song(room_number, data['url'], data['name'], data['duration'], data['userId'])
 
         if result:
             return Response.responseSuccess({
                 'queue': queue,
-                'msg': 'Song has been enqueued'
+                'msg': 'Song has been enqueued',
             })
         else: 
             return Response.responseFailure({
                 'queue': queue,
-                'msg': 'Song was already enqueued'
+                'msg': 'Song was already enqueued',
+
             })
 
     return Response.responseFailure('Song was not enqueued! Please enter url and name of the song!')
@@ -243,7 +263,7 @@ def get_pending_songs(room_number):
         :param room_number: party room identifier\n
         :returns: Response.responseSuccess if retrieved successfully, Response.responseFailure if unable to get list
     """
-
+    # print("in Pending songs")
     result, queue = Router.pending_songs(room_number)
     if result:
         return Response.responseSuccess({
@@ -348,10 +368,10 @@ def get_client_credentials_token():
 def get_auth_token():
     data = request.json
     # print(data)
-    print(data['code'])
+    # print(data['code'])
     if 'code' in data:
         result, token = TokenModerator.get_auth_token(data['code'])
-        print("TOKEN!!!!!:   ", token)
+        # print("TOKEN!!!!!:   ", token)
         if result:
             return Response.responseSuccess({
                 'auth': token,

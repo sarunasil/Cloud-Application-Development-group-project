@@ -51,3 +51,5 @@ config.py
 /apienv
 #pycache
 **/__pycache__
+*.pyc
+*.cpython-37.pyc

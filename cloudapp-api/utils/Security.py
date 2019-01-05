@@ -20,6 +20,22 @@ class SecurityUtils:
         return secrets.token_hex(length);
 
     @staticmethod
+    def getCookieUserId(userId, token):
+        """
+        Get's userId from cookie
+        :param cookie: user id used to refer to the user\n
+        :returns: success - UserId\n
+        :Exception ValueError: if failed
+        """
+
+        parts = cookie.split(':')
+        if len(parts) == 3:
+            userId = parts[0]
+            return userId
+        
+        raise ValueError('Corrupt cookie')
+
+    @staticmethod
     def generateCookie(userId, token):
         """
         Generate a cookie to uniquely identify a user\n
@@ -86,10 +102,3 @@ class SecurityUtils:
             return decoded
         except:
             return None
-
-    @staticmethod
-    def get_user_id(cookie):
-        parts = cookie.split(':')
-        if len(parts) > 1:
-            return parts[0]
-        return None

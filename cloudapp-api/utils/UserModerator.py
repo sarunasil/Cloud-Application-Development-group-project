@@ -46,7 +46,7 @@ class UserModerator:
         :param ip: \n
         :return: json{Status, [UserCookie]}
         """
-
+        
         blocked_ips = DBUtils.get_fields(room_number, ['blocked_ips'])
         if blocked_ips is not None:
             blocked_ips = blocked_ips[0]['blocked_ips']
@@ -55,7 +55,9 @@ class UserModerator:
 
         #get unique ID
         try:
+            print("pre user ID")
             userId = DBUtils.generateUniqueId(Purpose.USER, room_number)
+            print("after UserID has been assigned")
             result = userId
         except ValueError as error:
             return Response.responseFailure("Room does not exist")
@@ -114,11 +116,7 @@ class UserModerator:
         """
 
         result = DBUtils.delete_member(userId, room_number)
-
-        if result:
-            return Response.responseSuccess( "User kicked successfully" )
-        else:
-            return Response.responseFailure("Failed to kick the user")
+        return result
 
     @staticmethod
     def block(room_number, userId):

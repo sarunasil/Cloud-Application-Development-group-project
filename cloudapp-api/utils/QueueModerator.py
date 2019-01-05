@@ -16,7 +16,7 @@ Unvote a song
 class QueueModerator:
 
     @staticmethod
-    def enqueue_song(room_number, url, name):
+    def enqueue_song(room_number, url, name, duration, userId):
         url = SecurityUtils.encrypt_url(url)
         room = DBUtils.get_room(room_number)
         queue = room['queue']
@@ -29,7 +29,10 @@ class QueueModerator:
             return False, queue_list
         song = {
             'name': name,
-            'score': 0  # initial score is always 0
+            'score': 0,  # initial score is always 0
+            'duration': duration,
+            
+
         }
 
         result = DBUtils.enqueue_song(room['_id'], url, song, len(queue.keys()) + 1)
@@ -147,6 +150,7 @@ class QueueModerator:
 
     @staticmethod
     def pending_songs(room_number):
+        # print("whats going on")
         try:
             unsorted_queue = DBUtils.get_pending_songs(room_number)
             # possible type error - idk if unsorted_queue is of type dict

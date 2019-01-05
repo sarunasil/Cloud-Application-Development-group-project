@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Search from './Search'
 import publicIP from 'react-native-public-ip';
 import SongList from "./SongList";
+import axios from "axios/index";
 
 var scopes = ['user-modify-playback-state', 'user-read-currently-playing', 'app-remote-control', 'streaming', 'user-read-playback-state'],
     clientId = '1811c9058bad498b8d829cd37564fdc6', //my own code, will prbs be changed
@@ -64,7 +65,8 @@ class MasterRoom extends Component {
 
     componentDidMount(){
         //Obtains the User's IP and saves it in the cookie
-        console.log("First from master, ", this.props.cookies.get("ip"));
+        console.log("Reading cookie from master: identification cookie", this.props.cookies.get("identificationCookie"));
+        console.log("Reading cookie from master: room id", this.props.cookies.get("id"));
 
         this.saveIP();
 
@@ -202,7 +204,7 @@ class MasterRoom extends Component {
         //TODO: api call for list of users (to update users)
 
         console.log("Kicking user: ", e.target.value);
-    };
+    }
 
     handleBlock = (e) => {
         var userToBlock = e.target.value;
@@ -236,18 +238,18 @@ class MasterRoom extends Component {
                     <div className="col">{this.renderPlayer()}</div>
                 </div>
                 <div className="row">
-                    <div className="col-4">
+                    <div className="col-3">
                         <SongList
                             queue={this.state.queue}
                             play={this.playSong}
                             remove={this.renderSongs}/>
                     </div>
-                    <div className="col-8">
+                    <div className="col-7">
                         <ul className="list-group" style={{align:"left"}}>
                             <Search ref={this.child} />
                         </ul>
                     </div>
-                    <div className="col">{this.renderUsersTable()}</div>
+                    <div className="col-2">{this.renderUsersTable()}</div>
                 </div>
             </div>
 
@@ -260,7 +262,7 @@ class MasterRoom extends Component {
             <Table striped bordered condensed hover>
                 <thead>
                 <tr>
-                    <th colSpan="3">Users Admin Panel</th>
+                    <th colSpan="3">Admin Panel</th>
                 </tr>
                 <tr>
                     <th>Nickname</th>
@@ -286,7 +288,7 @@ class MasterRoom extends Component {
 
 
     // the songs played part ensures that the player gets refreshed at the end of a song
-    renderPlayer(){
+    renderPlayer() {
         return(
             <div>
                 { spotifyApi.getAccessToken() &&

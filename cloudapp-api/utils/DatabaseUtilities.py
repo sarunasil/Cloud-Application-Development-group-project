@@ -186,7 +186,7 @@ class DBUtils:
         '''
         :param userId: user id to remove for\n
         :param roomId: room id to remove from in\n
-        :return: status - success/failure
+        :return: is_successful - boolean
         '''
         client = pymongo.MongoClient(
             config.MONGODB_CONFIG['URL'])

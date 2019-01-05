@@ -15,8 +15,11 @@ class TokenModerator:
     # static variables
     # these CLIENT_ID an SECRET should be environment variables... not HARDCODED
 
+    # TODO when frontend is deployed these two WILL be different - ask bobi what to set them to
+    # if redirect_uri does not match one in frontend AUTH TOKEN WILL FAIL
     redirect_uri = "http://localhost:3000/callback"
     scopes = "user-read-private"
+
     concat = config.TOKEN_KEYS['CLIENT_ID'] + ":" + config.TOKEN_KEYS['CLIENT_SECRET']
     encoded_str = base64.b64encode(concat.encode("UTF-8"))
     decoded_bytes = encoded_str.decode("UTF-8")

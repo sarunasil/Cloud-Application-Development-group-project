@@ -26,13 +26,14 @@ class SongList  extends Component {
     }
 
     renderSongList(){
+        console.log(this.props.queue);
         return this.props.queue.map(
             (song, i) =>
                 <li className="list-group-item" key = {i} style={{border:"0"}}>
-                    { !song.link.startsWith('spotify:') &&
+                    { !song.url.startsWith('spotify:') &&
                     <img src={require('./youtubeLogo.png')} width="50" height="40"/>
                     }
-                    {  song.link.startsWith('spotify:') &&
+                    {  song.url.startsWith('spotify:') &&
                     <img src={require('./spotifyLogo.png')} width="40" height="40"/>
                     }
                     <span> </span>
@@ -42,14 +43,14 @@ class SongList  extends Component {
                     <div className="float-right">
                         <div className="btn-group" role="group">
                             {this.props.play ?
-                            <button type="button" className="btn btn-success" onClick={() => this.play(i)}>
+                            <button type="button" className="btn btn-success" onClick={() => this.props.play(i)}>
                                 <FontAwesomeIcon icon="play-circle"/></button> :
                                 <div></div>}
                             {this.props.remove ?
-                            <button type="button" className="btn btn-danger" onClick={() => this.remove(i)}>
+                            <button type="button" className="btn btn-danger" onClick={() => this.props.remove(i)}>
                                 <FontAwesomeIcon icon="trash-alt"/></button> :
                                 <div></div>}
-                            <button type="button" className="btn btn-info" onClick={() => this.like(i)}>
+                            <button type="button" className="btn btn-info" onClick={() => this.props.like(i)}>
                                 <FontAwesomeIcon icon="thumbs-up"/></button>
                         </div>
                     </div>
