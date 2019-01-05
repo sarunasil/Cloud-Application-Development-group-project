@@ -11,7 +11,7 @@ class SpotifyPlayer extends Component {
     constructor(props) {
         super(props);
         spotifyApi.setAccessToken(this.props.spotifyToken);
-
+        console.log("Spotify:" + this.props);
         this.playerCheckInterval = setInterval(() => this.checkForPlayer(), 1000);
     }
 
