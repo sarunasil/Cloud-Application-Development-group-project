@@ -3,11 +3,18 @@ let axios = require('axios');
 // api object holding post and get functions for requests
 let api = {};
 
+api.postNoCookie = (url, body) => {
+    console.log("Url", url);
+    console.log("Body", body);
+    return axios.post(url, body);
+}
+
 api.post = (url, cookie, body) => {
     let headers = {
         'Authorization': cookie
     };
 
+    console.log("Body", body);
     return axios.post(url, body, { headers: headers });
 }
 
