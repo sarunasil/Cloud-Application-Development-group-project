@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Input, Button} from 'semantic-ui-react'
 import publicIP from "react-native-public-ip";
 import axios from 'axios'
-import api from "./api";
+import api from './api.js'
 
 
 const testId = 'https://cloud-app-dev-227512.appspot.com/';
@@ -53,56 +53,34 @@ class Home extends Component {
         var nickname = responseGenerateNickname.data.success["nickname"];
         console.log("Nickname: ", nickname);
 
-        this.props.cookies.set('Nickname', nickname,  { path: '/', maxAge: 3600 });
+        const nickname = await api.get(testId + this.state.roomCode + "/nickname", "");
+        console.log(nickname);
+        if(nickname.status === 200){
 
-        var urlJoinRoom = testId + this.props.cookies.get('roomId');
-        console.log("Url ", urlJoinRoom);
-        let body = {
-            nickname: nickname,
-            IP: ip
-        };
-        const responseJoinRoom = await api.postNoCookie(urlJoinRoom, body);
-        console.log("JoinRoom response ", responseJoinRoom);
-        if(responseJoinRoom.status === 200) {
-            this.props.cookies.set('UserId', responseJoinRoom.data.success["UserId"], { path: '/', maxAge: 3600 });
-            this.props.cookies.set('UserCookie', responseJoinRoom.data.success["UserCookie"],  { path: '/', maxAge: 3600 });
+            const name = "spas2";
+            const l = testId + this.state.roomCode;
+            const dataToSend = {
+                IP: ip,
+                nickname : nickname
+            }
+            const response = await api.post(l, "", dataToSend);
+            if(response.status === 200){
+                console.log(response);
+                this.props.cookies.set('userName', response.data.success.room.UserId, { path: '/', maxAge: 3600 });
+                this.props.cookies.set('userId', response.data.success.room.UserCookie, { path: '/', maxAge: 3600 });
+                this.props.cookies.set('SpotifySearchToken', response.data.success.room.SpotifySearchToken, { path: '/', maxAge: 3600 });
+                this.props.cookies.set('YoutubeSearchToken', response.data.success.room.YoutubeSearchToken, { path: '/', maxAge: 3600 });
+                this.props.cookies.set('roomId', response.data.success.room._id, { path: '/', maxAge: 3600 });
+                this.props.history.push('/' + response.data.success.roomId);
+            }
+            // const response = await axios.post(
+            //     'http://127.0.0.1:5000/' + room,
 
-            console.log("Cookies set: UserId", this.props.cookies.get("UserId"));
-            console.log("Cookies set: UserCookie", this.props.cookies.get("UserCookie"));
 
-            this.props.history.push('/' +  this.props.cookies.get('roomId'));
-        } else {
-            alert("Could not join the room! You may have been blocked!");
-            return;
+            console.log(this.state.roomCode);
+        } else{
+            alert("Could not retreive nickname");
         }
-
-
-
-
-         /* I guess the code below was written for testing, the above code should now work
-        const name = "spas2";
-        const room = this.props.cookies.get('roomId');
-        const l = testId + room;
-        const dataToSend = {
-            ip: ip
-        }
-        const response = await axios.post(l, {ip});
-        if(response.status === 200){
-            this.props.cookies.set('UserId', response.data.userId, { path: '/', maxAge: 3600 });
-            this.props.cookies.set('Nickname', response.data.nickname,  { path: '/', maxAge: 3600 });
-            this.props.history.push('/' + room);
-        } */
-
-
-        // const response = await axios.post(
-        //     'http://127.0.0.1:5000/' + room,
-
-        //     {nickname: name},
-        //     {IP: ip},
-        //     {room_number: room}
-        // );
-
-        console.log(this.state.roomCode);
     }
 
     create = async () => {
