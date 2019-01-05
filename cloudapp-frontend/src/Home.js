@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {Input, Button} from 'semantic-ui-react'
 import publicIP from "react-native-public-ip";
 import axios from 'axios'
+import api from "./api";
 
 
 const testId = 'https://cloud-app-dev-227512.appspot.com/';
@@ -19,6 +20,16 @@ class Home extends Component {
     }
 
     join = async () => {
+
+        //TODO: What is missing: get the room code and somehow link it to the roomID?
+        //map code to room ID
+        //return ID and redirect to it
+
+        //HOW THIS WORKS
+        //1. Call the Generate Nickname API (needed for 2.)
+        //2. Call the JOIN API (supplying nickname and IP address
+        //3. SAVE the UserID and UserCookie that the Join API returns in the cookie
+
         // This ip will be needed when calling the join API
         var ip = await publicIP()
             .then(ip => {
@@ -29,13 +40,49 @@ class Home extends Component {
                 console.log(error);
             });
 
-        //TODO: api calls to join the room
-        //map code to room ID
-        //return ID and redirect to it
+        //Calling the generate nickname API
+        var urlGenerateNickname = testId + this.props.cookies.get('roomId')+ '/nickname';
+        console.log("Url ", urlGenerateNickname);
+        const responseGenerateNickname = await api.get(urlGenerateNickname);
+        console.log("GenerateNickname response ", responseGenerateNickname);
+        if(responseGenerateNickname.status != 200) {
+            alert("Could not join the room!");
+            return;
+        }
 
+        var nickname = responseGenerateNickname.data.success["nickname"];
+        console.log("Nickname: ", nickname);
+
+        this.props.cookies.set('Nickname', nickname,  { path: '/', maxAge: 3600 });
+
+        var urlJoinRoom = testId + this.props.cookies.get('roomId');
+        console.log("Url ", urlJoinRoom);
+        let body = {
+            nickname: nickname,
+            IP: ip
+        };
+        const responseJoinRoom = await api.postNoCookie(urlJoinRoom, body);
+        console.log("JoinRoom response ", responseJoinRoom);
+        if(responseJoinRoom.status === 200) {
+            this.props.cookies.set('UserId', responseJoinRoom.data.success["UserId"], { path: '/', maxAge: 3600 });
+            this.props.cookies.set('UserCookie', responseJoinRoom.data.success["UserCookie"],  { path: '/', maxAge: 3600 });
+
+            console.log("Cookies set: UserId", this.props.cookies.get("UserId"));
+            console.log("Cookies set: UserCookie", this.props.cookies.get("UserCookie"));
+
+            this.props.history.push('/' +  this.props.cookies.get('roomId'));
+        } else {
+            alert("Could not join the room! You may have been blocked!");
+            return;
+        }
+
+
+
+
+         /* I guess the code below was written for testing, the above code should now work
         const name = "spas2";
         const room = this.props.cookies.get('roomId');
-        const l = testId + roomCode;
+        const l = testId + room;
         const dataToSend = {
             ip: ip
         }
@@ -43,8 +90,10 @@ class Home extends Component {
         if(response.status === 200){
             this.props.cookies.set('UserId', response.data.userId, { path: '/', maxAge: 3600 });
             this.props.cookies.set('Nickname', response.data.nickname,  { path: '/', maxAge: 3600 });
-            this.props.history.push('/' + roomCode);
-        }
+            this.props.history.push('/' + room);
+        } */
+
+
         // const response = await axios.post(
         //     'http://127.0.0.1:5000/' + room,
 
@@ -73,7 +122,7 @@ class Home extends Component {
             alert("Could not create room");
         }
 
-        this.props.history.push('master/' + response.data.success.room._id);
+        //this.props.history.push('master/' + response.data.success.room._id);
     }
 
     render() {
