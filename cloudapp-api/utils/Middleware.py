@@ -9,9 +9,12 @@ class MiddlewareUtils:
     def valid_user(f):
         @wraps(f)
         def logged_in_route(*args, **kwargs):
-            user_id = request.headers.get('Authorization')
+            cookie = request.headers.get('Authorization')
+            if cookie is None:
+                return Response.responseFailure(ErrorMsg.NO_AUTH.value)
+
             room_number = kwargs['room_number']
-            is_allowed = SecurityUtils.checkUser(room_number, user_id)
+            is_allowed = SecurityUtils.checkUser(room_number, cookie)
             if is_allowed:
                 return f(*args, **kwargs)
             else:
@@ -23,9 +26,12 @@ class MiddlewareUtils:
     def valid_master(f):
         @wraps(f)
         def master_in_route(*args, **kwargs):
-            user_id = request.headers.get('Authorization')
+            cookie = request.headers.get('Authorization')
+            if cookie is None:
+                return Response.responseFailure(ErrorMsg.NO_AUTH.value)
+
             room_number = kwargs['room_number']
-            is_allowed = SecurityUtils.checkUser(room_number, user_id, True)
+            is_allowed = SecurityUtils.checkUser(room_number, cookie, True)
             if is_allowed:
                 return f(*args, **kwargs)
             else:
