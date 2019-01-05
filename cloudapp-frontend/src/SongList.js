@@ -3,6 +3,9 @@ import axios from 'axios'
 import {ListGroup} from "react-bootstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
+
+const testId = 'https://cloud-app-dev-227512.appspot.com/';
+
 class SongList  extends Component {
     constructor(props) {
         super(props);
@@ -10,6 +13,30 @@ class SongList  extends Component {
 
     like = async (i) => {
         console.log('like song ' + this.props.queue[i].name);
+        const linkToSend = testId + this.props.cookies.get('roomId') + '/upvote';
+        const data = {
+            Authorization : this.props.cookies.get('userId'),
+            body : {
+                url : this.props.queue[i].url,
+                userId : this.props.cookies.get('userId')
+            }
+        };
+        const response = axios.post(linkToSend, data);
+        //TODO api call to like this song
+        //no need to update state, it will update itself every 2 seconds anyway
+    }
+
+    unlike = async (i) => {
+        console.log('like song ' + this.props.queue[i].name);
+        const linkToSend = testId + this.props.cookies.get('roomId') + '/unvote';
+        const data = {
+            Authorization : this.props.cookies.get('userId'),
+            body : {
+                url : this.props.queue[i].url,
+                userId : this.props.cookies.get('userId')
+            }
+        };
+        const response = axios.post(linkToSend, data);
         //TODO api call to like this song
         //no need to update state, it will update itself every 2 seconds anyway
     }
