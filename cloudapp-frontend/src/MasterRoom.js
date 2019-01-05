@@ -169,13 +169,13 @@ class MasterRoom extends Component {
     }
 
     playSong(songNumberInQueue){
-        console.log(this.state);
-        if(this.state.queue[songNumberInQueue].name.startsWith('spotify:')){
+        console.log(this.state.queue[songNumberInQueue]);
+        if(this.state.queue[songNumberInQueue].url.startsWith('spoti')){
             this.state.queue[songNumberInQueue].type = 's';
         }else{
             this.state.queue[songNumberInQueue].type = 'y';
         }
-        console.log( this.state.queue[songNumberInQueue].type   );
+        console.log( this.state.queue[songNumberInQueue].type);
         if(this.state.queue[songNumberInQueue].type === 's' && !spotifyApi.getAccessToken()){
             this.removeSong(songNumberInQueue);
             this.playNextSong();
@@ -381,7 +381,7 @@ class MasterRoom extends Component {
                                        aria-label="Search" value={this.state.query} onChange={this.setQuery} style={{ width:"300px" }}></input>
                                 <button className="btn btn-outline-success my-2 my-sm-0" type="submit"><FontAwesomeIcon icon="search"/>
                                 </button>
-                                <button onClick = {this.updateStateForServer}>Updatenp</button>
+                                <button onClick = {this.updateStateForServer}>Update</button>
                                 <span> &nbsp;</span>
                                 <div className="float-right"><button type="button" className="btn btn-success"  onClick={this.addSpotify}>Add<br/>
                                     Spotify</button></div>
@@ -448,10 +448,10 @@ class MasterRoom extends Component {
     renderPlayer() {
         return(
             <div>
-                { spotifyApi.getAccessToken() &&
+                { this.state.currentSong.type === "s" && spotifyApi.getAccessToken() &&
                 <SpotifyPlayer
                     spotifyToken={spotifyApi.getAccessToken()}
-                    songUri={this.state.currentSong.type === "s" ? this.state.currentSong.url : ''}
+                    songUri={this.state.currentSong.url}
                     songName={this.state.currentSong.name}
                     next={this._onEnd}
                 />

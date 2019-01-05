@@ -40,30 +40,16 @@ class Home extends Component {
                 console.log(error);
             });
 
-        //Calling the generate nickname API
-        var urlGenerateNickname = testId + this.props.cookies.get('roomId')+ '/nickname';
-        console.log("Url ", urlGenerateNickname);
-        const responseGenerateNickname = await api.get(urlGenerateNickname);
-        console.log("GenerateNickname response ", responseGenerateNickname);
-        if(responseGenerateNickname.status != 200) {
-            alert("Could not join the room!");
-            return;
-        }
-
-        var nickname = responseGenerateNickname.data.success["nickname"];
-        console.log("Nickname: ", nickname);
-
         const nickname = await api.get(testId + this.state.roomCode + "/nickname", "");
         console.log(nickname);
         if(nickname.status === 200){
-
-            const name = "spas2";
-            const l = testId + this.state.roomCode;
+            const link = testId + this.state.roomCode;
             const dataToSend = {
                 IP: ip,
                 nickname : nickname
             }
-            const response = await api.post(l, "", dataToSend);
+            console.log("aaa");
+            const response = await api.post(link, "", dataToSend);
             if(response.status === 200){
                 console.log(response);
                 this.props.cookies.set('userName', response.data.success.room.UserId, { path: '/', maxAge: 3600 });
