@@ -2,8 +2,8 @@ import React, {Component} from 'react';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import searchYouTube from "youtube-api-search";
 import SpotifyWebApi from 'spotify-web-api-node';
-import axios from 'axios'
-
+import axios from 'axios';
+import api from './api.js';
 
 var spotifyApi = new SpotifyWebApi({
     clientId: '1811c9058bad498b8d829cd37564fdc6'
@@ -59,17 +59,11 @@ class Search extends Component {
             url : this.state.results[index].url,
             time: this.state.results[index].time
         }
-        console.log(JSON.stringify(this.state.results[index]) + ' will be added')
 
-        // var postLink = 'http://127.0.0.1:5000/' + this.props.cookies.get('roomId') + '/enqueue-song';
         var postLink = 'https://cloud-app-dev-227512.appspot.com/' + this.props.cookies.get('roomId') + '/enqueue-song';
-        var code  = {
-            headers: {
-                Authorization : this.props.cookies.get('MasterCookie'),
-            },
-            body
-        };
-        const response = await axios.post(postLink, code);
+        console.log(this.props.cookies.get('userId'));
+        console.log(body);
+        const response = await api.post(postLink, this.props.cookies.get('userId'), body);
         console.log(response);    
     }
 

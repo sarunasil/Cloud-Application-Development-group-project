@@ -19,10 +19,10 @@ class Callback  extends Component {
 
         const response = await axios.post(
             // 'http://127.0.0.1:5000/' + 'spotify',
-            'https://cloud-app-dev-227512.appspot.com/' + '/spotify',
+            'https://cloud-app-dev-227512.appspot.com/' + 'spotify',
             {code: code}
         );
-        //console.log(response);
+        console.log(response);
 
         this.props.cookies.set('accessToken', response.data.success.auth, { path: '/', maxAge: 3600 });
         //console.log(this.props.cookies.get('accessToken'));

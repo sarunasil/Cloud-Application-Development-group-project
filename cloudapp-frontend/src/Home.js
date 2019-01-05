@@ -35,7 +35,7 @@ class Home extends Component {
 
         const name = "spas2";
         const room = this.props.cookies.get('roomId');
-        const l = testId + roomCode;
+        const l = testId + room;
         const dataToSend = {
             ip: ip
         }
@@ -43,7 +43,7 @@ class Home extends Component {
         if(response.status === 200){
             this.props.cookies.set('UserId', response.data.userId, { path: '/', maxAge: 3600 });
             this.props.cookies.set('Nickname', response.data.nickname,  { path: '/', maxAge: 3600 });
-            this.props.history.push('/' + roomCode);
+            this.props.history.push('/' + room);
         }
         // const response = await axios.post(
         //     'http://127.0.0.1:5000/' + room,
@@ -73,7 +73,7 @@ class Home extends Component {
             alert("Could not create room");
         }
 
-        this.props.history.push('master/' + response.data.success.room._id);
+        //this.props.history.push('master/' + response.data.success.room._id);
     }
 
     render() {
