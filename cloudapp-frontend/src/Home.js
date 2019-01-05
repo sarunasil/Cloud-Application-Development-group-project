@@ -2,12 +2,8 @@ import React, {Component} from 'react';
 import {Input, Button} from 'semantic-ui-react'
 import publicIP from "react-native-public-ip";
 import axios from 'axios'
-<<<<<<< HEAD
 import api from './api.js'
-=======
-import api from "./api";
 
->>>>>>> 9a7a052e720bfc38178dc2dc55b428b4df756faa
 
 const testId = 'https://cloud-app-dev-227512.appspot.com/';
 class Home extends Component {
