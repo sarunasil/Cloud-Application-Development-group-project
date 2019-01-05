@@ -219,35 +219,41 @@ class DBUtils:
             return is_successful
 
     @staticmethod
-    def block_ip(ip, roomId, client=None):
+    def block_member(member, roomId, client=None):
         if client is None:
             client = pymongo.MongoClient(
                 config.MONGODB_CONFIG['URL'])
 
         db = client.pymongo_test
 
+        userId = list(member.keys())[0]
+        #don't kick master!
+        master = DBUtils.get_master(roomId)
+        if userId in master:
+            return False
+
         with client.start_session() as s:
             s.start_transaction()
 
             #break after first result. As it's unique, there should only be one
-            ips = '';
-            for r in db.rooms.find( {'_id': roomId}, {"blocked_ips": 1} ):
-                ips = r['blocked_ips'];
+            blocked_members = None
+            for r in db.rooms.find( {'_id': roomId}, {"blocked_members": 1} ):
+                blocked_members = r['blocked_members']
                 break
-
-            if ips != '' and  ip not in ips:
-                ips.append(ip)
+            
+            if blocked_members is not None and userId not in blocked_members:
+                blocked_members = {**blocked_members, **member}
             else:
                 s.abort_transaction()
                 return False
 
             result = db.rooms.update(
                 { '_id': roomId },
-                { '$set': {'blocked_ips': ips} }
+                { '$set': {'blocked_members': blocked_members} }
             )
             s.commit_transaction()
-        return True
-
+            return True
+        return False
 
     @staticmethod
     def enqueue_song(room_number, url, song, num_elements, client=None):

@@ -103,7 +103,7 @@ def join_room(room_number):
     return Response.responseFailure({'msg': 'Failed to join the room.'})
 
 @app.route('/<room_number>/get-members', methods=['POST'])
-@MiddlewareUtils.valid_master
+# @MiddlewareUtils.valid_master
 def get_members(room_number):
     """
     Gets the list of party members\n
@@ -164,23 +164,16 @@ def enqueue_song(room_number):
     :bodyparam url: url of the song (Spotify/Youtube), will act as a primary key in MongoDB\n
     bodyparam name: name of the song (together with author?)\n
     :bodyparam duration: duration of the song\n
-    :bodyparam userId: user who added the song\n
     :returns: Response.responseSuccess if added successfully, Response.responseFailure if unable to add.
     """
-
     data = request.json
 
-    param = {'url','name','duration','userId'}
+    param = {'url','name','duration'}
     if  data is not None and param.issubset(set(data.keys())):
         #make sure userId is the same as in the cookie
         cookie = request.headers.get('Authorization')
-        if MiddlewareUtils.get_userId(cookie) != data['userId']:
-            return Response.responseFailure({
-                'queue': '',
-                'msg': 'User authentication unsuccessful',
-            })
 
-        result, queue = Router.enqueue_song(room_number, data['url'], data['name'], data['duration'], data['userId'])
+        result, queue = Router.enqueue_song(room_number, data['url'], data['name'], data['duration'], MiddlewareUtils.get_userId(cookie))
 
         if result:
             return Response.responseSuccess({
