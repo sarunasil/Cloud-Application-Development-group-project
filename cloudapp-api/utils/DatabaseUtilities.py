@@ -14,12 +14,9 @@ class DBUtils:
     @staticmethod
     def generateUniqueId(purpose, room_id=None, client=None):
         '''
-        Generates a unique identifier using ObjectId - same as MongoDb auto-assigned _id
-
-        :param purpose: one of Purpose Enum value
-
-        :return unique ObjectId string
-
+        Generates a unique identifier using ObjectId - same as MongoDb auto-assigned _id\n
+        :param purpose: one of Purpose Enum value\n
+        :return unique ObjectId string\n
         :Exception ValueError: if room with roomId does not exist. 
         '''
 
@@ -31,16 +28,44 @@ class DBUtils:
             existing_id = ""
             #check if id is already used
             if purpose == Purpose.ROOM:
-                existing_id = DBUtils.get_room(id, client)
+                existing_id = DBUtils.get_room(str(id), client)
             elif purpose == Purpose.USER and room_id is not None:
-                existing_id = DBUtils.get_member(id, room_id, client)
+                existing_id = DBUtils.get_member(str(id), room_id, client)
             else:#this is expected to fire if generating id for party master
                 break;
+            print(id)
 
             # repeat while Id is unique
             if existing_id is None:
                 break
         return str(id)
+
+    @staticmethod
+    def nicknameUnique(roomId, nickname):
+        '''
+        Test if a nickname is already used in the room
+        :param roomId:
+        :param nickname: nickname to check
+        :return: True - nickname is unique; False - nickname is not unique
+        '''
+
+        fields = [
+            'users'
+        ]
+        users = DBUtils.get_fields(roomId, fields)
+
+        nicknames=[]
+        if users is not None:
+            users = users[0]['users']
+            for id in users.keys():#go through every user entry and extract nickname
+                nick = users[id]['nickname']
+                nicknames.append(nick)
+
+            #self-explanatory
+            if nickname not in nicknames:
+                return True
+
+        return False
 
     @staticmethod
     def create_room(room):
@@ -103,10 +128,22 @@ class DBUtils:
                 users = r['users'];
                 break
 
+            #check user nickname for uniqueness
+            nicknames=[]
+            if users is not None:
+                for id in users.keys():#go through every user entry and extract nickname
+                    nick = users[id]['nickname']
+                    nicknames.append(nick)
+
+                #self-explanatory
+                if list(user.values())[0]['nickname'] in nicknames:
+                    s.abort_transaction()
+                    return False
+
             if users != '' and  list(user.keys())[0] not in users:
                 users = {**users, **user}
             else:
-                s.commit_transaction()
+                s.abort_transaction()
                 return False
 
             result = db.rooms.update(
@@ -120,11 +157,9 @@ class DBUtils:
     @staticmethod
     def get_member(userId, roomId, client=None):
         '''
-        :param userId: user id to search for
-        :param roomId: room id to search in
-
-        :return: user object of a specific room if exists, else - None
-
+        :param userId: user id to search for\n
+        :param roomId: room id to search in\n
+        :return: user object of a specific room if exists, else - None\n
         :Exception ValueError: if room with roomId does not exist. 
         '''
 
@@ -143,8 +178,76 @@ class DBUtils:
         if result.count() == 0:
             return None
 
-        user = None if 'users' not in result[0] else result[0]['users']
+        user = None if 'users' not in result[0] or len(result[0]['users'])==0 else result[0]['users']
         return user
+
+    @staticmethod
+    def delete_member(userId, roomId, client=None):
+        '''
+        :param userId: user id to remove for\n
+        :param roomId: room id to remove from in\n
+        :return: status - success/failure
+        '''
+        client = pymongo.MongoClient(
+            config.MONGODB_CONFIG['URL'])
+
+        db = client.pymongo_test
+
+        #don't kick master!
+        master = DBUtils.get_master(roomId)
+        if userId in master:
+            return False
+
+        #kick
+        with client.start_session() as s:
+            s.start_transaction()
+            fields = {
+                '$unset': {
+                    'users.' + userId: ""
+                }
+            }
+
+            #remove according to fields
+            remove_user_result = db.rooms.update({'_id': roomId}, fields)
+            is_successful = remove_user_result['nModified'] > 0
+
+            if is_successful:
+                s.commit_transaction()
+            else:
+                s.abort_transaction()
+
+            return is_successful
+
+    @staticmethod
+    def block_ip(ip, roomId, client=None):
+        if client is None:
+            client = pymongo.MongoClient(
+                config.MONGODB_CONFIG['URL'])
+
+        db = client.pymongo_test
+
+        with client.start_session() as s:
+            s.start_transaction()
+
+            #break after first result. As it's unique, there should only be one
+            ips = '';
+            for r in db.rooms.find( {'_id': roomId}, {"blocked_ips": 1} ):
+                ips = r['blocked_ips'];
+                break
+
+            if ips != '' and  ip not in ips:
+                ips.append(ip)
+            else:
+                s.abort_transaction()
+                return False
+
+            result = db.rooms.update(
+                { '_id': roomId },
+                { '$set': {'blocked_ips': ips} }
+            )
+            s.commit_transaction()
+        return True
+
 
     @staticmethod
     def enqueue_song(room_number, url, song, num_elements, client=None):

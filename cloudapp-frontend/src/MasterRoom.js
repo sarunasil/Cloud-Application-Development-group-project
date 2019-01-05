@@ -4,10 +4,12 @@ import SpotifyWebApi from 'spotify-web-api-node';
 import './App.css';
 import SpotifyPlayer from './SpotifyPlayer';
 import YouTube from 'react-youtube';
-import { Button, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Table, Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Search from './Search'
 import publicIP from 'react-native-public-ip';
+import SongList from "./SongList";
+import axios from "axios/index";
 
 var scopes = ['user-modify-playback-state', 'user-read-currently-playing', 'app-remote-control', 'streaming', 'user-read-playback-state'],
     clientId = '1811c9058bad498b8d829cd37564fdc6', //my own code, will prbs be changed
@@ -17,6 +19,8 @@ var scopes = ['user-modify-playback-state', 'user-read-currently-playing', 'app-
 var spotifyApi = new SpotifyWebApi({
     clientId: clientId
 });
+
+var users = ["Monkey", "Octopus", "Giraffe", "Rabbit", "Cat"];
 
 
 const size = {
@@ -61,7 +65,8 @@ class MasterRoom extends Component {
 
     componentDidMount(){
         //Obtains the User's IP and saves it in the cookie
-        console.log("First from master, ", this.props.cookies.get("ip"));
+        console.log("Reading cookie from master: identification cookie", this.props.cookies.get("identificationCookie"));
+        console.log("Reading cookie from master: room id", this.props.cookies.get("id"));
 
         this.saveIP();
 
@@ -193,8 +198,23 @@ class MasterRoom extends Component {
         this.child.current.search(this.state.query)
     }
 
+    handleKick = (e) => {
+        var userToKick = e.target.value;
+        //TODO: api call for kicking a user
+        //TODO: api call for list of users (to update users)
+
+        console.log("Kicking user: ", e.target.value);
+    }
+
+    handleBlock = (e) => {
+        var userToBlock = e.target.value;
+        //TODO: api call for blocking a user
+        //TODO: api call for list of users (to update users)
+
+        console.log("Blocking user: ", e.target.value);
+    };
+
     render() {
-        const spTkn = 'BQC7cmdorLg82wSM7a2bXD25PjS6DAtgDLTAQV3EifbqIypnU5PEw0HaCLSXTaky7_13VlsMRfwJNCX6Whg'
         return (
 
             <div className="container-fluid">
@@ -218,12 +238,18 @@ class MasterRoom extends Component {
                     <div className="col">{this.renderPlayer()}</div>
                 </div>
                 <div className="row">
-                    <div className="col-4">{this.renderSongs()}</div>
-                    <div className="col-8">
+                    <div className="col-3">
+                        <SongList
+                            queue={this.state.queue}
+                            play={this.playSong}
+                            remove={this.renderSongs}/>
+                    </div>
+                    <div className="col-7">
                         <ul className="list-group" style={{align:"left"}}>
                             <Search ref={this.child} />
                         </ul>
                     </div>
+                    <div className="col-2">{this.renderUsersTable()}</div>
                 </div>
             </div>
 
@@ -231,9 +257,38 @@ class MasterRoom extends Component {
     }
 
 
+    renderUsersTable() {
+        return <div>
+            <Table striped bordered condensed hover>
+                <thead>
+                <tr>
+                    <th colSpan="3">Admin Panel</th>
+                </tr>
+                <tr>
+                    <th>Nickname</th>
+                    <th>Kick</th>
+                    <th>Block</th>
+                </tr>
+
+                </thead>
+                <tbody>
+                {users.map(
+                    (user)=>
+                        <tr>
+                            <td>{user}</td>
+                            <td><Button value={user} onClick={this.handleKick}>Kick</Button></td>
+                            <td><Button value={user} onClick={this.handleBlock}>Block</Button></td>
+                        </tr>
+                )}
+                </tbody>
+            </Table>;
+        </div>
+    }
+
+
 
     // the songs played part ensures that the player gets refreshed at the end of a song
-    renderPlayer(){
+    renderPlayer() {
         return(
             <div>
                 { spotifyApi.getAccessToken() &&
@@ -256,42 +311,6 @@ class MasterRoom extends Component {
             </div>
         );
     }
-
-    renderSongs(){
-        return(
-            <div className = "songs">
-                <ListGroup>
-                    {this.renderSongList()}
-                </ListGroup>
-            </div>
-        );
-    }
-
-    renderSongList(){
-        var currentSongsInQueue = this.state.queue;
-        return currentSongsInQueue.map(
-            (song, i) =>
-                <li className="list-group-item" key = {i} style={{border:"0"}}>
-                    { !song.link.startsWith('spotify:') &&
-                    <img src={require('./youtubeLogo.png')} width="50" height="40"/>
-                    }
-                    {  song.link.startsWith('spotify:') &&
-                    <img src={require('./spotifyLogo.png')} width="40" height="40"/>
-                    }
-                    <span> </span>
-                    {song.name}
-                    <span> </span> Votes: {song.votes}
-                    <span> </span>
-                    <div className="float-right">
-                    <div className="btn-group" role="group">
-                        <button type="button" className="btn btn-success" onClick={() => this.playSong(i)}> <FontAwesomeIcon icon="play-circle"/></button>
-                        <button type="button" className="btn btn-danger" onClick={() => this.removeSong(i)}><FontAwesomeIcon icon="trash-alt"/></button>
-                        <button type="button" className="btn btn-info"><FontAwesomeIcon icon="thumbs-up"/></button>
-                    </div>
-                    </div>
-
-                </li>
-        );}
 
 }
 

@@ -4,41 +4,17 @@ import './App.css';
 import searchYouTube from 'youtube-api-search';
 import { Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 import publicIP from "react-native-public-ip";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import SongList from "./SongList";
+import Search from "./Search";
 
 
-var scopes = ['user-modify-playback-state', 'user-read-currently-playing', 'app-remote-control', 'streaming', 'user-read-playback-state'],
-    clientId = '1811c9058bad498b8d829cd37564fdc6', //my own code, will prbs be changed
-    //can be used for security, CSRF shit
-    state = 'some-state-of-my-choice';
-
-var spotifyApi = new SpotifyWebApi({
-    clientId: clientId
-});
-
-
-const size = {
-    width: '100%',
-    height: '390',
-};
-const view = 'list'; // or 'coverart'
-const theme = 'black'; // or 'white'
-const youtubeOptions = {
-    height: '390',
-    width: '100%',
-    playerVars: { // https://developers.google.com/youtube/player_parameters
-        autoplay: 1
-    }
-};
 
 class PeasantRoom extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            roomId : "123newRoom",
-            title : "Current room",
-            spotifyAppToken : "",
-            spotifyAccessToken: "",
-            youtubeAppToken: "",
+            query: '',
             queue: [],
             currentlyPlaying : false,
             currentSong: {
@@ -49,17 +25,12 @@ class PeasantRoom extends Component {
                 votes: "0"
 
             },
-            songsPlayed: 0,
-            test: "",
-            searchResults: [],
-            value: ""
+            songsPlayed: 0
         };
+        this.child = React.createRef();
 
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        let timerId = setInterval(() => this.updateStateForServer('tick'), 2000);
-        //TODO: will become our domain name
-        spotifyApi.setRedirectURI('http://localhost:3000/callback');
+        //let timerId = setInterval(() => this.updateStateForServer('tick'), 2000);
+
 
     }
 
@@ -68,11 +39,13 @@ class PeasantRoom extends Component {
         this.saveIP();
 
         //TODO: use roomId to retrieve data : queue, search/access token for spotify/YT
+        this.updateStateForServer();
     }
 
     saveIP = () => {
         publicIP()
             .then(ip => {
+
                 //add the user IP to the cookie
                 this.props.cookies.set('ip', ip, { path: '/', maxAge: 3600 });
                 console.log("User IP: ", ip);
@@ -87,10 +60,6 @@ class PeasantRoom extends Component {
         // the server should send be a json like
         // we could only send the changes and, from time to time, send the full state, but for now we should keep this simple
         var newState = {
-            title : "Current room",
-            spotifyAppToken : "",
-            spotifyAccessToken: "",
-            youtubeAppToken: "AIzaSyCIoanDddBkwWAVQRmFl62ZmVwQ184Ggls",
             queue: [
                 {
                     name : "Song 1",
@@ -108,146 +77,57 @@ class PeasantRoom extends Component {
         }
         var cnt ;
         //newState = API.get(this.roomId, emptyBody)
-        for(cnt = 0; cnt < newState.queue.length; cnt++){
-            if(this.isSpotifySong(newState.queue[cnt].link)){
-                newState.queue[cnt].type = "s";
-            }else{
-                newState.queue[cnt].type = "y";
-            }
-        }
+
         this.setState(newState);
 
     }
 
-    isSpotifySong(songLink){
-        return songLink.startsWith("spotify:");
+    setQuery = (e) => {
+        this.setState({ query: e.target.value });
     }
 
-
-    handleChange(event) {
-        this.setState({value: event.target.value});
+    handleSubmit = (e) => {
+        e.preventDefault();
+        this.child.current.search(this.state.query)
     }
 
-    handleSubmit(event) {
-        event.preventDefault();
-        var ytResults;
-        searchYouTube({key: this.state.youtubeAppToken, term: this.state.value, maxResults: 6}, (videos) => {
-            console.log("asdasdasdasd")
-            console.log(videos);
-            var cnt = 0;
-            var newEntryList = [];
-            for(cnt = 0; cnt < videos.length; cnt++){
-                var newEntry =
-                    {
-                        link: "",
-                        name: ""
-                    };
-                newEntry.link = videos[cnt].id.videoId;
-                newEntry.name = videos[cnt].snippet.title;
-                newEntryList.push(newEntry);
-            }
-            console.log(newEntryList);
-            this.setState({searchResults: newEntryList});
-        });
-        // add after spotify search
-    }
-
-    addSongToQueue(position) {
-        var currentSong = {
-            name : this.state.searchResults[position].name,
-            link : this.state.searchResults[position].link,
-            votes : 0,
-            time : "100"
-        }
-        var newQueue = this.state.queue;
-        newQueue.push(currentSong);
-        this.setState({newQueue: this.state.queue});
-        // API call to add the song to queue,
-    }
-
-    upvoteSong(position){
-        var newQueue = this.state.queue;
-        newQueue[position].votes++;
-        this.setState({queue : newQueue});
-        // API call to upvote song
-    }
 
     render() {
         return (
-            <div>
-                <div>
-                    <h1>This is pesant room</h1>
-                    <form onSubmit={this.handleSubmit}>
-                        <label>
-                            Song name:
-                            <input type="text" value={this.state.value} onChange={this.handleChange} />
-                        </label>
-                        <input type="submit" value="Submit" />
-                    </form>
+            <div className="container-fluid">
+                <div className="row">
+                    <div className="col">
+                        <nav className="navbar navbar-dark bg-dark justify-content-between">
+                            <a className="navbar-brand" style={{color:"white"}}>This is peasant</a>
+                            <form className="form-inline" onSubmit={this.handleSubmit}>
+                                <input className="form-control mr-sm-2" type="search" placeholder="Look up song"
+                                       aria-label="Search" value={this.state.query} onChange={this.setQuery} style={{ width:"300px" }}></input>
+                                <button className="btn btn-outline-success my-2 my-sm-0" type="submit"><FontAwesomeIcon icon="search"/>
+                                </button>
+                                <span> &nbsp;</span>
 
-                    <ListGroup>
-                        {this.renderSearch()}
-                    </ListGroup>
+                            </form>
+                        </nav>
+                    </div>
                 </div>
-
-                <div>
-                    {this.renderSongs()}
+                <div className="row">
+                    <div className="col"><h3>
+                        Playing: {this.state.currentSong.name}
+                    </h3></div>
                 </div>
-
+                <div className="row">
+                    <div className="col-4">
+                        <SongList queue={this.state.queue}/>
+                    </div>
+                    <div className="col-8">
+                        <ul className="list-group" style={{align:"left"}}>
+                            <Search ref={this.child} />
+                        </ul>
+                    </div>
+                </div>
             </div>
         );
     }
-
-
-    renderSearch(){
-        var searchResults = this.state.searchResults;
-        return searchResults.map(
-            (song, i) =>
-                <ListGroupItem key = {i}>
-                    { !song.link.startsWith('spotify:') &&
-                    <img src={require('./youtubeLogo.png')} width="50" height="50"/>
-                    }
-                    {  song.link.startsWith('spotify:') &&
-                    <img src={require('./spotifyLogo.png')} width="50" height="50"/>
-                    }
-                    <Button bsStyle="primary" onClick={() => this.addSongToQueue(i)}>
-                        Add to queue
-                    </Button>
-                    {song.name}
-                </ListGroupItem>
-        );}
-
-
-    renderSongs(){
-        return(
-            <div className = "songs">
-                <ListGroup>
-                    {this.renderSongList()}
-                </ListGroup>
-            </div>
-        );
-    }
-
-    renderSongList(){
-        var currentSongsInQueue = this.state.queue;
-        return currentSongsInQueue.map(
-            (song, i) =>
-                <ListGroupItem key = {i}>
-                    { !song.link.startsWith('spotify:') &&
-                    <img src={require('./youtubeLogo.png')} width="50" height="50"/>
-                    }
-                    {  song.link.startsWith('spotify:') &&
-                    <img src={require('./spotifyLogo.png')} width="50" height="50"/>
-                    }
-                    <Button bsStyle="primary" onClick={() => this.upvoteSong(i)}>
-                        Upvote
-                    </Button>
-
-                    {song.name}
-                    <span> </span> Votes: {song.votes}
-
-                </ListGroupItem>
-        );}
 
 }
 

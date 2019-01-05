@@ -17,13 +17,16 @@ class Callback  extends Component {
         console.log(room);
         console.log(code);
 
-        // const response = await axios.post(
-        //     'https://cloud-app-dev-227512.appspot.com/' + room + '/spotify',
-        //     {code: code}
-        // );
-        // console.log(response);
+        const response = await axios.post(
+            'http://127.0.0.1:5000/' + 'spotify',
+            // 'http://127.0.0.1:5000/spotify',
+            // 'https://cloud-app-dev-227512.appspot.com/' + room + '/spotify',
+            {code: code}
+        );
+        //console.log(response);
 
-        this.props.cookies.set('accessToken', '', { path: '/', maxAge: 3600 });
+        this.props.cookies.set('accessToken', response.data.success.auth, { path: '/', maxAge: 3600 });
+        //console.log(this.props.cookies.get('accessToken'));
         this.props.history.push('/master/'+room);
     }
 
