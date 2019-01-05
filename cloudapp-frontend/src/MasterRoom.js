@@ -226,19 +226,104 @@ class MasterRoom extends Component {
     }
 
     handleKick = async (e) => {
-        var userToKick = e.target.value;
-        //TODO: api call for kicking a user
-        //TODO: api call for list of users (to update users)
+        // HOW THIS SHOULD WORK:
+        //1. Call API for all users (done)
+        //2. Go through all users and find the id of the nickname that we want to kick (done)
+        //3. Call Kick API for the found id (step 2)  (done, cannot test)
+        //TODO: 4. call all users to update the table
 
-        console.log("Kicking user: ", e.target.value);
+
+        var nicknameToKick = e.target.value;
+
+        console.log("Kicking ", nicknameToKick);
+
+        //Calling API for all users
+        var url = testId + this.props.cookies.get('roomId')+ '/get-members';
+        const response = await api.post(url, this.props.cookies.get('MasterCookie'));
+
+        console.log("Get-all members API ", response);
+        const usersList = response.data.success;
+        console.log("Get-all members API Users", usersList);
+
+        // Going through all users to find the ID of the user to kick (searching by Nickname)
+        // Why? Because the API to kick a user requires an ID, not a nickname
+        var idToKick = null
+        for (var id in usersList){
+            console.log("Current id", id)
+            var currentNickname = usersList[id]["nickname"];
+            console.log("Current nickname", currentNickname);
+            if(currentNickname=== nicknameToKick) {
+                idToKick = currentNickname
+            }
+        }
+
+        if(idToKick == null) {
+            alert("Could not find user " + nicknameToKick + " in the database!");
+            return;
+        }
+
+        //Calling API to kick the user
+        var urlKick = testId + this.props.cookies.get('roomId')+ '/kick';
+        let body = {
+            userId: idToKick
+        };
+        const responseKick = await api.post(urlKick, this.props.cookies.get('MasterCookie'), body);
+        if(responseKick.status === 200) {
+            alert("User" + nicknameToKick + "was kicked!")
+        } else {
+            alert("Could not kick user!");
+        }
+
     }
 
-    handleBlock = (e) => {
-        var userToBlock = e.target.value;
-        //TODO: api call for blocking a user
-        //TODO: api call for list of users (to update users)
+    handleBlock = async (e) => {
+        // HOW THIS SHOULD WORK:
+        //1. Call API for all users (done)
+        //2. Go through all users and find the id of the nickname that we want to block (done)
+        //3. Call Block API for the found id (step 2)  (done, cannot test)
+        //TODO: 4. call all users to update the table
 
-        console.log("Blocking user: ", e.target.value);
+        var nicknameToBlock = e.target.value;
+
+        console.log("Blocking ", nicknameToBlock);
+
+        //Calling API for all users
+        var url = testId + this.props.cookies.get('roomId')+ '/get-members';
+        const response = await api.post(url, this.props.cookies.get('MasterCookie'));
+
+        console.log("Get-all members API ", response);
+        const usersList = response.data.success;
+        console.log("Get-all members API Users", usersList);
+
+        // Going through all users to find the ID of the user to block (searching by Nickname)
+        // Why? Because the API to block a user requires an ID, not a nickname
+        var idToBlock = null
+        for (var id in usersList){
+            console.log("Current id", id)
+            var currentNickname = usersList[id]["nickname"];
+            console.log("Current nickname", currentNickname);
+            if(currentNickname=== nicknameToBlock) {
+                idToBlock = currentNickname
+            }
+        }
+
+        if(idToBlock == null) {
+            alert("Could not find user " + nicknameToBlock + " in the database!");
+            return;
+        }
+
+        //Calling API to block the user
+        var urlKick = testId + this.props.cookies.get('roomId')+ '/block';
+        let body = {
+            userId: idToBlock
+        };
+        const responseBlock = await api.post(urlKick, this.props.cookies.get('MasterCookie'), body);
+        if(responseBlock.status === 200) {
+            alert("User" + nicknameToBlock + "was blocked!")
+        } else {
+            alert("Could not block user!");
+        }
+
     };
 
     render() {
