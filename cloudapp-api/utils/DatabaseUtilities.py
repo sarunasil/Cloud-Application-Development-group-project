@@ -219,15 +219,14 @@ class DBUtils:
             return is_successful
 
     @staticmethod
-    def block_member(member, roomId, client=None):
+    def block_member(userId, ip, nickname, roomId, client=None):
         if client is None:
             client = pymongo.MongoClient(
                 config.MONGODB_CONFIG['URL'])
 
         db = client.pymongo_test
 
-        userId = list(member.keys())[0]
-        #don't kick master!
+        #don't block master!
         master = DBUtils.get_master(roomId)
         if userId in master:
             return False
@@ -235,14 +234,17 @@ class DBUtils:
         with client.start_session() as s:
             s.start_transaction()
 
-            #break after first result. As it's unique, there should only be one
+            #get the list of blocked 
             blocked_members = None
             for r in db.rooms.find( {'_id': roomId}, {"blocked_members": 1} ):
                 blocked_members = r['blocked_members']
                 break
             
             if blocked_members is not None and userId not in blocked_members:
-                blocked_members = {**blocked_members, **member}
+                blocked_members[userId] = {
+                    'IP': ip,
+                    'nickname':nickname
+                }
             else:
                 s.abort_transaction()
                 return False
@@ -253,6 +255,35 @@ class DBUtils:
             )
             s.commit_transaction()
             return True
+        return False
+
+    @staticmethod
+    def unblock_member(userId, roomId, client=None):
+        if client is None:
+            client = pymongo.MongoClient(
+                config.MONGODB_CONFIG['URL'])
+
+        db = client.pymongo_test
+
+        with client.start_session() as s:
+            s.start_transaction()
+            fields = {
+                '$unset': {
+                    'blocked_members.' + userId: ""
+                }
+            }
+
+            #remove according to fields
+            remove_user_result = db.rooms.update({'_id': roomId}, fields)
+            is_successful = remove_user_result['nModified'] > 0
+
+            if is_successful:
+                s.commit_transaction()
+            else:
+                s.abort_transaction()
+            s.commit_transaction()
+            return True
+
         return False
 
     @staticmethod

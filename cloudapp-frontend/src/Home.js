@@ -2,7 +2,12 @@ import React, {Component} from 'react';
 import {Input, Button} from 'semantic-ui-react'
 import publicIP from "react-native-public-ip";
 import axios from 'axios'
+<<<<<<< HEAD
 import api from './api.js'
+=======
+import api from "./api";
+
+>>>>>>> 9a7a052e720bfc38178dc2dc55b428b4df756faa
 
 const testId = 'https://cloud-app-dev-227512.appspot.com/';
 class Home extends Component {
@@ -19,6 +24,16 @@ class Home extends Component {
     }
 
     join = async () => {
+
+        //TODO: What is missing: get the room code and somehow link it to the roomID?
+        //map code to room ID
+        //return ID and redirect to it
+
+        //HOW THIS WORKS
+        //1. Call the Generate Nickname API (needed for 2.)
+        //2. Call the JOIN API (supplying nickname and IP address
+        //3. SAVE the UserID and UserCookie that the Join API returns in the cookie
+
         // This ip will be needed when calling the join API
         var ip = await publicIP()
             .then(ip => {
@@ -29,9 +44,18 @@ class Home extends Component {
                 console.log(error);
             });
 
-        //TODO: api calls to join the room
-        //map code to room ID
-        //return ID and redirect to it
+        //Calling the generate nickname API
+        var urlGenerateNickname = testId + this.props.cookies.get('roomId')+ '/nickname';
+        console.log("Url ", urlGenerateNickname);
+        const responseGenerateNickname = await api.get(urlGenerateNickname);
+        console.log("GenerateNickname response ", responseGenerateNickname);
+        if(responseGenerateNickname.status != 200) {
+            alert("Could not join the room!");
+            return;
+        }
+
+        var nickname = responseGenerateNickname.data.success["nickname"];
+        console.log("Nickname: ", nickname);
 
         const nickname = await api.get(testId + this.state.roomCode + "/nickname", "");
         console.log(nickname);
@@ -56,10 +80,6 @@ class Home extends Component {
             // const response = await axios.post(
             //     'http://127.0.0.1:5000/' + room,
 
-            //     {nickname: name},
-            //     {IP: ip},
-            //     {room_number: room}
-            // );
 
             console.log(this.state.roomCode);
         } else{

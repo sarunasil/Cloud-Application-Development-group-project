@@ -50,9 +50,10 @@ class UserModerator:
         #do not allow blocked IP users join
         blocked_members = DBUtils.get_fields(room_number, ['blocked_members'])
         if blocked_members is not None:
+            blocked_members = blocked_members[0]['blocked_members']
             ips = []
-            for member in blocked_members[0]['blocked_members']:
-                ips.append(member['IP'])
+            for userId in blocked_members:
+                ips.append(blocked_members[userId]['IP'])
 
             if ip in ips:
                 return Response.responseFailure("Blocked from entering this party room")
@@ -90,7 +91,6 @@ class UserModerator:
     def get_members(room_number):
         """
         Get the list of all party members\n
-        
         :param room_number:\n
         :return: json{Status, users:{party_members_data}}
         """
@@ -126,7 +126,7 @@ class UserModerator:
     def block(room_number, userId):
         """
         Block an existing user from entering a party\n
-        User is blocked according to IP?
+        User is blocked according to IP
         :param room_number:\n
         :param userId:\n
         :return: json{Status}
@@ -135,20 +135,59 @@ class UserModerator:
         #get user
         member = DBUtils.get_member(userId, room_number)
         
-        if member is None or userId not in member:
+        if member is None:
             return Response.responseFailure("User is not a member of this party room.");    
-        # member = member[userId]
-
-        if member is not None:
+        else:
+            member = member[userId]
             #block user IP to block
-            result = DBUtils.block_member(member, room_number)
+            result = DBUtils.block_member(userId, member['IP'], member['nickname'], room_number)
 
             if result:
                 #kick user out
                 result = DBUtils.delete_member(userId, room_number)
 
             if result:
-                return Response.responseSuccess( "Kicked user successfully. Blocked user "+member[userId]['nickname']+"." )
+                return Response.responseSuccess( "Kicked user successfully. Blocked user "+member['nickname']+"." )
 
         return Response.responseFailure("Failed to block user.");
-    
+
+    @staticmethod
+    def unblock(room_number, userId):
+        """
+        Unblock a user\n
+        Look at router.unblock for more detail\n
+        :param room_number:\n
+        :param userId:\n
+        :return: json{Status}
+        """
+        
+        #unblock user
+        result = DBUtils.unblock_member(userId, room_number)
+
+        if result:
+            return Response.responseSuccess( "Unblocked user IP successfully." )
+
+        return Response.responseFailure("Failed to block user.");
+
+    @staticmethod
+    def get_blocked_members(room_number):
+        """
+        Get the list of blocked party members\n
+        :param room_number:\n
+        :return: json{Status, 'blocked_members':{}}
+        """
+        
+        fields = [
+            'blocked_members'
+        ]
+
+        users = DBUtils.get_fields(room_number, fields)
+        result = False
+        for u in users:
+            result = u['blocked_members']
+            break
+
+        if result is not False:
+            return Response.responseSuccess( result )
+        else:
+            return Response.responseFailure("Failed to retrieve block members list.")
