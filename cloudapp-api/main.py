@@ -388,8 +388,8 @@ def get_auth_token():
     data = request.json
     # print(data)
     # print(data['code'])
-    if 'code' in data:
-        result, token = TokenModerator.get_auth_token(data['code'])
+    if 'code' and 'redirect_url' in data:
+        result, token = TokenModerator.get_auth_token(data['code'], data['redirect_url'])
         # print("TOKEN!!!!!:   ", token)
         if result:
             return Response.responseSuccess({
