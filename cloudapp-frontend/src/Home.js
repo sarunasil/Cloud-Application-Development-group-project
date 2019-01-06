@@ -102,8 +102,8 @@ class Home extends Component {
                 <h1 className="logo">NQMe: Play your music</h1>
 
                 <input className="search-bar" type="search" placeholder='Enter room code' onChange={this.handleChange}/>
-                <div  style={{"margin-top": "10px"}}>
-                    <Button style={{"margin-right": "10px"}} bsStyle="info" onClick={this.join}>Join Room</Button>
+                <div  style={{"marginTop": "10px"}}>
+                    <Button style={{"marginRight": "10px"}} bsStyle="info" onClick={this.join}>Join Room</Button>
                     <Button bsStyle="success" onClick={this.create}>Create Room</Button>
                 </div>
                 
