@@ -432,6 +432,23 @@ class DBUtils:
         return songs
 
     @staticmethod
+    def get_currently_playing(room_number):
+        client = pymongo.MongoClient(
+            config.MONGODB_CONFIG['URL'])
+
+        # db = client.pymongo_test
+        fields = [
+            'currently_playing'
+        ]
+        # print(room_number)
+        # print(fields)
+        result = DBUtils.get_fields(room_number, fields)
+
+        currently_playing = None if 'currently_playing' not in result[0] else result[0]['currently_playing']
+        print("I got this out of the DB", currently_playing)
+        return currently_playing
+
+    @staticmethod
     def upvote(room_number, url, user_id):
         client = pymongo.MongoClient(
             config.MONGODB_CONFIG['URL'])
@@ -568,6 +585,7 @@ class DBUtils:
                 s.commit_transaction()
                 return False, None, ErrorMsg.NO_QUEUE # TODO change with appropriate return values
 
+            currently_playing = head
             # Pop from queue object
             song = {}
             if head in queue:
@@ -590,6 +608,7 @@ class DBUtils:
 
             updated_fields = {
                 '$set': {
+                    'currently_playing': currently_playing,
                     'history.' + head: song[head],
                     'head': next_head
                 },
