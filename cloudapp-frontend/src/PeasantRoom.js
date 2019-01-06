@@ -158,6 +158,7 @@ class PeasantRoom extends Component {
 
     render() {
         return (
+
             <div className="container-fluid">
                 <div className="row">
                     <div className="col">
@@ -186,6 +187,7 @@ class PeasantRoom extends Component {
 
                     </div>
                     <div className="col-8">
+
                         <ul className="list-group" style={{align:"left"}}>
                             <Search ref={this.child} cookies={this.props.cookies}/>
                         </ul>

@@ -373,7 +373,7 @@ class MasterRoom extends Component {
                                 <button className="btn btn-success" type="submit"><FontAwesomeIcon icon="search"/>
                                 </button>
                                 <span> &nbsp;</span>
-                                <button className="btn btn-info" onClick = {this.updateStateForServer}><FontAwesomeIcon icon="sync-alt"/></button>
+                               
 
                                 <span> &nbsp;</span><span> &nbsp;</span><span> &nbsp;</span>
 
