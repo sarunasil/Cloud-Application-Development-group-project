@@ -111,6 +111,9 @@ class PeasantRoom extends Component {
         // this function periodically updates the queue from the server
         // the server should send be a json like
         // we could only send the changes and, from time to time, send the full state, but for now we should keep this simple
+        if(!this.props.cookies.get('userId')) {
+            return;
+        }
         var newState = {
             queue: [
                 {

@@ -423,18 +423,10 @@ class MasterRoom extends Component {
                                 <div className="btn-group" role="group">
                                     <td> <button type="button" className="btn btn-info" value={user} onClick={this.handleKick}>Kick</button></td>
                                     <td><button type="button" className="btn btn-danger"value={user} onClick={this.handleBlock}>Block</button></td>
-
                                 </div>
                             </div>
-
                         </li>
-
-
-
-
                     );
-
-
     }
 
 
@@ -449,7 +441,6 @@ class MasterRoom extends Component {
                     songUri={this.state.currentSong.url}
                     songName={this.state.currentSong.name}
                     next={this._onEnd}
-
                 />
                 }
 
@@ -458,13 +449,11 @@ class MasterRoom extends Component {
                     videoId= {this.state.currentSong.url}
                     opts={youtubeOptions}
                     onEnd={this._onEnd}
-
                 />
                 }
             </div>
         );
     }
-
 }
 
 
