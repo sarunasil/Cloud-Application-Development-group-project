@@ -78,7 +78,6 @@ class PeasantRoom extends Component {
             // const response = await axios.post(
             //     'http://127.0.0.1:5000/' + room,
 
-
             console.log(this.state.roomCode);
         } else{
             alert("Could not retreive nickname");
@@ -88,7 +87,9 @@ class PeasantRoom extends Component {
     async componentDidMount(){
         // Obtains the user IP and adds it to the cookie
         this.saveIP();
-        await this.getTokensAndInfo();
+        if(!this.props.cookies.get('nickname')) {
+            await this.getTokensAndInfo();
+        }
         //TODO: use roomId to retrieve data : queue, search/access token for spotify/YT
         this.updateStateForServer();
     }
