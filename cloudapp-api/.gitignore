@@ -49,6 +49,7 @@ jspm_packages
 config.py
 #virtualenv
 /apienv
+/venv
 
 #pycache
 **/__pycache__
