@@ -37,17 +37,17 @@ class SongList  extends Component {
     }
 
     removeSong = async (songNumberInQueue) => {
-        const linkToSend = testId + this.props.cookies.get('roomId') + '/dequeue-song';
+        const linkToSend = testId + this.props.cookies.get('roomId') + '/remove-song';
         const data = {
-            name : this.state.queue[songNumberInQueue].name,
-            url : this.state.queue[songNumberInQueue].url
+            name : this.props.queue[songNumberInQueue].name,
+            url : this.props.queue[songNumberInQueue].url
         }
 
         const response = await api.post(linkToSend, this.props.cookies.get('MasterCookie'), data);
 
         this.setState({
-            queue: this.state.queue.slice(0, songNumberInQueue).concat(
-                this.state.queue.slice(songNumberInQueue+1, this.state.queue.length))
+            queue: this.props.queue.slice(0, songNumberInQueue).concat(
+                this.props.queue.slice(songNumberInQueue+1, this.props.queue.length))
         });
     }
 
@@ -65,8 +65,6 @@ class SongList  extends Component {
     }
 
     renderSongList(){
-        console.log(this.props.queue);
-        console.log(this.props.cookies.get('userId'));
         return this.props.queue.map(
             (song, i) =>
                 <li className="list-group-item" key = {i} style={{border:"0"}}>
@@ -91,7 +89,7 @@ class SongList  extends Component {
                             <button type="button" className="btn btn-danger" onClick={() => this.props.remove(i)}>
                                 <FontAwesomeIcon icon="trash-alt"/></button> :
                                 song.userId === this.props.cookies.get('userName') &&
-                                <button type="button" className="btn btn-danger" onClick={() => this.remove(i)}>
+                                <button type="button" className="btn btn-danger" onClick={() => this.removeSong(i)}>
                                     <FontAwesomeIcon icon="trash-alt"/></button>}
 
                                 <button type="button" className="btn btn-info" onClick={() => this.like(i)}>

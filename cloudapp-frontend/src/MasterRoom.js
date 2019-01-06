@@ -39,6 +39,10 @@ const youtubeOptions = {
 class MasterRoom extends Component {
     constructor(props) {
         super(props);
+        if(!this.props.cookies.get('MasterCookie')){
+            var roomCode = window.location.href.substring(window.location.href.lastIndexOf("/") + 1);
+            this.props.history.push('/' + roomCode);
+        }
         this.state = {
             query: '',
             queue: [],
@@ -66,9 +70,6 @@ class MasterRoom extends Component {
 
     componentDidMount(){
         //Obtains the User's IP and saves it in the cookie
-        console.log("Reading cookie from master: identification cookie", this.props.cookies.get("identificationCookie"));
-        console.log("Reading cookie from master: room id", this.props.cookies.get("id"));
-
         this.saveIP();
 
         //TODO: Uncommnet to populate table with users
@@ -86,7 +87,6 @@ class MasterRoom extends Component {
             .then(ip => {
                 //add the user IP to the cookie
                 this.props.cookies.set('ip', ip, { path: '/', maxAge: 3600 });
-                console.log("User IP: ", ip);
             })
             .catch(error => {
                 console.log(error);
@@ -95,9 +95,7 @@ class MasterRoom extends Component {
 
     addSpotify = () => {
         // Create the authorization URL
-        console.log("Entered");
         var authorizeURL = spotifyApi.createAuthorizeURL(scopes, state);
-        console.log(authorizeURL);
 
         //set cookie with the room ID to be used in the callback component
         this.props.cookies.set('roomId', this.props.match.params.id, { path: '/', maxAge: 120 });
@@ -141,7 +139,7 @@ class MasterRoom extends Component {
 
         var url = testId + this.props.cookies.get('roomId')+ '/pending-songs';
         const response = await api.get(url, this.props.cookies.get('userId'));
-        console.log(response);
+        //console.log(response);
         var newQueue =  response.data.success.queue;
         this.setState({queue: newQueue});
 
@@ -168,34 +166,41 @@ class MasterRoom extends Component {
         }
     }
 
-    playSong(songNumberInQueue){
+    async playSong(songNumberInQueue){
         console.log(this.state.queue[songNumberInQueue]);
         if(this.state.queue[songNumberInQueue].url.startsWith('spoti')){
             this.state.queue[songNumberInQueue].type = 's';
         }else{
             this.state.queue[songNumberInQueue].type = 'y';
         }
-        console.log( this.state.queue[songNumberInQueue].type);
         if(this.state.queue[songNumberInQueue].type === 's' && !spotifyApi.getAccessToken()){
-            this.removeSong(songNumberInQueue);
+            await this.removeSong(songNumberInQueue);
             this.playNextSong();
             return;
+        }else {
+            this.setState({currentlyPlaying: true});
+            this.setState({currentSong: this.state.queue[songNumberInQueue]});
+            this.setState({songsPlayed: this.state.songsPlayed + 1});
+            this.removeSong(songNumberInQueue);
         }
-        this.setState({currentlyPlaying: true});
-        this.setState({currentSong: this.state.queue[songNumberInQueue]});
-        this.setState({songsPlayed: this.state.songsPlayed+1});
-        this.removeSong(songNumberInQueue);
     }
 
     removeSong = async (songNumberInQueue) => {
-        const linkToSend = testId + this.props.cookies.get('roomId') + '/dequeue-song';
+        var linkToSend;
+        if(songNumberInQueue === 0){
+            linkToSend = testId + this.props.cookies.get('roomId') + '/dequeue-song';
+        }else{
+            linkToSend = testId + this.props.cookies.get('roomId') + '/remove-song';
+
+        }
         const data = {
             name : this.state.queue[songNumberInQueue].name,
             url : this.state.queue[songNumberInQueue].url
         }
 
         const response = await api.post(linkToSend, this.props.cookies.get('MasterCookie'), data);
-
+        console.log("aaa");
+        console.log(response);
         this.setState({
             queue: this.state.queue.slice(0, songNumberInQueue).concat(
                 this.state.queue.slice(songNumberInQueue+1, this.state.queue.length))
@@ -203,6 +208,7 @@ class MasterRoom extends Component {
     }
 
     _onEnd = async event => {
+        // pause spotify player here
         this.playNextSong();
     }
 
@@ -237,23 +243,18 @@ class MasterRoom extends Component {
 
         var nicknameToKick = e.target.value;
 
-        console.log("Kicking ", nicknameToKick);
 
         //Calling API for all users
         var url = testId + this.props.cookies.get('roomId')+ '/get-members';
         const response = await api.post(url, this.props.cookies.get('MasterCookie'));
 
-        console.log("Get-all members API ", response);
         const usersList = response.data.success;
-        console.log("Get-all members API Users", usersList);
 
         // Going through all users to find the ID of the user to kick (searching by Nickname)
         // Why? Because the API to kick a user requires an ID, not a nickname
         var idToKick = null
         for (var id in usersList){
-            console.log("Current id", id)
             var currentNickname = usersList[id]["nickname"];
-            console.log("Current nickname", currentNickname);
             if(currentNickname=== nicknameToKick) {
                 idToKick = currentNickname
             }
@@ -290,23 +291,18 @@ class MasterRoom extends Component {
 
         var nicknameToBlock = e.target.value;
 
-        console.log("Blocking ", nicknameToBlock);
 
         //Calling API for all users
         var url = testId + this.props.cookies.get('roomId')+ '/get-members';
         const response = await api.post(url, this.props.cookies.get('MasterCookie'));
 
-        console.log("Get-all members API ", response);
         const usersList = response.data.success;
-        console.log("Get-all members API Users", usersList);
 
         // Going through all users to find the ID of the user to block (searching by Nickname)
         // Why? Because the API to block a user requires an ID, not a nickname
         var idToBlock = null
         for (var id in usersList){
-            console.log("Current id", id)
             var currentNickname = usersList[id]["nickname"];
-            console.log("Current nickname", currentNickname);
             if(currentNickname === nicknameToBlock) {
                 idToBlock = currentNickname
             }
@@ -344,23 +340,17 @@ class MasterRoom extends Component {
         var url = testId + this.props.cookies.get('roomId')+ '/get-members';
         const response = await api.post(url, this.props.cookies.get('MasterCookie'));
 
-        console.log("Get-all members API ", response);
         const usersList = response.data.success;
-        console.log("Get-all members API Users", usersList);
 
         for (var id in usersList){
-            console.log("Current id", id);
 
             var currentNickname = usersList[id]["nickname"];
-            console.log("Current Nickname", currentNickname);
             if(currentNickname != "Master") {
                 // var realNickname = currentNickname.data.success.nickname;
-                console.log("Real Nickname", currentNickname);
                 users.push(currentNickname);
             }
         }
 
-        console.log("users, ", users);
 
         this.setState({
             users: users
