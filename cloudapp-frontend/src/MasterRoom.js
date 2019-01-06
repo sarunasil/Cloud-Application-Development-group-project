@@ -409,8 +409,12 @@ class MasterRoom extends Component {
 
 
     renderUsersTable() {
+        var styles = {
+            "background-color": "white"
+        }
+
         return <div>
-            <Table striped bordered condensed hover>
+            <Table style={styles} bordered condensed>
                 <thead>
                 <tr>
                     <th colSpan="3">Admin Panel</th>

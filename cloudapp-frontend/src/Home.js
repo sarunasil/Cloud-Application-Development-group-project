@@ -3,6 +3,7 @@ import {Input, Button} from 'semantic-ui-react'
 import publicIP from "react-native-public-ip";
 import axios from 'axios'
 import api from './api.js'
+import './Home.css';
 
 
 const testId = 'https://cloud-app-dev-227512.appspot.com/';
@@ -92,7 +93,7 @@ class Home extends Component {
     render() {
         return (
             <div className="Home">
-                <h1>THis is home</h1>
+                <h1>NQMe: Play your music</h1>
                 <Input placeholder='Enter room code' onChange={this.handleChange}/>
                 <Button onClick={this.join}>Join</Button>
                 <Button onClick={this.create}>Create</Button>
