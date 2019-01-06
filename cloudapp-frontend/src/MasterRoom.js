@@ -238,7 +238,7 @@ class MasterRoom extends Component {
         //1. Call API for all users (done)
         //2. Go through all users and find the id of the nickname that we want to kick (done)
         //3. Call Kick API for the found id (step 2)  (done, cannot test)
-        //TODO: 4. call all users to update the table
+        //4. call all users to update the table
 
 
         var nicknameToKick = e.target.value;
@@ -256,7 +256,7 @@ class MasterRoom extends Component {
         for (var id in usersList){
             var currentNickname = usersList[id]["nickname"];
             if(currentNickname=== nicknameToKick) {
-                idToKick = currentNickname
+                idToKick = id;
             }
         }
 
@@ -270,7 +270,9 @@ class MasterRoom extends Component {
         let body = {
             userId: idToKick
         };
+        console.log("Calling Kick API");
         const responseKick = await api.post(urlKick, this.props.cookies.get('MasterCookie'), body);
+        console.log("Response Kick: ", responseKick);
         if(responseKick.status === 200) {
             alert("User " + nicknameToKick + " was kicked!")
         } else {
@@ -304,7 +306,7 @@ class MasterRoom extends Component {
         for (var id in usersList){
             var currentNickname = usersList[id]["nickname"];
             if(currentNickname === nicknameToBlock) {
-                idToBlock = currentNickname
+                idToBlock = id;
             }
         }
 
@@ -314,11 +316,11 @@ class MasterRoom extends Component {
         }
 
         //Calling API to block the user
-        var urlKick = testId + this.props.cookies.get('roomId')+ '/block';
+        var urlBlock = testId + this.props.cookies.get('roomId')+ '/block';
         let body = {
             userId: idToBlock
         };
-        const responseBlock = await api.post(urlKick, this.props.cookies.get('MasterCookie'), body);
+        const responseBlock = await api.post(urlBlock, this.props.cookies.get('MasterCookie'), body);
         if(responseBlock.status === 200) {
             alert("User " + nicknameToBlock + " was blocked!")
         } else {

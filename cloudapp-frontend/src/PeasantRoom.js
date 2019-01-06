@@ -10,6 +10,7 @@ import Search from "./Search";
 import api from './api.js'
 
 const testId = 'https://cloud-app-dev-227512.appspot.com/';
+var timerId = null;
 
 class PeasantRoom extends Component {
     constructor(props) {
@@ -36,7 +37,7 @@ class PeasantRoom extends Component {
         console.log(window.location.href.lastIndexOf("/", 0));
 
         this.getTokensAndInfo();
-        let timerId = setInterval(() => this.updateStateForServer('tick'), 3000);
+        timerId = setInterval(() => this.updateStateForServer('tick'), 3000);
 
 
     }
@@ -128,6 +129,15 @@ class PeasantRoom extends Component {
         }
         var url = testId + this.props.cookies.get('roomId')+ '/pending-songs';
         const response = await api.get(url, this.props.cookies.get('userId'));
+        console.log("Update State Response *** ", response);
+        console.log("Failure test", );
+        if(response.data.hasOwnProperty("failure")) {
+            alert("You have been kicked or blocked!");
+            clearInterval(timerId);
+            this.props.history.push('/');
+            return;
+        }
+
         //console.log(response);
         var newQueue =  response.data.success.queue;
         this.setState({queue: newQueue});
