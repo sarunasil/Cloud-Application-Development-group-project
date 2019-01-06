@@ -225,13 +225,11 @@ class MasterRoom extends Component {
 
     handleDeleteRoom = async () => {
         var postLink = testId + this.props.cookies.get('roomId') + '/delete';
+
         var code  = {
-            Authorization : this.props.cookies.get('MasterCookie'),
-            body: {
-                MasterId: this.props.cookies.get('MasterCookie')
-            }
+            MasterId: this.props.cookies.get('MasterCookie')
         };
-        const response = await axios.post(postLink, code);
+        const response = await api.post(postLink,this.props.cookies.get('MasterCookie'), code);
     }
 
     handleKick = async (e) => {
