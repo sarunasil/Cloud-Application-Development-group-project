@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
-import {Input, Button} from 'semantic-ui-react'
+import {Input} from 'semantic-ui-react'
 import publicIP from "react-native-public-ip";
 import axios from 'axios'
 import api from './api.js'
+import './Home.css';
+import { Button } from 'react-bootstrap';
 
 
 const testId = 'https://cloud-app-dev-227512.appspot.com/';
@@ -20,7 +22,9 @@ class Home extends Component {
     }
 
     join = async () => {
+        this.props.history.push('/' + this.state.roomCode);
 
+        /*
         //TODO: What is missing: get the room code and somehow link it to the roomID?
         //map code to room ID
         //return ID and redirect to it
@@ -40,9 +44,10 @@ class Home extends Component {
                 console.log(error);
             });
 
-        const nickname = await api.get(testId + this.state.roomCode + "/nickname", "");
-        console.log(nickname);
-        if(nickname.status === 200){
+        const nicknameResponse = await api.get(testId + this.state.roomCode + "/nickname", "");
+        console.log("nickname");
+        if(nicknameResponse.status === 200){
+            var nickname = nicknameResponse.data.success["nickname"];
             const link = testId + this.state.roomCode;
             const dataToSend = {
                 IP: ip,
@@ -52,12 +57,15 @@ class Home extends Component {
             const response = await api.post(link, "", dataToSend);
             if(response.status === 200){
                 console.log(response);
-                this.props.cookies.set('userName', response.data.success.room.UserId, { path: '/', maxAge: 3600 });
-                this.props.cookies.set('userId', response.data.success.room.UserCookie, { path: '/', maxAge: 3600 });
-                this.props.cookies.set('SpotifySearchToken', response.data.success.room.SpotifySearchToken, { path: '/', maxAge: 3600 });
-                this.props.cookies.set('YoutubeSearchToken', response.data.success.room.YoutubeSearchToken, { path: '/', maxAge: 3600 });
-                this.props.cookies.set('roomId', response.data.success.room._id, { path: '/', maxAge: 3600 });
-                this.props.history.push('/' + response.data.success.roomId);
+                console.log("Nickname, ", nickname);
+                this.props.cookies.set('nickname', nickname, { path: '/', maxAge: 3600 });
+                this.props.cookies.set('userName', response.data.success.UserId, { path: '/', maxAge: 36000 });
+                this.props.cookies.set('userId', response.data.success.UserCookie, { path: '/', maxAge: 36000 });
+                this.props.cookies.set('SpotifySearchToken', response.data.success.SpotifySearchToken, { path: '/', maxAge: 36000 });
+                this.props.cookies.set('YoutubeSearchToken', response.data.success.YoutubeSearchToken, { path: '/', maxAge: 36000 });
+                this.props.cookies.set('roomId', this.state.roomCode, { path: '/', maxAge: 3600 });
+            } else {
+                alert("Such Room Does not exist or you may have been blocked from it!");
             }
             // const response = await axios.post(
             //     'http://127.0.0.1:5000/' + room,
@@ -67,6 +75,7 @@ class Home extends Component {
         } else{
             alert("Could not retreive nickname");
         }
+        */
     }
 
     create = async () => {
@@ -76,11 +85,11 @@ class Home extends Component {
 
         console.log(response);
         if(response.status === 200){
-            this.props.cookies.set('MasterCookie', response.data.success.room.MasterCookie, { path: '/', maxAge: 3600 });
-            this.props.cookies.set('userId', response.data.success.room.MasterCookie, { path: '/', maxAge: 3600 });
-            this.props.cookies.set('SpotifySearchToken', response.data.success.room.SpotifySearchToken, { path: '/', maxAge: 3600 });
-            this.props.cookies.set('YoutubeSearchToken', response.data.success.room.YoutubeSearchToken, { path: '/', maxAge: 3600 });
-            this.props.cookies.set('roomId', response.data.success.room._id, { path: '/', maxAge: 3600 });
+            this.props.cookies.set('MasterCookie', response.data.success.room.MasterCookie, { path: '/', maxAge: 36000 });
+            this.props.cookies.set('userId', response.data.success.room.MasterCookie, { path: '/', maxAge: 36000 });
+            this.props.cookies.set('SpotifySearchToken', response.data.success.room.SpotifySearchToken, { path: '/', maxAge: 36000 });
+            this.props.cookies.set('YoutubeSearchToken', response.data.success.room.YoutubeSearchToken, { path: '/', maxAge: 36000 });
+            this.props.cookies.set('roomId', response.data.success.room._id, { path: '/', maxAge: 36000 });
             this.props.history.push('master/' + response.data.success.room._id);
         }else{
             alert("Could not create room");
@@ -92,10 +101,14 @@ class Home extends Component {
     render() {
         return (
             <div className="Home">
-                <h1>THis is home</h1>
-                <Input placeholder='Enter room code' onChange={this.handleChange}/>
-                <Button onClick={this.join}>Join</Button>
-                <Button onClick={this.create}>Create</Button>
+                <h1 className="logo">NQMe: Play your music</h1>
+
+                <input className="search-bar" type="search" placeholder='Enter room code' onChange={this.handleChange}/>
+                <div  style={{"marginTop": "10px"}}>
+                    <Button style={{"marginRight": "10px"}} bsStyle="info" onClick={this.join}>Join Room</Button>
+                    <Button bsStyle="success" onClick={this.create}>Create Room</Button>
+                </div>
+                
             </div>
         );
     }

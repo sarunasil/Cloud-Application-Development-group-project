@@ -16,8 +16,10 @@ class TokenModerator:
     # these CLIENT_ID an SECRET should be environment variables... not HARDCODED
 
     # TODO when frontend is deployed these two WILL be different - ask bobi what to set them to
+    # TODO i set them it should work hopefully
     # if redirect_uri does not match one in frontend AUTH TOKEN WILL FAIL
-    redirect_uri = "http://localhost:3000/callback"
+    # redirect_uri = "http://localhost:3000/callback"
+    redirect_uri = "http://cad-nqme.s3-website.eu-west-2.amazonaws.com/callback"
     scopes = "user-read-private"
 
     concat = config.TOKEN_KEYS['CLIENT_ID'] + ":" + config.TOKEN_KEYS['CLIENT_SECRET']

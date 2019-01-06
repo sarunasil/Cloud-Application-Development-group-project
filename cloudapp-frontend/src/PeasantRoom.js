@@ -7,37 +7,88 @@ import publicIP from "react-native-public-ip";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import SongList from "./SongList";
 import Search from "./Search";
+import api from './api.js'
 
-
+const testId = 'https://cloud-app-dev-227512.appspot.com/';
+var timerId = null;
 
 class PeasantRoom extends Component {
     constructor(props) {
-        super(props);
+        super(props)
+        var roomLink = window.location.href.substring(window.location.href.lastIndexOf("/") + 1);
         this.state = {
             query: '',
             queue: [],
             currentlyPlaying : false,
             currentSong: {
                 name : "",
-                link : "",
+                url : "",
                 time : "",
                 type : "",
-                votes: "0"
+                score: 0
 
             },
-            songsPlayed: 0
+            songsPlayed: 0,
+            roomCode : roomLink
         };
         this.child = React.createRef();
+        console.log("aaaa");
+        console.log(this.state.roomCode);
+        console.log(window.location.href.lastIndexOf("/", 0));
 
-        //let timerId = setInterval(() => this.updateStateForServer('tick'), 2000);
+        timerId = setInterval(() => this.updateStateForServer('tick'), 3000);
 
 
     }
 
-    componentDidMount(){
+    async getTokensAndInfo(){
+        var ip = await publicIP()
+            .then(ip => {
+                console.log("User IP: ", ip);
+                return ip;
+            })
+            .catch(error => {
+                console.log(error);
+            });
+
+        const nicknameResponse = await api.get(testId + this.state.roomCode + "/nickname", "");
+        console.log("nickname");
+        if(nicknameResponse.status === 200){
+            var nickname = nicknameResponse.data.success["nickname"];
+            const link = testId + this.state.roomCode;
+            const dataToSend = {
+                IP: ip,
+                nickname : nickname
+            }
+            console.log("aaa");
+            const response = await api.post(link, "", dataToSend);
+            if(response.status === 200){
+                console.log(response);
+                console.log("Nickname, ", nickname);
+                this.props.cookies.set('nickname', nickname, { path: '/', maxAge: 3600 });
+                this.props.cookies.set('userName', response.data.success.UserId, { path: '/', maxAge: 36000 });
+                this.props.cookies.set('userId', response.data.success.UserCookie, { path: '/', maxAge: 36000 });
+                this.props.cookies.set('SpotifySearchToken', response.data.success.SpotifySearchToken, { path: '/', maxAge: 36000 });
+                this.props.cookies.set('YoutubeSearchToken', response.data.success.YoutubeSearchToken, { path: '/', maxAge: 36000 });
+                this.props.cookies.set('roomId', this.state.roomCode, { path: '/', maxAge: 3600 });
+                //this.props.history.push('/' + this.state.roomCode);
+            } else {
+                alert("Such Room Does not exist or you may have been blocked from it!");
+            }
+            // const response = await axios.post(
+            //     'http://127.0.0.1:5000/' + room,
+
+
+            console.log(this.state.roomCode);
+        } else{
+            alert("Could not retreive nickname");
+        }
+    }
+
+    async componentDidMount(){
         // Obtains the user IP and adds it to the cookie
         this.saveIP();
-
+        await this.getTokensAndInfo();
         //TODO: use roomId to retrieve data : queue, search/access token for spotify/YT
         this.updateStateForServer();
     }
@@ -55,7 +106,7 @@ class PeasantRoom extends Component {
             })
     }
 
-    updateStateForServer() {
+    async updateStateForServer() {
         // this function periodically updates the queue from the server
         // the server should send be a json like
         // we could only send the changes and, from time to time, send the full state, but for now we should keep this simple
@@ -63,23 +114,32 @@ class PeasantRoom extends Component {
             queue: [
                 {
                     name : "Song 1",
-                    link : "spotify:track:2SL6oP2YAEQbqsrkOzRGO4",
+                    url : "spotify:track:2SL6oP2YAEQbqsrkOzRGO4",
                     time: "150", // time in seconds
-                    votes: "0"
+                    score: 0
                 },
                 {
                     name : "Song 2",
-                    link : "2g811Eo7K8U",
+                    url : "2g811Eo7K8U",
                     time: "150", // time in seconds
-                    votes: "0"
+                    score: 0
                 }
             ]
         }
-        var cnt ;
-        //newState = API.get(this.roomId, emptyBody)
+        var url = testId + this.props.cookies.get('roomId')+ '/pending-songs';
+        const response = await api.get(url, this.props.cookies.get('userId'));
+        console.log("Update State Response *** ", response);
+        console.log("Failure test", );
+        if(response.data.hasOwnProperty("failure")) {
+            alert("You have been kicked or blocked!");
+            clearInterval(timerId);
+            this.props.history.push('/');
+            return;
+        }
 
-        this.setState(newState);
-
+        //console.log(response);
+        var newQueue =  response.data.success.queue;
+        this.setState({queue: newQueue});
     }
 
     setQuery = (e) => {
@@ -98,7 +158,7 @@ class PeasantRoom extends Component {
                 <div className="row">
                     <div className="col">
                         <nav className="navbar navbar-dark bg-dark justify-content-between">
-                            <a className="navbar-brand" style={{color:"white"}}>This is peasant</a>
+                            <a className="navbar-brand" style={{color:"white"}}>{"Your nickname is: " + this.props.cookies.get("nickname")}</a>
                             <form className="form-inline" onSubmit={this.handleSubmit}>
                                 <input className="form-control mr-sm-2" type="search" placeholder="Look up song"
                                        aria-label="Search" value={this.state.query} onChange={this.setQuery} style={{ width:"300px" }}></input>
@@ -117,17 +177,20 @@ class PeasantRoom extends Component {
                 </div>
                 <div className="row">
                     <div className="col-4">
-                        <SongList queue={this.state.queue}/>
+
+                        <SongList queue={this.state.queue} cookies={this.props.cookies}/>
+
                     </div>
                     <div className="col-8">
                         <ul className="list-group" style={{align:"left"}}>
-                            <Search ref={this.child} />
+                            <Search ref={this.child} cookies={this.props.cookies}/>
                         </ul>
                     </div>
                 </div>
             </div>
         );
     }
+    //
 
 }
 

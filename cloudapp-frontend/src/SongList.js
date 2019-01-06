@@ -36,22 +36,40 @@ class SongList  extends Component {
         //no need to update state, it will update itself every 2 seconds anyway
     }
 
+    removeSong = async (songNumberInQueue) => {
+        const linkToSend = testId + this.props.cookies.get('roomId') + '/remove-song';
+        const data = {
+            name : this.props.queue[songNumberInQueue].name,
+            url : this.props.queue[songNumberInQueue].url
+        }
+
+        const response = await api.post(linkToSend, this.props.cookies.get('userId'), data);
+        console.log(response);
+        this.setState({
+            queue: this.props.queue.slice(0, songNumberInQueue).concat(
+                this.props.queue.slice(songNumberInQueue+1, this.props.queue.length))
+        });
+    }
+
+
+
     render() {
 
         return (
-            <div className = "songs">
-                <ListGroup>
+            <div>
+                <ul className="list-group" style={{textAlign:"left"}}>
                     {this.renderSongList()}
-                </ListGroup>
+                </ul>
             </div>
+
         );
     }
 
     renderSongList(){
-        console.log(this.props.queue);
         return this.props.queue.map(
             (song, i) =>
-                <li className="list-group-item" key = {i} style={{border:"0"}}>
+
+                <li className="list-group-item" key = {i} style={{align:"left", border:"0", fontWeight:"900", background: "transparent", color:"white"}}>
                     { !song.url.startsWith('spotify:') &&
                     <img src={require('./youtubeLogo.png')} width="50" height="40"/>
                     }
@@ -60,7 +78,8 @@ class SongList  extends Component {
                     }
                     <span> </span>
                     {song.name}
-                    <span> </span> Votes: {song.score}
+                    <br /> Votes: {song.score}
+                    <span> </span> Added by: {song.nickname === "Master" ? "master" : song.nickname}
                     <span> </span>
                     <div className="float-right">
                         <div className="btn-group" role="group">
@@ -71,7 +90,9 @@ class SongList  extends Component {
                             {this.props.remove ?
                             <button type="button" className="btn btn-danger" onClick={() => this.props.remove(i)}>
                                 <FontAwesomeIcon icon="trash-alt"/></button> :
-                                <div></div>}
+                                song.userId === this.props.cookies.get('userName') &&
+                                <button type="button" className="btn btn-danger" onClick={() => this.removeSong(i)}>
+                                    <FontAwesomeIcon icon="trash-alt"/></button>}
 
                                 <button type="button" className="btn btn-info" onClick={() => this.like(i)}>
                                     <FontAwesomeIcon icon="thumbs-up"/></button>
@@ -82,9 +103,10 @@ class SongList  extends Component {
 
                         </div>
                     </div>
-
                 </li>
-        );}
+
+        );
+    }
 }
 
 export default SongList;

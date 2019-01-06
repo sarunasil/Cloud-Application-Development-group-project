@@ -72,7 +72,7 @@ class Search extends Component {
         return searchResults.map(
             (song, i) =>
 
-                <li style={{border:"0"}} className="list-group-item" key = {i}  >
+                <li className="list-group-item" key = {i} style={{align:"left", border:"0", background: "transparent",fontWeight:"900", color:"white"}}>
 
                     { !song.url.startsWith('spotify:') &&
                     <img src={require('./youtubeLogo.png')} width="50" height="40"/>
@@ -81,8 +81,8 @@ class Search extends Component {
                     <img src={require('./spotifyLogo.png')} width="40" height="40"/>
                     }
                     <span> </span>
-                    {song.name}
-                    <span> </span>
+                    { song.name}
+
                     <div className="float-right">
                         <button type="button" className="btn btn-success" onClick={() => this.addSong(i)}><FontAwesomeIcon icon="plus-square"/></button>
                         </div>

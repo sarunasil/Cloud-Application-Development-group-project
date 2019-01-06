@@ -13,7 +13,8 @@ api.post = (url, cookie, body) => {
     let headers = {
         'Authorization': cookie
     };
-
+    console.log("Headers", headers);
+    console.log("Url", url);
     console.log("Body", body);
     return axios.post(url, body, { headers: headers });
 }

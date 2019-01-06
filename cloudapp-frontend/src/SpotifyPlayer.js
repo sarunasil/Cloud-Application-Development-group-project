@@ -11,8 +11,11 @@ class SpotifyPlayer extends Component {
     constructor(props) {
         super(props);
         spotifyApi.setAccessToken(this.props.spotifyToken);
-        console.log("Spotify:" + this.props);
+        console.log("Spotify");
+        console.log(this.props);
         this.playerCheckInterval = setInterval(() => this.checkForPlayer(), 1000);
+        this.state={}
+
     }
 
     componentWillMount() {
@@ -27,12 +30,11 @@ class SpotifyPlayer extends Component {
 
     checkForPlayer() {
         const token = this.props.spotifyToken;
-
         if (window.Spotify) {
             clearInterval(this.playerCheckInterval);
 
             this.player = new window.Spotify.Player({
-                name: "Play.me Spotify Player",
+                name: "NQ.me Spotify Player",
                 getOAuthToken: cb => { cb(token); },
             });
             this.createEventHandlers();
@@ -57,12 +59,14 @@ class SpotifyPlayer extends Component {
         // Ready
         this.player.on('ready', data => {
             let { device_id } = data;
+            console.log("Device id");
             console.log(device_id);
             this.setState({ deviceId: device_id });
         });
     }
 
     componentWillUpdate(nextProps, nextState){
+        console.log("At problem");
         console.log(nextProps);
         console.log(nextState);
         //check that we have a spotify song and that the player is ready
@@ -80,6 +84,10 @@ class SpotifyPlayer extends Component {
                 spotifyApi.pause();
             }
 
+    }
+
+    componentWillUnmount(){
+        this.player.pause();
     }
 
     resume = () => {

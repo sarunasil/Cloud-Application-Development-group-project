@@ -15,8 +15,10 @@ import { faPlusSquare } from '@fortawesome/free-solid-svg-icons'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { faThumbsUp} from '@fortawesome/free-solid-svg-icons'
 import { faThumbsDown} from '@fortawesome/free-solid-svg-icons'
+import {faSyncAlt} from  '@fortawesome/free-solid-svg-icons'
 
 library.add(faThumbsDown)
+library.add(faSyncAlt)
 library.add(faThumbsUp)
 library.add(faPlayCircle)
 library.add(faTrashAlt)
@@ -36,7 +38,7 @@ class App extends Component {
               <Route exact path='/' render={(props) => <Home {...props} cookies={this.props.cookies}/>}/>
               <Route path='/callback' render={(props) => <Callback {...props} cookies={this.props.cookies}/>}/>
               <Route path='/master/:id' render={(props) => <MasterRoom {...props} cookies={this.props.cookies}/>}/>
-              <Route path='/:id' render={(props) => <PeasantRoom {...props}/>} cookies={this.props.cookies}/>}/>
+              <Route path='/:id' render={(props) => <PeasantRoom {...props} cookies={this.props.cookies}/>}/>
               <Route path='*' component={() => <div><h1>404 Not Found!</h1></div>}/>
           </Switch>
       </div>
