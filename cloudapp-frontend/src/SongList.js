@@ -56,18 +56,20 @@ class SongList  extends Component {
     render() {
 
         return (
-            <div className = "songs">
-                <ListGroup>
+            <div>
+                <ul className="list-group" style={{textAlign:"left"}}>
                     {this.renderSongList()}
-                </ListGroup>
+                </ul>
             </div>
+
         );
     }
 
     renderSongList(){
         return this.props.queue.map(
             (song, i) =>
-                <li className="list-group-item" key = {i} style={{border:"0"}}>
+
+                <li className="list-group-item" key = {i} style={{align:"left", border:"0", fontWeight:"900", background: "transparent", color:"white"}}>
                     { !song.url.startsWith('spotify:') &&
                     <img src={require('./youtubeLogo.png')} width="50" height="40"/>
                     }
@@ -76,7 +78,7 @@ class SongList  extends Component {
                     }
                     <span> </span>
                     {song.name}
-                    <span> </span> Votes: {song.score}
+                    <br /> Votes: {song.score}
                     <span> </span> Added by: {song.nickname === "Master" ? "master" : song.nickname}
                     <span> </span>
                     <div className="float-right">
@@ -102,6 +104,7 @@ class SongList  extends Component {
                         </div>
                     </div>
                 </li>
+
         );
     }
 }

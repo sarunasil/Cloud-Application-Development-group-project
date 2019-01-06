@@ -178,7 +178,9 @@ class PeasantRoom extends Component {
                 </div>
                 <div className="row">
                     <div className="col-4">
+
                         <SongList queue={this.state.queue} cookies={this.props.cookies}/>
+
                     </div>
                     <div className="col-8">
                         <ul className="list-group" style={{align:"left"}}>

@@ -373,10 +373,13 @@ class MasterRoom extends Component {
                             <form className="form-inline" onSubmit={this.handleSubmit}>
                                 <input className="form-control mr-sm-2" type="search" placeholder="Look up song"
                                        aria-label="Search" value={this.state.query} onChange={this.setQuery} style={{ width:"300px" }}></input>
-                                <button className="btn btn-outline-success my-2 my-sm-0" type="submit"><FontAwesomeIcon icon="search"/>
+                                <button className="btn btn-success" type="submit"><FontAwesomeIcon icon="search"/>
                                 </button>
-                                <button onClick = {this.updateStateForServer}>Update</button>
                                 <span> &nbsp;</span>
+                                <button className="btn btn-info" onClick = {this.updateStateForServer}><FontAwesomeIcon icon="sync-alt"/></button>
+
+                                <span> &nbsp;</span><span> &nbsp;</span><span> &nbsp;</span>
+
                                 <div className="float-right"><button type="button" className="btn btn-success"  onClick={this.addSpotify}>Add<br/>
                                     Spotify</button></div>
                             </form>
@@ -388,6 +391,7 @@ class MasterRoom extends Component {
                 </div>
                 <div className="row">
                     <div className="col-3">
+
                         <SongList
                             queue={this.state.queue}
                             play={this.playSong}
@@ -395,12 +399,16 @@ class MasterRoom extends Component {
                             cookies = {this.props.cookies}
                         />
                     </div>
-                    <div className="col-7">
+                    <div className="col-6">
                         <ul className="list-group" style={{align:"left"}}>
                             <Search ref={this.child} cookies = {this.props.cookies} />
                         </ul>
                     </div>
-                    <div className="col-2">{this.renderUsersTable()}</div>
+                    <div className="col-3"> <div>
+                            <ul className="list-group" style={{textAlign:"left"}}>
+                                {this.renderUsersTable()}
+                            </ul>
+                        </div> </div>
                 </div>
             </div>
 
@@ -409,35 +417,27 @@ class MasterRoom extends Component {
 
 
     renderUsersTable() {
-        var styles = {
-            "background-color": "white"
-        }
+                    return this.state.users.map(
+                    (user, i) =>
 
-        return <div>
-            <Table style={styles} bordered condensed>
-                <thead>
-                <tr>
-                    <th colSpan="3">Admin Panel</th>
-                </tr>
-                <tr>
-                    <th>Nickname</th>
-                    <th>Kick</th>
-                    <th>Block</th>
-                </tr>
+                        <li className="list-group-item" key = {i} style={{align:"left", border:"0", background: "transparent",fontWeight:"900", color:"white"}}>
+                            {user}
+                            <div className="float-right">
+                                <div className="btn-group" role="group">
+                                    <td> <button type="button" className="btn btn-info" value={user} onClick={this.handleKick}>Kick</button></td>
+                                    <td><button type="button" className="btn btn-danger"value={user} onClick={this.handleBlock}>Block</button></td>
 
-                </thead>
-                <tbody>
-                {this.state.users.map(
-                    (user, i)=>
-                        <tr key ={i}>
-                            <td>{user}</td>
-                            <td><Button value={user} onClick={this.handleKick}>Kick</Button></td>
-                            <td><Button value={user} onClick={this.handleBlock}>Block</Button></td>
-                        </tr>
-                )}
-                </tbody>
-            </Table>;
-        </div>
+                                </div>
+                            </div>
+
+                        </li>
+
+
+
+
+                    );
+
+
     }
 
 
