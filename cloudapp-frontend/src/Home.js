@@ -42,10 +42,10 @@ class Home extends Component {
                 console.log(error);
             });
 
-        const nicknameResponce = await api.get(testId + this.state.roomCode + "/nickname", "");
+        const nicknameResponse = await api.get(testId + this.state.roomCode + "/nickname", "");
         console.log("nickname");
-        if(nicknameResponce.status === 200){
-            var nickname = nicknameResponce.data.success["nickname"];
+        if(nicknameResponse.status === 200){
+            var nickname = nicknameResponse.data.success["nickname"];
             const link = testId + this.state.roomCode;
             const dataToSend = {
                 IP: ip,

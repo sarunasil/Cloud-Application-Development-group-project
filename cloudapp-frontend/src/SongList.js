@@ -79,7 +79,7 @@ class SongList  extends Component {
                     <span> </span>
                     {song.name}
                     <span> </span> Votes: {song.score}
-                    <span> </span> Added by: {song.nickname === "Master" ? "master" : song.nickname.data.success.nickname}
+                    <span> </span> Added by: {song.nickname === "Master" ? "master" : song.nickname}
                     <span> </span>
                     <div className="float-right">
                         <div className="btn-group" role="group">
@@ -103,7 +103,6 @@ class SongList  extends Component {
 
                         </div>
                     </div>
-
                 </li>
         );
     }
