@@ -86,6 +86,10 @@ class SpotifyPlayer extends Component {
 
     }
 
+    componentWillUnmount(){
+        this.player.pause();
+    }
+
     resume = () => {
         this.player.resume();
     }
