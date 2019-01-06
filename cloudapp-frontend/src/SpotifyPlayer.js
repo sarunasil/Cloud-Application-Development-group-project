@@ -14,6 +14,8 @@ class SpotifyPlayer extends Component {
         console.log("Spotify");
         console.log(this.props);
         this.playerCheckInterval = setInterval(() => this.checkForPlayer(), 1000);
+        this.state={}
+
     }
 
     componentWillMount() {
@@ -32,7 +34,7 @@ class SpotifyPlayer extends Component {
             clearInterval(this.playerCheckInterval);
 
             this.player = new window.Spotify.Player({
-                name: "Play.me Spotify Player",
+                name: "NQ.me Spotify Player",
                 getOAuthToken: cb => { cb(token); },
             });
             this.createEventHandlers();
