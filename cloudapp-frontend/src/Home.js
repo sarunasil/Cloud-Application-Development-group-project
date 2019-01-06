@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
-import {Input, Button} from 'semantic-ui-react'
+import {Input} from 'semantic-ui-react'
 import publicIP from "react-native-public-ip";
 import axios from 'axios'
 import api from './api.js'
 import './Home.css';
+import { Button } from 'react-bootstrap';
 
 
 const testId = 'https://cloud-app-dev-227512.appspot.com/';
@@ -93,10 +94,10 @@ class Home extends Component {
     render() {
         return (
             <div className="Home">
-                <h1>NQMe: Play your music</h1>
+                <h1 style={{"color": "lightblue"}}>NQMe: Play your music</h1>
                 <Input placeholder='Enter room code' onChange={this.handleChange}/>
-                <Button onClick={this.join}>Join</Button>
-                <Button onClick={this.create}>Create</Button>
+                <Button style={{"margin-right": "10px", "margin-top": "10px"}} bsStyle="info" onClick={this.join}>Join</Button>
+                <Button style={{"margin-top": "10px"}}bsStyle="success" onClick={this.create}>Create</Button>
             </div>
         );
     }
