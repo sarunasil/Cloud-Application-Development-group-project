@@ -57,10 +57,10 @@ class Home extends Component {
                 console.log(response);
                 console.log("Nickname, ", nickname);
                 this.props.cookies.set('nickname', nickname, { path: '/', maxAge: 3600 });
-                this.props.cookies.set('userName', response.data.success.UserId, { path: '/', maxAge: 3600 });
-                this.props.cookies.set('userId', response.data.success.UserCookie, { path: '/', maxAge: 3600 });
-                this.props.cookies.set('SpotifySearchToken', response.data.success.SpotifySearchToken, { path: '/', maxAge: 3600 });
-                this.props.cookies.set('YoutubeSearchToken', response.data.success.YoutubeSearchToken, { path: '/', maxAge: 3600 });
+                this.props.cookies.set('userName', response.data.success.UserId, { path: '/', maxAge: 36000 });
+                this.props.cookies.set('userId', response.data.success.UserCookie, { path: '/', maxAge: 36000 });
+                this.props.cookies.set('SpotifySearchToken', response.data.success.SpotifySearchToken, { path: '/', maxAge: 36000 });
+                this.props.cookies.set('YoutubeSearchToken', response.data.success.YoutubeSearchToken, { path: '/', maxAge: 36000 });
                 this.props.cookies.set('roomId', this.state.roomCode, { path: '/', maxAge: 3600 });
                 this.props.history.push('/' + this.state.roomCode);
             } else {
@@ -83,11 +83,11 @@ class Home extends Component {
 
         console.log(response);
         if(response.status === 200){
-            this.props.cookies.set('MasterCookie', response.data.success.room.MasterCookie, { path: '/', maxAge: 3600 });
-            this.props.cookies.set('userId', response.data.success.room.MasterCookie, { path: '/', maxAge: 3600 });
-            this.props.cookies.set('SpotifySearchToken', response.data.success.room.SpotifySearchToken, { path: '/', maxAge: 3600 });
-            this.props.cookies.set('YoutubeSearchToken', response.data.success.room.YoutubeSearchToken, { path: '/', maxAge: 3600 });
-            this.props.cookies.set('roomId', response.data.success.room._id, { path: '/', maxAge: 3600 });
+            this.props.cookies.set('MasterCookie', response.data.success.room.MasterCookie, { path: '/', maxAge: 36000 });
+            this.props.cookies.set('userId', response.data.success.room.MasterCookie, { path: '/', maxAge: 36000 });
+            this.props.cookies.set('SpotifySearchToken', response.data.success.room.SpotifySearchToken, { path: '/', maxAge: 36000 });
+            this.props.cookies.set('YoutubeSearchToken', response.data.success.room.YoutubeSearchToken, { path: '/', maxAge: 36000 });
+            this.props.cookies.set('roomId', response.data.success.room._id, { path: '/', maxAge: 36000 });
             this.props.history.push('master/' + response.data.success.room._id);
         }else{
             alert("Could not create room");
