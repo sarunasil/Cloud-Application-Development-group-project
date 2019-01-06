@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import SpotifyWebApi from 'spotify-web-api-node';
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 var spotifyApi = new SpotifyWebApi({
     clientId: '1811c9058bad498b8d829cd37564fdc6'
@@ -120,12 +121,14 @@ class SpotifyPlayer extends Component {
                 {this.props.songUri ?
                     <div>
                         <h3>Playing: {this.props.songName}</h3>
-                        <button onClick={this.back}>Back 10 sec</button>
-                        <button onClick={this.pause}>Pause</button>
-                        <button onClick={this.resume}>Resume</button>
-                        <button onClick={this.next}>Next</button>
-                        <button onClick={this.forward}>Forward 10 sec</button>
-                    </div> :
+                        <div className="btn-group" role="group">
+                            <button onClick={this.back} className="btn btn-info"><FontAwesomeIcon icon="backward"/></button>
+                            <button onClick={this.pause} className="btn btn-secondary"><FontAwesomeIcon icon="pause"/></button>
+                            <button onClick={this.resume} className="btn btn-secondary"><FontAwesomeIcon icon="play"/></button>
+                            <button onClick={this.forward} className="btn btn-info"><FontAwesomeIcon icon="forward"/></button>
+                            <button onClick={this.next} className="btn btn-success" ><FontAwesomeIcon icon="step-forward"/></button>
+                        </div>
+                            </div> :
                     <div></div>}
             </div>
         )

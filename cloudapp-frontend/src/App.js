@@ -16,7 +16,18 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { faThumbsUp} from '@fortawesome/free-solid-svg-icons'
 import { faThumbsDown} from '@fortawesome/free-solid-svg-icons'
 import {faSyncAlt} from  '@fortawesome/free-solid-svg-icons'
+import {faForward} from '@fortawesome/free-solid-svg-icons'
+import {faBackward} from '@fortawesome/free-solid-svg-icons'
+import {faPause} from '@fortawesome/free-solid-svg-icons'
+import {faStepForward} from '@fortawesome/free-solid-svg-icons'
+import {faPlay} from '@fortawesome/free-solid-svg-icons'
 
+
+library.add(faForward)
+library.add(faBackward)
+library.add(faPause)
+library.add(faStepForward)
+library.add(faPlay)
 library.add(faThumbsDown)
 library.add(faSyncAlt)
 library.add(faThumbsUp)
