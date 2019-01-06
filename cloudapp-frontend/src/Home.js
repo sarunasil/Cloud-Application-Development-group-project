@@ -42,9 +42,10 @@ class Home extends Component {
                 console.log(error);
             });
 
-        const nickname = await api.get(testId + this.state.roomCode + "/nickname", "");
-        console.log(nickname);
-        if(nickname.status === 200){
+        const nicknameResponce = await api.get(testId + this.state.roomCode + "/nickname", "");
+        console.log("nickname");
+        if(nicknameResponce.status === 200){
+            var nickname = nicknameResponce.data.success["nickname"];
             const link = testId + this.state.roomCode;
             const dataToSend = {
                 IP: ip,
@@ -54,12 +55,16 @@ class Home extends Component {
             const response = await api.post(link, "", dataToSend);
             if(response.status === 200){
                 console.log(response);
+                console.log("Nickname, ", nickname);
+                this.props.cookies.set('nickname', nickname, { path: '/', maxAge: 3600 });
                 this.props.cookies.set('userName', response.data.success.UserId, { path: '/', maxAge: 3600 });
                 this.props.cookies.set('userId', response.data.success.UserCookie, { path: '/', maxAge: 3600 });
                 this.props.cookies.set('SpotifySearchToken', response.data.success.SpotifySearchToken, { path: '/', maxAge: 3600 });
                 this.props.cookies.set('YoutubeSearchToken', response.data.success.YoutubeSearchToken, { path: '/', maxAge: 3600 });
                 this.props.cookies.set('roomId', this.state.roomCode, { path: '/', maxAge: 3600 });
                 this.props.history.push('/' + this.state.roomCode);
+            } else {
+                alert("Such Room Does not exist or you may have been blocked from it!");
             }
             // const response = await axios.post(
             //     'http://127.0.0.1:5000/' + room,

@@ -99,7 +99,7 @@ class PeasantRoom extends Component {
                 <div className="row">
                     <div className="col">
                         <nav className="navbar navbar-dark bg-dark justify-content-between">
-                            <a className="navbar-brand" style={{color:"white"}}>This is peasant</a>
+                            <a className="navbar-brand" style={{color:"white"}}>{"Your nickname is: " + this.props.cookies.get("nickname")}</a>
                             <form className="form-inline" onSubmit={this.handleSubmit}>
                                 <input className="form-control mr-sm-2" type="search" placeholder="Look up song"
                                        aria-label="Search" value={this.state.query} onChange={this.setQuery} style={{ width:"300px" }}></input>

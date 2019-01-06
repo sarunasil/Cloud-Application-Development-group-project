@@ -72,7 +72,7 @@ class MasterRoom extends Component {
         this.saveIP();
 
         //TODO: Uncommnet to populate table with users
-        //this.updateUsersTable();
+        this.updateUsersTable();
 
         if(this.props.cookies.get('accessToken')){
             spotifyApi.setAccessToken(this.props.cookies.get('accessToken'));
@@ -146,7 +146,7 @@ class MasterRoom extends Component {
         this.setState({queue: newQueue});
 
          //TODO: Uncomment to update the users table as well
-         //this.updateUsersTable();
+         this.updateUsersTable();
 
 
         if(this.state.currentlyPlaying == false){
@@ -349,12 +349,18 @@ class MasterRoom extends Component {
         console.log("Get-all members API Users", usersList);
 
         for (var id in usersList){
-            console.log("Current id", id)
+            console.log("Current id", id);
+
             var currentNickname = usersList[id]["nickname"];
+            console.log("Current Nickname", currentNickname);
             if(currentNickname != "Master") {
+                // var realNickname = currentNickname.data.success.nickname;
+                console.log("Real Nickname", currentNickname);
                 users.push(currentNickname);
             }
         }
+
+        console.log("users, ", users);
 
         this.setState({
             users: users
@@ -369,7 +375,7 @@ class MasterRoom extends Component {
                 <div className="row">
                     <div className="col">
                         <nav className="navbar navbar-dark bg-dark justify-content-between">
-                            <a className="navbar-brand" style={{color:"white"}}>This is master</a>
+                            <a className="navbar-brand" style={{color:"white"}}>You are the host</a>
                             <form className="form-inline" onSubmit={this.handleSubmit}>
                                 <input className="form-control mr-sm-2" type="search" placeholder="Look up song"
                                        aria-label="Search" value={this.state.query} onChange={this.setQuery} style={{ width:"300px" }}></input>
