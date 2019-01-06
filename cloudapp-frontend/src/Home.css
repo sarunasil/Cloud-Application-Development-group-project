@@ -6,7 +6,6 @@ body {
 
 .logo {
     font-size: 50px;
-    width: 800px;
     margin: auto;
     font-family: "Open Sans";
     color: #eee;
@@ -39,7 +38,5 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-
-    margin: auto;
 }
 
