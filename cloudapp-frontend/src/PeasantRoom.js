@@ -36,7 +36,6 @@ class PeasantRoom extends Component {
         console.log(this.state.roomCode);
         console.log(window.location.href.lastIndexOf("/", 0));
 
-        this.getTokensAndInfo();
         timerId = setInterval(() => this.updateStateForServer('tick'), 3000);
 
 
@@ -86,10 +85,10 @@ class PeasantRoom extends Component {
         }
     }
 
-    componentDidMount(){
+    async componentDidMount(){
         // Obtains the user IP and adds it to the cookie
         this.saveIP();
-
+        await this.getTokensAndInfo();
         //TODO: use roomId to retrieve data : queue, search/access token for spotify/YT
         this.updateStateForServer();
     }
