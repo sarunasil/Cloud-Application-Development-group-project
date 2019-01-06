@@ -22,7 +22,9 @@ class Home extends Component {
     }
 
     join = async () => {
+        this.props.history.push('/' + this.state.roomCode);
 
+        /*
         //TODO: What is missing: get the room code and somehow link it to the roomID?
         //map code to room ID
         //return ID and redirect to it
@@ -62,7 +64,6 @@ class Home extends Component {
                 this.props.cookies.set('SpotifySearchToken', response.data.success.SpotifySearchToken, { path: '/', maxAge: 36000 });
                 this.props.cookies.set('YoutubeSearchToken', response.data.success.YoutubeSearchToken, { path: '/', maxAge: 36000 });
                 this.props.cookies.set('roomId', this.state.roomCode, { path: '/', maxAge: 3600 });
-                this.props.history.push('/' + this.state.roomCode);
             } else {
                 alert("Such Room Does not exist or you may have been blocked from it!");
             }
@@ -74,6 +75,7 @@ class Home extends Component {
         } else{
             alert("Could not retreive nickname");
         }
+        */
     }
 
     create = async () => {

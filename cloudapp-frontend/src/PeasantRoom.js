@@ -13,7 +13,8 @@ const testId = 'https://cloud-app-dev-227512.appspot.com/';
 
 class PeasantRoom extends Component {
     constructor(props) {
-        super(props);
+        super(props)
+        var roomLink = window.location.href.substring(window.location.href.lastIndexOf("/") + 1);
         this.state = {
             query: '',
             queue: [],
@@ -26,13 +27,62 @@ class PeasantRoom extends Component {
                 score: 0
 
             },
-            songsPlayed: 0
+            songsPlayed: 0,
+            roomCode : roomLink
         };
         this.child = React.createRef();
+        console.log("aaaa");
+        console.log(this.state.roomCode);
+        console.log(window.location.href.lastIndexOf("/", 0));
 
+        this.getTokensAndInfo();
         let timerId = setInterval(() => this.updateStateForServer('tick'), 3000);
 
 
+    }
+
+    async getTokensAndInfo(){
+        var ip = await publicIP()
+            .then(ip => {
+                console.log("User IP: ", ip);
+                return ip;
+            })
+            .catch(error => {
+                console.log(error);
+            });
+
+        const nicknameResponse = await api.get(testId + this.state.roomCode + "/nickname", "");
+        console.log("nickname");
+        if(nicknameResponse.status === 200){
+            var nickname = nicknameResponse.data.success["nickname"];
+            const link = testId + this.state.roomCode;
+            const dataToSend = {
+                IP: ip,
+                nickname : nickname
+            }
+            console.log("aaa");
+            const response = await api.post(link, "", dataToSend);
+            if(response.status === 200){
+                console.log(response);
+                console.log("Nickname, ", nickname);
+                this.props.cookies.set('nickname', nickname, { path: '/', maxAge: 3600 });
+                this.props.cookies.set('userName', response.data.success.UserId, { path: '/', maxAge: 36000 });
+                this.props.cookies.set('userId', response.data.success.UserCookie, { path: '/', maxAge: 36000 });
+                this.props.cookies.set('SpotifySearchToken', response.data.success.SpotifySearchToken, { path: '/', maxAge: 36000 });
+                this.props.cookies.set('YoutubeSearchToken', response.data.success.YoutubeSearchToken, { path: '/', maxAge: 36000 });
+                this.props.cookies.set('roomId', this.state.roomCode, { path: '/', maxAge: 3600 });
+                //this.props.history.push('/' + this.state.roomCode);
+            } else {
+                alert("Such Room Does not exist or you may have been blocked from it!");
+            }
+            // const response = await axios.post(
+            //     'http://127.0.0.1:5000/' + room,
+
+
+            console.log(this.state.roomCode);
+        } else{
+            alert("Could not retreive nickname");
+        }
     }
 
     componentDidMount(){
@@ -78,7 +128,7 @@ class PeasantRoom extends Component {
         }
         var url = testId + this.props.cookies.get('roomId')+ '/pending-songs';
         const response = await api.get(url, this.props.cookies.get('userId'));
-        console.log(response);
+        //console.log(response);
         var newQueue =  response.data.success.queue;
         this.setState({queue: newQueue});
     }
