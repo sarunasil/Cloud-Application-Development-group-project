@@ -3,3 +3,43 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
 }
+
+.logo {
+    font-size: 50px;
+    width: 800px;
+    margin: auto;
+    font-family: "Open Sans";
+    color: #eee;
+    line-height: 60px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 3px 5px rgba(0,0,0,0.3);
+}
+
+.search-bar {
+    border: 0;
+    width: 300px;
+    margin-top: 25px;
+    padding-left: 5px;
+    display: inline-block;
+    height: 34px;
+    font-family: "Open Sans";
+    font-size: "20pt";
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.Home {
+    position: absolute;
+    top:30%;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    margin: auto;
+}
+

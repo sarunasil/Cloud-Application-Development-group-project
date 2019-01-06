@@ -101,14 +101,14 @@ class Home extends Component {
     render() {
         return (
             <div className="Home">
-                <h1 style={{"color": "lightblue"}}>NQMe: Play your music</h1>
+                <h1 className="logo">NQMe: Play your music</h1>
 
-                <div>
-                    <Input style={{"display": "inline-block", "margin-top": "100px"}} placeholder='Enter room code' onChange={this.handleChange}/>
-                    <Button style={{"margin-left": "15px", "margin-right": "10px", "margin-top": "0px", "display": "inline-block"}} bsStyle="info" onClick={this.join}>Join Room</Button>
+                <input className="search-bar" type="search" placeholder='Enter room code' onChange={this.handleChange}/>
+                <div  style={{"marginTop": "10px"}}>
+                    <Button style={{"marginRight": "10px"}} bsStyle="info" onClick={this.join}>Join Room</Button>
+                    <Button bsStyle="success" onClick={this.create}>Create Room</Button>
                 </div>
-
-                <Button style={{"margin-top": "30px"}}bsStyle="success" onClick={this.create}>Create Room</Button>
+                
             </div>
         );
     }
