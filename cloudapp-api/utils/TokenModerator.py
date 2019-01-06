@@ -19,7 +19,7 @@ class TokenModerator:
     # TODO i set them it should work hopefully
     # if redirect_uri does not match one in frontend AUTH TOKEN WILL FAIL
     # redirect_uri = "http://localhost:3000/callback"
-    redirect_uri = "http://cad-nqme.s3-website.eu-west-2.amazonaws.com/callback"
+    # redirect_uri = "http://cad-nqme.s3-website.eu-west-2.amazonaws.com/callback"
     scopes = "user-read-private"
 
     concat = config.TOKEN_KEYS['CLIENT_ID'] + ":" + config.TOKEN_KEYS['CLIENT_SECRET']
@@ -54,13 +54,13 @@ class TokenModerator:
     # params: code - string that is generated when a user accepts spotify terms and conditions in the url
     # return user authentication token
     @staticmethod
-    def get_auth_token(code):
+    def get_auth_token(code, redirect_url):
         headers = {
             'content-type': 'application/x-www-form-urlencoded',
             'Authorization': 'Basic ' + TokenModerator.decoded_bytes
         }
         try:
-            payload = {'grant_type': 'authorization_code', 'code': code, 'redirect_uri': TokenModerator.redirect_uri}
+            payload = {'grant_type': 'authorization_code', 'code': code, 'redirect_uri': redirect_url}
             spotify_res = requests.post(TokenModerator.spotify_token_endpoint, headers=headers, data=payload)
             print("SPOTIFY RESPONCE: ",spotify_res)
             spotify_res = json.loads(spotify_res.text)

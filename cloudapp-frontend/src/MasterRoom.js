@@ -64,9 +64,9 @@ class MasterRoom extends Component {
         this.playSong= this.playSong.bind(this);
         this.removeSong = this.removeSong.bind(this);
         //TODO: will become our domain name
-        //spotifyApi.setRedirectURI('http://localhost:3000/callback');
+        spotifyApi.setRedirectURI('http://localhost:3000/callback');
 
-        spotifyApi.setRedirectURI('http://cad-nqme.s3-website.eu-west-2.amazonaws.com/callback');
+        // spotifyApi.setRedirectURI('http://cad-nqme.s3-website.eu-west-2.amazonaws.com/callback');
 
     }
 
