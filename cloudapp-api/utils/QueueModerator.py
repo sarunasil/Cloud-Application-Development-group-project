@@ -165,3 +165,11 @@ class QueueModerator:
         history = DBUtils.get_played_songs(room_number)
         history = QueueModerator.decrypt_urls(history)
         return history
+
+    @staticmethod
+    def get_currently_playing(room_number):
+        try:
+            currently_playing = DBUtils.get_currently_playing(room_number)
+            return True, currently_playing
+        except:
+            return False, None

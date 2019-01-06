@@ -339,6 +339,30 @@ def upvote_song(room_number):
             'queue': queue
         })
 
+@app.route('/<room_number>/currently-playing', methods=['GET'])
+@MiddlewareUtils.valid_user
+def get_currently_playing(room_number):
+    """
+    :param room_number: room id
+    :authorization_headers: {
+        "Authorization": "USER_ID FROM COOKIE"
+    }
+    :return: the song that is playing at the moment
+    """
+
+    result, currently_playing = Router.get_currently_playing(room_number)
+
+    if result:
+        return Response.responseSuccess({
+            'message': 'Currently playing song successfully retreived',
+            'url': currently_playing['url'],
+            'name': currently_playing['name']
+        })
+    else:
+        return Response.responseFailure({
+            'message': 'Unable to retrieve currently playing song',
+        })
+
 @app.route('/<room_number>/unvote', methods=['POST'])
 @MiddlewareUtils.valid_user
 def unvote_song(room_number):
