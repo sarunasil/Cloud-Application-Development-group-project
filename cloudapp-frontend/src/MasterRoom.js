@@ -193,7 +193,6 @@ class MasterRoom extends Component {
             linkToSend = testId + this.props.cookies.get('roomId') + '/dequeue-song';
         }else{
             linkToSend = testId + this.props.cookies.get('roomId') + '/remove-song';
-
         }
         const data = {
             name : this.state.queue[songNumberInQueue].name,

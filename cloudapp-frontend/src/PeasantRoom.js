@@ -36,7 +36,6 @@ class PeasantRoom extends Component {
         console.log(this.state.roomCode);
         console.log(window.location.href.lastIndexOf("/", 0));
 
-        timerId = setInterval(() => this.updateStateForServer('tick'), 3000);
 
 
     }
@@ -90,8 +89,9 @@ class PeasantRoom extends Component {
         if(!this.props.cookies.get('nickname')) {
             await this.getTokensAndInfo();
         }
-        //TODO: use roomId to retrieve data : queue, search/access token for spotify/YT
         this.updateStateForServer();
+        timerId = setInterval(() => this.updateStateForServer('tick'), 3000);
+        //TODO: use roomId to retrieve data : queue, search/access token for spotify/YT
     }
 
     saveIP = () => {
