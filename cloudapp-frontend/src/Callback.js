@@ -21,9 +21,10 @@ class Callback  extends Component {
             redirect_url : "http://localhost:3000/callback"
         };
 
-        // const response = await api.post('https://cloud-app-dev-227512.appspot.com/spotify', this.props.cookies.get('MasterCookie'), toSend);
+         //const response = await api.post('https://cloud-app-dev-227512.appspot.com/spotify', this.props.cookies.get('MasterCookie'), toSend);
         const response = await api.postNoCookie('https://cloud-app-dev-227512.appspot.com/spotify', toSend);
-        console.log(response);
+
+        console.log("Muie",response);
 
         this.props.cookies.set('accessToken', response.data.success.auth, { path: '/', maxAge: 36000 });
         //console.log(this.props.cookies.get('accessToken'));
