@@ -23,7 +23,7 @@ class Callback  extends Component {
         const response = await api.post('https://cloud-app-dev-227512.appspot.com/spotify', this.props.cookies.get('MasterCookie'), toSend);
         console.log(response);
 
-        this.props.cookies.set('accessToken', response.data.success.auth, { path: '/', maxAge: 3600 });
+        this.props.cookies.set('accessToken', response.data.success.auth, { path: '/', maxAge: 36000 });
         //console.log(this.props.cookies.get('accessToken'));
         this.props.history.push('/master/'+room);
     }
