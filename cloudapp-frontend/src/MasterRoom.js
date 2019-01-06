@@ -200,12 +200,6 @@ class MasterRoom extends Component {
             queue: this.state.queue.slice(0, songNumberInQueue).concat(
                 this.state.queue.slice(songNumberInQueue+1, this.state.queue.length))
         });
-        // Now we have to remove the song from the queue from the server
-        // API.delete("/id/songLink", body should contain the position of the song = songNumberInQueue)
-
-
-
-
     }
 
     _onEnd = async event => {
@@ -454,6 +448,7 @@ class MasterRoom extends Component {
                     songUri={this.state.currentSong.url}
                     songName={this.state.currentSong.name}
                     next={this._onEnd}
+
                 />
                 }
 

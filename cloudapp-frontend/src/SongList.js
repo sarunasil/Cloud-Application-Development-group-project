@@ -36,6 +36,23 @@ class SongList  extends Component {
         //no need to update state, it will update itself every 2 seconds anyway
     }
 
+    removeSong = async (songNumberInQueue) => {
+        const linkToSend = testId + this.props.cookies.get('roomId') + '/dequeue-song';
+        const data = {
+            name : this.state.queue[songNumberInQueue].name,
+            url : this.state.queue[songNumberInQueue].url
+        }
+
+        const response = await api.post(linkToSend, this.props.cookies.get('MasterCookie'), data);
+
+        this.setState({
+            queue: this.state.queue.slice(0, songNumberInQueue).concat(
+                this.state.queue.slice(songNumberInQueue+1, this.state.queue.length))
+        });
+    }
+
+
+
     render() {
 
         return (
@@ -49,6 +66,7 @@ class SongList  extends Component {
 
     renderSongList(){
         console.log(this.props.queue);
+        console.log(this.props.cookies.get('userId'));
         return this.props.queue.map(
             (song, i) =>
                 <li className="list-group-item" key = {i} style={{border:"0"}}>
@@ -61,6 +79,7 @@ class SongList  extends Component {
                     <span> </span>
                     {song.name}
                     <span> </span> Votes: {song.score}
+                    <span> </span> Added by: {song.nickname === "master" ? "master" : song.nickname.data.success.nickname}
                     <span> </span>
                     <div className="float-right">
                         <div className="btn-group" role="group">
@@ -71,7 +90,9 @@ class SongList  extends Component {
                             {this.props.remove ?
                             <button type="button" className="btn btn-danger" onClick={() => this.props.remove(i)}>
                                 <FontAwesomeIcon icon="trash-alt"/></button> :
-                                <div></div>}
+                                song.userId === this.props.cookies.get('userName') &&
+                                <button type="button" className="btn btn-danger" onClick={() => this.remove(i)}>
+                                    <FontAwesomeIcon icon="trash-alt"/></button>}
 
                                 <button type="button" className="btn btn-info" onClick={() => this.like(i)}>
                                     <FontAwesomeIcon icon="thumbs-up"/></button>
@@ -84,7 +105,8 @@ class SongList  extends Component {
                     </div>
 
                 </li>
-        );}
+        );
+    }
 }
 
 export default SongList;

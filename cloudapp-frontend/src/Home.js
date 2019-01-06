@@ -52,12 +52,12 @@ class Home extends Component {
             const response = await api.post(link, "", dataToSend);
             if(response.status === 200){
                 console.log(response);
-                this.props.cookies.set('userName', response.data.success.room.UserId, { path: '/', maxAge: 3600 });
-                this.props.cookies.set('userId', response.data.success.room.UserCookie, { path: '/', maxAge: 3600 });
-                this.props.cookies.set('SpotifySearchToken', response.data.success.room.SpotifySearchToken, { path: '/', maxAge: 3600 });
-                this.props.cookies.set('YoutubeSearchToken', response.data.success.room.YoutubeSearchToken, { path: '/', maxAge: 3600 });
-                this.props.cookies.set('roomId', response.data.success.room._id, { path: '/', maxAge: 3600 });
-                this.props.history.push('/' + response.data.success.roomId);
+                this.props.cookies.set('userName', response.data.success.UserId, { path: '/', maxAge: 3600 });
+                this.props.cookies.set('userId', response.data.success.UserCookie, { path: '/', maxAge: 3600 });
+                this.props.cookies.set('SpotifySearchToken', response.data.success.SpotifySearchToken, { path: '/', maxAge: 3600 });
+                this.props.cookies.set('YoutubeSearchToken', response.data.success.YoutubeSearchToken, { path: '/', maxAge: 3600 });
+                this.props.cookies.set('roomId', this.state.roomCode, { path: '/', maxAge: 3600 });
+                this.props.history.push('/' + this.state.roomCode);
             }
             // const response = await axios.post(
             //     'http://127.0.0.1:5000/' + room,

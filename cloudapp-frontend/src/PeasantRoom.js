@@ -7,8 +7,9 @@ import publicIP from "react-native-public-ip";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import SongList from "./SongList";
 import Search from "./Search";
+import api from './api.js'
 
-
+const testId = 'https://cloud-app-dev-227512.appspot.com/';
 
 class PeasantRoom extends Component {
     constructor(props) {
@@ -19,17 +20,17 @@ class PeasantRoom extends Component {
             currentlyPlaying : false,
             currentSong: {
                 name : "",
-                link : "",
+                url : "",
                 time : "",
                 type : "",
-                votes: "0"
+                score: 0
 
             },
             songsPlayed: 0
         };
         this.child = React.createRef();
 
-        //let timerId = setInterval(() => this.updateStateForServer('tick'), 2000);
+        let timerId = setInterval(() => this.updateStateForServer('tick'), 3000);
 
 
     }
@@ -55,7 +56,7 @@ class PeasantRoom extends Component {
             })
     }
 
-    updateStateForServer() {
+    async updateStateForServer() {
         // this function periodically updates the queue from the server
         // the server should send be a json like
         // we could only send the changes and, from time to time, send the full state, but for now we should keep this simple
@@ -63,23 +64,23 @@ class PeasantRoom extends Component {
             queue: [
                 {
                     name : "Song 1",
-                    link : "spotify:track:2SL6oP2YAEQbqsrkOzRGO4",
+                    url : "spotify:track:2SL6oP2YAEQbqsrkOzRGO4",
                     time: "150", // time in seconds
-                    votes: "0"
+                    score: 0
                 },
                 {
                     name : "Song 2",
-                    link : "2g811Eo7K8U",
+                    url : "2g811Eo7K8U",
                     time: "150", // time in seconds
-                    votes: "0"
+                    score: 0
                 }
             ]
         }
-        var cnt ;
-        //newState = API.get(this.roomId, emptyBody)
-
-        this.setState(newState);
-
+        var url = testId + this.props.cookies.get('roomId')+ '/pending-songs';
+        const response = await api.get(url, this.props.cookies.get('userId'));
+        console.log(response);
+        var newQueue =  response.data.success.queue;
+        this.setState({queue: newQueue});
     }
 
     setQuery = (e) => {
@@ -117,17 +118,18 @@ class PeasantRoom extends Component {
                 </div>
                 <div className="row">
                     <div className="col-4">
-                        <SongList queue={this.state.queue}/>
+                        <SongList queue={this.state.queue} cookies={this.props.cookies}/>
                     </div>
                     <div className="col-8">
                         <ul className="list-group" style={{align:"left"}}>
-                            <Search ref={this.child} />
+                            <Search ref={this.child} cookies={this.props.cookies}/>
                         </ul>
                     </div>
                 </div>
             </div>
         );
     }
+    //
 
 }
 
