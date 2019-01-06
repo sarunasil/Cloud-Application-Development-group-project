@@ -95,9 +95,13 @@ class Home extends Component {
         return (
             <div className="Home">
                 <h1 style={{"color": "lightblue"}}>NQMe: Play your music</h1>
-                <Input placeholder='Enter room code' onChange={this.handleChange}/>
-                <Button style={{"margin-right": "10px", "margin-top": "10px"}} bsStyle="info" onClick={this.join}>Join</Button>
-                <Button style={{"margin-top": "10px"}}bsStyle="success" onClick={this.create}>Create</Button>
+
+                <div>
+                    <Input style={{"display": "inline-block", "margin-top": "100px"}} placeholder='Enter room code' onChange={this.handleChange}/>
+                    <Button style={{"margin-left": "15px", "margin-right": "10px", "margin-top": "0px", "display": "inline-block"}} bsStyle="info" onClick={this.join}>Join Room</Button>
+                </div>
+
+                <Button style={{"margin-top": "30px"}}bsStyle="success" onClick={this.create}>Create Room</Button>
             </div>
         );
     }
