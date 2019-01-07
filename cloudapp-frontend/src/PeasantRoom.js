@@ -132,8 +132,6 @@ class PeasantRoom extends Component {
         }
         var url = testId + this.props.cookies.get('roomId')+ '/pending-songs';
         const response = await api.get(url, this.props.cookies.get('userId'));
-        console.log("Update State Response *** ", response);
-        console.log("Failure test", );
         if(response.data.hasOwnProperty("failure")) {
             alert("You have been kicked or blocked!");
             clearInterval(timerId);
@@ -141,9 +139,11 @@ class PeasantRoom extends Component {
             return;
         }
 
-        //console.log(response);
+        var currentSong = await api.get(testId + this.props.cookies.get('roomId') + '/currently-playing', this.props.cookies.get('userId'))
         var newQueue =  response.data.success.queue;
-        this.setState({queue: newQueue});
+        this.setState({
+            queue: newQueue,
+            currentSong: {name: currentSong.data.success ? currentSong.data.success.name : ''}});
     }
 
     setQuery = (e) => {

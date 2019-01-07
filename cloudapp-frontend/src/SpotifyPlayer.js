@@ -53,15 +53,12 @@ class SpotifyPlayer extends Component {
 
         // Playback status updates
         this.player.on('player_state_changed', state => {
-            console.log(state);
             if(!state || (state.paused && state.position === 0)) this.props.next()
         });
 
         // Ready
         this.player.on('ready', data => {
             let { device_id } = data;
-            console.log("Device id");
-            console.log(device_id);
             this.setState({ deviceId: device_id });
         });
     }

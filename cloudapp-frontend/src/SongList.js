@@ -44,7 +44,6 @@ class SongList  extends Component {
         }
 
         const response = await api.post(linkToSend, this.props.cookies.get('userId'), data);
-        console.log(response);
         this.setState({
             queue: this.props.queue.slice(0, songNumberInQueue).concat(
                 this.props.queue.slice(songNumberInQueue+1, this.props.queue.length))

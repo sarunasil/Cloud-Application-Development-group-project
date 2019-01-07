@@ -14,8 +14,6 @@ class Callback  extends Component {
 
         const room = this.props.cookies.get('roomId');
         const code = queryString.parse(this.props.location.search, { ignoreQueryPrefix: true }).code;
-        console.log(room);
-        console.log(code);
         var toSend = {
             code : code,
             redirect_url : "http://localhost:3000/callback"

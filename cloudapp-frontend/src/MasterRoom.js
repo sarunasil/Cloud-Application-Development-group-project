@@ -4,12 +4,10 @@ import SpotifyWebApi from 'spotify-web-api-node';
 import './App.css';
 import SpotifyPlayer from './SpotifyPlayer';
 import YouTube from 'react-youtube';
-import { Table, Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Search from './Search'
 import publicIP from 'react-native-public-ip';
 import SongList from "./SongList";
-import axios from "axios/index";
 import api from './api.js';
 
 const testId = 'https://cloud-app-dev-227512.appspot.com/';
@@ -22,12 +20,7 @@ var spotifyApi = new SpotifyWebApi({
     clientId: clientId
 });
 
-const size = {
-    width: '100%',
-    height: '390',
-};
-const view = 'list'; // or 'coverart'
-const theme = 'black'; // or 'white'
+
 const youtubeOptions = {
     height: '500',
     width: '100%',
@@ -56,7 +49,7 @@ class MasterRoom extends Component {
 
             },
             songsPlayed: 0,
-            users: ["Monkey", "Octopus", "Giraffe", "Rabbit", "Cat"]
+            users: []
         };
         this.child = React.createRef();
 
@@ -109,35 +102,7 @@ class MasterRoom extends Component {
         // this function periodically updates the queue from the server
         // the server should send be a json like
         // we could only send the changes and, from time to time, send the full state, but for now we should keep this simple
-        var newState = {
-            queue: [
-                // {
-                //     name : "Song 1",
-                //     link : "spotify:track:2SL6oP2YAEQbqsrkOzRGO4",
-                //     time: "150", // time in seconds
-                //     votes: "0"
-                // },
-                {
-                    name : "Song 2",
-                    url : "2g811Eo7K8U",
-                    time: "150", // time in seconds
-                    votes: "0"
-                },
 
-                {
-                    name : "Song 3",
-                    url : "spotify:track:47YfeZOuxkGsiFwY97ubRQ",
-                    time: "150", // time in seconds
-                    votes: "0"
-                },
-                {
-                    name : "Song 4",
-                    url : "3KL9mRus19o",
-                    time: "150", // time in seconds
-                    votes: "0"
-                }
-            ]
-        }
 
         var url = testId + this.props.cookies.get('roomId')+ '/pending-songs';
         const response = await api.get(url, this.props.cookies.get('userId'));
@@ -200,8 +165,6 @@ class MasterRoom extends Component {
         }
 
         const response = await api.post(linkToSend, this.props.cookies.get('MasterCookie'), data);
-        console.log("aaa");
-        console.log(response);
         this.setState({
             queue: this.state.queue.slice(0, songNumberInQueue).concat(
                 this.state.queue.slice(songNumberInQueue+1, this.state.queue.length))
@@ -341,7 +304,7 @@ class MasterRoom extends Component {
         //Calling API for all users
         var url = testId + this.props.cookies.get('roomId')+ '/get-members';
         const response = await api.post(url, this.props.cookies.get('MasterCookie'));
-
+        console.log(response)
         const usersList = response.data.success;
 
         for (var id in usersList){
