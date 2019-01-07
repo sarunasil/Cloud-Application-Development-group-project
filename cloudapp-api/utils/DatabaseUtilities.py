@@ -445,7 +445,6 @@ class DBUtils:
         result = DBUtils.get_fields(room_number, fields)
 
         currently_playing = None if 'currently_playing' not in result[0] else result[0]['currently_playing']
-        print("I got this out of the DB", currently_playing)
         return currently_playing
 
     @staticmethod
@@ -585,11 +584,12 @@ class DBUtils:
                 s.commit_transaction()
                 return False, None, ErrorMsg.NO_QUEUE # TODO change with appropriate return values
 
-            currently_playing = head
+            currently_playing = {'name':'No song right now'}
             # Pop from queue object
             song = {}
             if head in queue:
                 song[head] = queue[head]
+                currently_playing = {'name': queue[head]['name']}
                 del queue[head]
 
             if len(song[head].keys()) == 0:

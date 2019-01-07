@@ -352,10 +352,9 @@ def get_currently_playing(room_number):
 
     result, currently_playing = Router.get_currently_playing(room_number)
 
-    if result:
+    if result and 'name' in currently_playing:
         return Response.responseSuccess({
-            'message': 'Currently playing song successfully retreived',
-            'url': currently_playing['url'],
+            'message': 'Currently playing song successfully retrieved',
             'name': currently_playing['name']
         })
     else:
