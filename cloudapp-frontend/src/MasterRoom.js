@@ -376,8 +376,10 @@ class MasterRoom extends Component {
                                 </div>
                             </form>
 
-                            <div className="float-right"><button type="button" className="btn btn-success"  onClick={this.addSpotify}>Add<br/>
-                                Spotify</button>
+                            <div className="float-right">
+                                {!spotifyApi.getAccessToken() &&
+                                <button type="button" className="btn btn-success"  onClick={this.addSpotify}>Add<br/>
+                                Spotify</button>}
                                 <span> &nbsp;</span>
                                 <button className="btn btn-danger"onClick={this.handleDeleteRoom}>Delete <br/>room</button></div>
 
