@@ -141,7 +141,7 @@ class MasterRoom extends Component {
 
         var url = testId + this.props.cookies.get('roomId')+ '/pending-songs';
         const response = await api.get(url, this.props.cookies.get('userId'));
-        console.log(response);
+        //console.log(response);
         var newQueue =  response.data.success ? response.data.success.queue : [];
         this.setState({queue: newQueue});
 
@@ -230,6 +230,7 @@ class MasterRoom extends Component {
             MasterId: this.props.cookies.get('MasterCookie')
         };
         const response = await api.post(postLink,this.props.cookies.get('MasterCookie'), code);
+        this.props.history.push('/');
     }
 
     handleKick = async (e) => {
@@ -368,18 +369,21 @@ class MasterRoom extends Component {
                         <nav className="navbar navbar-dark bg-dark justify-content-between">
                             <a className="navbar-brand" style={{color:"white"}}>You are the host</a>
                             <form className="form-inline" onSubmit={this.handleSubmit}>
+                                <div className="navbar-form navbar-form-center">
                                 <input className="form-control mr-sm-2" type="search" placeholder="Look up song"
                                        aria-label="Search" value={this.state.query} onChange={this.setQuery} style={{ width:"300px" }}></input>
-                                <button className="btn btn-success" type="submit"><FontAwesomeIcon icon="search"/>
-                                </button>
-                                <span> &nbsp;</span>
-                               
-
-                                <span> &nbsp;</span><span> &nbsp;</span><span> &nbsp;</span>
-
-                                <div className="float-right"><button type="button" className="btn btn-success"  onClick={this.addSpotify}>Add<br/>
-                                    Spotify</button></div>
+                                <button className="btn btn-success" type="submit"><FontAwesomeIcon icon="search"/></button>
+                                </div>
                             </form>
+
+                            <div className="float-right">
+                                {!spotifyApi.getAccessToken() &&
+                                <button type="button" className="btn btn-success"  onClick={this.addSpotify}>Add<br/>
+                                Spotify</button>}
+                                <span> &nbsp;</span>
+                                <button className="btn btn-danger"onClick={this.handleDeleteRoom}>Delete <br/>room</button></div>
+
+
                         </nav>
                     </div>
                 </div>
@@ -402,6 +406,7 @@ class MasterRoom extends Component {
                         </ul>
                     </div>
                     <div className="col-3"> <div>
+
                             <ul className="list-group" style={{textAlign:"left"}}>
                                 {this.renderUsersTable()}
                             </ul>
